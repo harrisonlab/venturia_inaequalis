@@ -34,9 +34,57 @@ cd $ProjectDir
 Data was copied into this directory
 
 ```bash
-	mkdir -p raw_dna/paired/P.fragariae/ONT3/F
-mkdir -p raw_dna/paired/P.fragariae/ONT3/R
-RawDat=/home/groups/harrisonlab/raw_data/raw_seq/raw_reads/150716_M01678_0023_AB0YF
+	mkdir -p raw_dna/paired/v.inaequalis/049/F
+mkdir -p raw_dna/paired/v.inaequalis/049/R
+mkdir -p raw_dna/paired/v.inaequalis/057/F
+mkdir -p raw_dna/paired/v.inaequalis/057/R
+mkdir -p raw_dna/paired/v.inaequalis/098/F
+mkdir -p raw_dna/paired/v.inaequalis/098/R
+mkdir -p raw_dna/paired/v.inaequalis/119/F
+mkdir -p raw_dna/paired/v.inaequalis/119/R
+mkdir -p raw_dna/paired/v.inaequalis/199/F
+mkdir -p raw_dna/paired/v.inaequalis/199/R
+mkdir -p raw_dna/paired/v.inaequalis/007/F
+mkdir -p raw_dna/paired/v.inaequalis/007/R
+mkdir -p raw_dna/paired/v.inaequalis/044/F
+mkdir -p raw_dna/paired/v.inaequalis/044/R
+mkdir -p raw_dna/paired/v.inaequalis/083/F
+mkdir -p raw_dna/paired/v.inaequalis/083/R
+mkdir -p raw_dna/paired/v.inaequalis/172/F
+mkdir -p raw_dna/paired/v.inaequalis/172/R
+mkdir -p raw_dna/paired/v.inaequalis/182/F
+mkdir -p raw_dna/paired/v.inaequalis/182/R
+mkdir -p raw_dna/paired/v.inaequalis/025/F
+mkdir -p raw_dna/paired/v.inaequalis/025/R
+mkdir -p raw_dna/paired/v.inaequalis/096/F
+mkdir -p raw_dna/paired/v.inaequalis/096/R
+mkdir -p raw_dna/paired/v.inaequalis/118/F
+mkdir -p raw_dna/paired/v.inaequalis/118/R
+mkdir -p raw_dna/paired/v.inaequalis/196/F
+mkdir -p raw_dna/paired/v.inaequalis/196/R
+mkdir -p raw_dna/paired/v.inaequalis/202/F
+mkdir -p raw_dna/paired/v.inaequalis/202/R
+mkdir -p raw_dna/paired/v.inaequalis/024/F
+mkdir -p raw_dna/paired/v.inaequalis/024/R
+mkdir -p raw_dna/paired/v.inaequalis/030/F
+mkdir -p raw_dna/paired/v.inaequalis/030/R
+mkdir -p raw_dna/paired/v.inaequalis/101/F
+mkdir -p raw_dna/paired/v.inaequalis/101/R
+mkdir -p raw_dna/paired/v.inaequalis/106/F
+mkdir -p raw_dna/paired/v.inaequalis/106/R
+mkdir -p raw_dna/paired/v.inaequalis/197/F
+mkdir -p raw_dna/paired/v.inaequalis/197/R
+mkdir -p raw_dna/paired/v.inaequalis/036/F
+mkdir -p raw_dna/paired/v.inaequalis/036/R
+mkdir -p raw_dna/paired/v.inaequalis/097/F
+mkdir -p raw_dna/paired/v.inaequalis/097/R
+mkdir -p raw_dna/paired/v.inaequalis/173/F
+mkdir -p raw_dna/paired/v.inaequalis/173/R
+mkdir -p raw_dna/paired/v.inaequalis/190/F
+mkdir -p raw_dna/paired/v.inaequalis/190/R
+mkdir -p raw_dna/paired/v.inaequalis/saturn/F
+mkdir -p raw_dna/paired/v.inaequalis/saturn/R
+RawDat=/home/groups/harrisonlab/raw_data/raw_seq/raw_reads/
 ```
 
 <!-- This process was repeated for RNAseq data:

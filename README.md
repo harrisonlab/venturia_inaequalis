@@ -84,34 +84,8 @@ mkdir -p raw_dna/paired/v.inaequalis/190/F
 mkdir -p raw_dna/paired/v.inaequalis/190/R
 mkdir -p raw_dna/paired/v.inaequalis/saturn/F
 mkdir -p raw_dna/paired/v.inaequalis/saturn/R
-RawDat=/home/groups/harrisonlab/raw_data/raw_seq/raw_reads/
+
 ```
-
-<!-- This process was repeated for RNAseq data:
-
-```bash
-	RawDatDir=/home/groups/harrisonlab/raw_data/raw_seq/fusarium/rna_seq
-	ProjectDir=/home/groups/harrisonlab/project_files/fusarium
-	mkdir -p $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_PDB/F
-	mkdir -p $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_PDB/R
-	mkdir -p $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_CzapekDox/F
-	mkdir -p $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_CzapekDox/R
-	mkdir -p $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_GlucosePeptone/F
-	mkdir -p $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_GlucosePeptone/R
-	mkdir -p $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_PDA/F
-	mkdir -p $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_PDA/R
-
-	cp $RawDatDir/4_S1_L001_R1_001.fastq.gz $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_PDB/F/.
-	cp $RawDatDir/4_S1_L001_R2_001.fastq.gz $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_PDB/R/.
-	cp $RawDatDir/6_S2_L001_R1_001.fastq.gz $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_CzapekDox/F/.
-	cp $RawDatDir/6_S2_L001_R2_001.fastq.gz $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_CzapekDox/R/.
-	cp $RawDatDir/7_S3_L001_R1_001.fastq.gz $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_GlucosePeptone/F/.
-	cp $RawDatDir/7_S3_L001_R2_001.fastq.gz $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_GlucosePeptone/R/.
-	cp $RawDatDir/9_S4_L001_R1_001.fastq.gz $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_PDA/F/.
-	cp $RawDatDir/9_S4_L001_R2_001.fastq.gz $ProjectDir/raw_rna/paired/F.oxysporum_fsp_cepae/Fus2_PDA/R/.
-```
-
-
 
 #Data qc
 
@@ -123,74 +97,38 @@ programs:
 Data quality was visualised using fastqc:
 ```bash
 	for RawData in $(ls raw_dna/paired/*/*/*/*.fastq.gz); do
-		ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/dna_qc
 		echo $RawData;
+		ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/dna_qc
 		qsub $ProgDir/run_fastqc.sh $RawData
 	done
 ```
 
+
+
 Trimming was performed on data to trim adapters from
 sequences and remove poor quality data. This was done with fastq-mcf
 
-Firstly, those strains with more than one run were identified:
+
+
+
+Trimming was performed on all isolates:
 
 ```bash
-	for Strain in $(ls -d raw_dna/paired/*/*); do
-	NumReads=$(ls $Strain/F/*.gz | wc -l);
-		if [ $NumReads -gt 1 ]; then
-			echo "$Strain";
-			echo "$NumReads";
-		fi;
-	done
-```
-
-```
-	raw_dna/paired/F.oxysporum_fsp_cepae/Fus2
-	2
-	raw_dna/paired/F.oxysporum_fsp_cepae/HB6
-	2
-```
-
-Trimming was first performed on all strains that had a single run of data:
-
-```bash
-	for StrainPath in $(ls -d raw_dna/paired/*/* | grep -v -e 'Fus2' -e 'HB6'); do
-		ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/rna_qc
-		IlluminaAdapters=/home/armita/git_repos/emr_repos/tools/seq_tools/ncbi_adapters.fa
-		ReadsF=$(ls $StrainPath/F/*.fastq*)
-		ReadsR=$(ls $StrainPath/R/*.fastq*)
-		echo $ReadsF
-		echo $ReadsR
-		qsub $ProgDir/rna_qc_fastq-mcf.sh $ReadsF $ReadsR $IlluminaAdapters DNA
-	done
-```
-
-Trimming was then performed for strains with multiple runs of data
-
-```bash
-	ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/rna_qc
-	IlluminaAdapters=/home/armita/git_repos/emr_repos/tools/seq_tools/ncbi_adapters.fa
-	echo "Fus2"
-	StrainPath=raw_dna/paired/F.oxysporum_fsp_cepae/Fus2
-	ReadsF=$(ls $StrainPath/F/s_6_1_sequence.fastq.gz)
-	ReadsR=$(ls $StrainPath/R/s_6_2_sequence.fastq.gz)
-	qsub $ProgDir/rna_qc_fastq-mcf.sh $ReadsF $ReadsR $IlluminaAdapters DNA
-	StrainPath=raw_dna/paired/F.oxysporum_fsp_cepae/Fus2
-	ReadsF=$(ls $StrainPath/F/FUS2_S2_L001_R1_001.fastq.gz)
-	ReadsR=$(ls $StrainPath/R/FUS2_S2_L001_R2_001.fastq.gz)
-	qsub $ProgDir/rna_qc_fastq-mcf.sh $ReadsF $ReadsR $IlluminaAdapters DNA
-	echo "HB6"
-	StrainPath=raw_dna/paired/F.oxysporum_fsp_cepae/HB6
-	ReadsF=$(ls $StrainPath/F/HB6_S4_L001_R1_001.fastq.gz)
-	ReadsR=$(ls $StrainPath/R/HB6_S4_L001_R2_001.fastq.gz)
-	qsub $ProgDir/rna_qc_fastq-mcf.sh $ReadsF $ReadsR $IlluminaAdapters DNA
-	StrainPath=raw_dna/paired/F.oxysporum_fsp_cepae/HB6
-	ReadsF=$(ls $StrainPath/F/HB6_S5_L001_R1_001.fastq.gz)
-	ReadsR=$(ls $StrainPath/R/HB6_S5_L001_R2_001.fastq.gz)
-	qsub $ProgDir/rna_qc_fastq-mcf.sh $ReadsF $ReadsR $IlluminaAdapters DNA
+for StrainPath in $(ls -d raw_dna/paired/*/*); 
+do
+ProgDir=/home/passet/git_repos/tools/seq_tools/rna_qc
+IlluminaAdapters=/home/passet/git_repos/tools/seq_tools/ncbi_adapters.fa
+ReadsF=$(ls $StrainPath/F/*.fastq*)
+ReadsR=$(ls $StrainPath/R/*.fastq*)
+echo $ReadsF
+echo $ReadsR
+qsub $ProgDir/rna_qc_fastq-mcf.sh $ReadsF $ReadsR $IlluminaAdapters DNA
+done
 ```
 
 
+
+<!--
 Data quality was visualised once again following trimming:
 ```bash
 	for RawData in $(ls qc_dna/paired/*/*/*/*.fq.gz | grep 'FOP2'); do

@@ -114,30 +114,31 @@ sequences and remove poor quality data. This was done with fastq-mcf
 Trimming was performed on all isolates:
 
 ```bash
-for StrainPath in $(ls -d raw_dna/paired/*/*); 
-do
-ProgDir=/home/passet/git_repos/tools/seq_tools/rna_qc
-IlluminaAdapters=/home/passet/git_repos/tools/seq_tools/ncbi_adapters.fa
-ReadsF=$(ls $StrainPath/F/*.fastq*)
-ReadsR=$(ls $StrainPath/R/*.fastq*)
-echo $ReadsF
-echo $ReadsR
-qsub $ProgDir/rna_qc_fastq-mcf.sh $ReadsF $ReadsR $IlluminaAdapters DNA
-done
+	for StrainPath in $(ls -d raw_dna/paired/*/*); 
+		do
+		ProgDir=/home/passet/git_repos/tools/seq_tools/rna_qc
+		IlluminaAdapters=/home/passet/git_repos/tools/seq_tools/ncbi_adapters.fa
+		ReadsF=$(ls $StrainPath/F/*.fastq*)
+		ReadsR=$(ls $StrainPath/R/*.fastq*)
+		echo $ReadsF
+		echo $ReadsR
+		qsub $ProgDir/rna_qc_fastq-mcf.sh $ReadsF $ReadsR $IlluminaAdapters DNA
+	done
 ```
 
 
 
-<!--
+
 Data quality was visualised once again following trimming:
 ```bash
-	for RawData in $(ls qc_dna/paired/*/*/*/*.fq.gz | grep 'FOP2'); do
-		ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/dna_qc
+	for RawData in $(ls qc_dna/paired/*/*/*/*.fq.gz); do
+		ProgDir=/home/passet/git_repos/tools/seq_tools/dna_qc
 		echo $RawData;
 		qsub $ProgDir/run_fastqc.sh $RawData
 	done
 ```
 
+<!--
 kmer counting was performed using kmc
 This allowed estimation of sequencing depth and total genome size
 

@@ -164,7 +164,7 @@ commands:
 		cat $File | grep -e 'abundance' -e 'size'
 	done
 ```
-
+Results of kmer counting (numbers in brackets indicate estimated kmer coverage from histogram)
 '''
 The estimated genome size is:  64158121
 024_true_kmer_summary.txt
@@ -177,10 +177,10 @@ The estimated genome size is:  69351314
 The mode kmer abundance is:  24
 The estimated genome size is:  64520872
 036_true_kmer_summary.txt
-The mode kmer abundance is:  5
+The mode kmer abundance is:  5 
 The estimated genome size is:  35589866
 044_true_kmer_summary.txt
-The mode kmer abundance is:  5
+The mode kmer abundance is:  5 (30)
 The estimated genome size is:  452258529
 049_true_kmer_summary.txt
 The mode kmer abundance is:  34
@@ -192,13 +192,13 @@ The estimated genome size is:  265385077
 The mode kmer abundance is:  25
 The estimated genome size is:  61502122
 096_true_kmer_summary.txt
-The mode kmer abundance is:  5
+The mode kmer abundance is:  5 (20)
 The estimated genome size is:  348646667
 097_true_kmer_summary.txt
 The mode kmer abundance is:  22
 The estimated genome size is:  63868207
 098_true_kmer_summary.txt
-The mode kmer abundance is:  5
+The mode kmer abundance is:  5 (40)
 The estimated genome size is:  495964379
 101_true_kmer_summary.txt
 The mode kmer abundance is:  33
@@ -216,13 +216,13 @@ The estimated genome size is:  58479942
 The mode kmer abundance is:  24
 The estimated genome size is:  63294175
 173_true_kmer_summary.txt
-The mode kmer abundance is:  5
+The mode kmer abundance is:  5 (35)
 The estimated genome size is:  437136955
 182_true_kmer_summary.txt
 The mode kmer abundance is:  32
 The estimated genome size is:  62170328
 190_true_kmer_summary.txt
-The mode kmer abundance is:  5
+The mode kmer abundance is:  5 (20)
 The estimated genome size is:  309277674
 196_true_kmer_summary.txt
 The mode kmer abundance is:  28
@@ -231,53 +231,56 @@ The estimated genome size is:  59732382
 The mode kmer abundance is:  28
 The estimated genome size is:  61229552
 199_true_kmer_summary.txt
-The mode kmer abundance is:  5
+The mode kmer abundance is:  5 (40)
 The estimated genome size is:  520820360
 202_true_kmer_summary.txt
 The mode kmer abundance is:  32
 The estimated genome size is:  58471759
 saturn_true_kmer_summary.txt
-The mode kmer abundance is:  5
+The mode kmer abundance is:  5 (40)
 The estimated genome size is:  471789289
 '''
 
-<!--
+
 #Assembly
 
 Assembly was performed with:
 * Spades
 
 ## Spades Assembly
-
+All isolates except 036, 057 and 118 with mode kmer abundance below 10
 
 
 ```bash
-	for StrainPath in $(ls -d qc_dna/paired/*/* | grep -v -e 'Fus2' -e 'HB6' | grep 'FOP2'); do
-		ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/spades
+	for StrainPath in $(ls -d qc_dna/paired/*/* | grep -v -w -e "036" -e "057" -e "118"); do
+		Jobs=$(qstat | grep 'submit_S' | grep 'qw' | wc -l)
+		while [ $Jobs -gt 1 ]; do
+		sleep 10
+		printf "."
+		Jobs=$(qstat | grep 'submit_S' | grep 'qw' | wc -l)
+		done
+		ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/spades
 		Strain=$(echo $StrainPath | rev | cut -f1 -d '/' | rev)
 		Organism=$(echo $StrainPath | rev | cut -f2 -d '/' | rev)
 		F_Read=$(ls $StrainPath/F/*.fq.gz)
 		R_Read=$(ls $StrainPath/R/*.fq.gz)
 		OutDir=assembly/spades/$Organism/$Strain
-		Jobs=$(qstat | grep 'submit_SPA' | grep 'qw' | wc -l)
-		while [ $Jobs -gt 1 ]; do
-			sleep 5m
-			printf "."
-			Jobs=$(qstat | grep 'submit_SPA' | grep 'qw' | wc -l)
-		done		
-		printf "\n"
 		echo $F_Read
 		echo $R_Read
-		qsub $ProgDir/submit_SPAdes.sh $F_Read $R_Read $OutDir correct 10
+		qsub $ProgDir/submit_SPAdes_HiMem.sh $F_Read $R_Read $OutDir correct 15
 	done
 ```
-
-Assembly for PG8, FOP1 and FOP5 failed due to a lack of memory, as such the assembly was
-resubmitted with more RAM.
+Spades assembly with the 3 isolates with mode kmer below 10
 
 ```bash
-	for StrainPath in $(ls -d qc_dna/paired/*/* | grep -e 'FOP5' -e 'PG8' -e 'FOP1'); do
-		ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/spades
+	for StrainPath in $(ls -d qc_dna/paired/*/* | grep -w -e "036" -e "057" -e "118"); do
+		Jobs=$(qstat | grep 'submit_S' | grep 'qw' | wc -l)
+		while [ $Jobs -gt 1 ]; do
+		sleep 10
+		printf "."
+		Jobs=$(qstat | grep 'submit_S' | grep 'qw' | wc -l)
+		done
+		ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/spades
 		Strain=$(echo $StrainPath | rev | cut -f1 -d '/' | rev)
 		Organism=$(echo $StrainPath | rev | cut -f2 -d '/' | rev)
 		F_Read=$(ls $StrainPath/F/*.fq.gz)
@@ -289,47 +292,7 @@ resubmitted with more RAM.
 	done
 ```
 
-Assemblies were submitted for genomes with data from multiple sequencing runs:
-
-```bash
-for StrainPath in $(ls -d qc_dna/paired/F.*/HB6); do
-  echo $StrainPath
-    ProgDir=/home/ransoe/git_repos/tools/seq_tools/assemblers/spades/multiple_libraries
-    Strain=$(echo $StrainPath | rev | cut -f1 -d '/' | rev)
-    Organism=$(echo $StrainPath | rev | cut -f2 -d '/' | rev)
-    echo $Strain
-    echo $Organism
-    TrimF1_Read=$(ls $StrainPath/F/HB6_S4_L001_R1_001_trim.fq.gz);
-    TrimR1_Read=$(ls $StrainPath/R/HB6_S4_L001_R2_001_trim.fq.gz);
-    TrimF2_Read=$(ls $StrainPath/F/HB6_S5_L001_R1_001_trim.fq.gz);
-    TrimR2_Read=$(ls $StrainPath/R/HB6_S5_L001_R2_001_trim.fq.gz);
-    echo $TrimF1_Read
-    echo $TrimR1_Read
-    echo $TrimF2_Read
-    echo $TrimR2_Read
-    OutDir=assembly/spades/$Organism/$Strain
-    qsub $ProgDir/subSpades_2lib.sh $TrimF1_Read $TrimR1_Read $TrimF2_Read $TrimR2_Read $OutDir correct 10
-  done
-	for StrainPath in $(ls -d qc_dna/paired/F.*/Fus2); do
-	  echo $StrainPath
-	    ProgDir=/home/ransoe/git_repos/tools/seq_tools/assemblers/spades/multiple_libraries
-	    Strain=$(echo $StrainPath | rev | cut -f1 -d '/' | rev)
-	    Organism=$(echo $StrainPath | rev | cut -f2 -d '/' | rev)
-	    echo $Strain
-	    echo $Organism
-	    TrimF1_Read=$(ls $StrainPath/F/s_6_1_sequence_trim.fq.gz);
-	    TrimR1_Read=$(ls $StrainPath/R/s_6_2_sequence_trim.fq.gz);
-	    TrimF2_Read=$(ls $StrainPath/F/FUS2_S2_L001_R1_001_trim.fq.gz);
-	    TrimR2_Read=$(ls $StrainPath/R/FUS2_S2_L001_R2_001_trim.fq.gz);
-	    echo $TrimF1_Read
-	    echo $TrimR1_Read
-	    echo $TrimF2_Read
-	    echo $TrimR2_Read
-	    OutDir=assembly/spades/$Organism/$Strain
-	    qsub $ProgDir/subSpades_2lib_HiMem.sh $TrimF1_Read $TrimR1_Read $TrimF2_Read $TrimR2_Read $OutDir correct 10
-	  done
-```
-
+<!--
 Quast
 
 ```bash

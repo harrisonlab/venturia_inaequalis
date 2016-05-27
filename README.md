@@ -138,105 +138,110 @@ Data quality was visualised once again following trimming:
 	done
 ```
 
-<!--
+
 kmer counting was performed using kmc
 This allowed estimation of sequencing depth and total genome size
 
-This was performed for strains with single runs of data
 
 ```bash
-	for TrimPath in $(ls -d raw_dna/paired/*/* | grep -v -e 'Fus2' -e 'HB6' | grep 'FOP2'); do
-		ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/dna_qc
-		TrimF=$(ls $TrimPath/F/*.fastq*)
-		TrimR=$(ls $TrimPath/R/*.fastq*)
-		echo $TrimF
-		echo $TrimR
-		qsub $ProgDir/kmc_kmer_counting.sh $TrimF $TrimR
-	done
+for TrimPath in $(ls -d raw_dna/paired/*/*); do
+ProgDir=/home/passet/git_repos/tools/seq_tools/dna_qc
+TrimF=$(ls $TrimPath/F/*.fastq*)
+TrimR=$(ls $TrimPath/R/*.fastq*)
+echo $TrimF
+echo $TrimR
+qsub $ProgDir/kmc_kmer_counting.sh $TrimF $TrimR
+done
 ```
 
-and for strains with muiltiple runs of data:
-
-```bash
-	for TrimPath in $(ls -d raw_dna/paired/*/Fus2); do
-		ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/dna_qc
-		TrimF1=$(ls $TrimPath/F/s_6_1_sequence.fastq.gz)
-		TrimR1=$(ls $TrimPath/R/s_6_2_sequence.fastq.gz)
-		echo $TrimF1
-		echo $TrimR1
-		TrimF2=$(ls $TrimPath/F/FUS2_S2_L001_R1_001.fastq.gz)
-		TrimR2=$(ls $TrimPath/R/FUS2_S2_L001_R2_001.fastq.gz)
-		echo $TrimF2
-		echo $TrimR2
-		qsub $ProgDir/kmc_kmer_counting.sh $TrimF1 $TrimR1 $TrimF2 $TrimR2
-	done
-	for TrimPath in $(ls -d raw_dna/paired/*/HB6); do
-		ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/dna_qc
-		TrimF1=$(ls $TrimPath/F/HB6_S4_L001_R1_001.fastq.gz)
-		TrimR1=$(ls $TrimPath/R/HB6_S4_L001_R2_001.fastq.gz)
-		echo $TrimF1
-		echo $TrimR1
-		TrimF2=$(ls $TrimPath/F/HB6_S5_L001_R1_001.fastq.gz)
-		TrimR2=$(ls $TrimPath/R/HB6_S5_L001_R2_001.fastq.gz)
-		echo $TrimF2
-		echo $TrimR2
-		qsub $ProgDir/kmc_kmer_counting.sh $TrimF1 $TrimR1 $TrimF2 $TrimR2
-	done
-```
 
 mode kmer abundance prior to error correction was reported using the following
 commands:
 
 ```bash
-for File in $(ls qc_dna/kmc/*/*/*_true_kmer_summary.txt); do
-basename $File;
-tail -n3 $File | head -n1 ;
-done
+	for File in $(ls qc_dna/kmc/*/*/*_true_kmer_summary.txt); do
+		basename $File;
+		cat $File | grep -e 'abundance' -e 'size'
+	done
 ```
 
-```
-	PG8_true_kmer_summary.txt
-	The mode kmer abundance is:  53 < fail
-	125_true_kmer_summary.txt
-	The mode kmer abundance is:  46 < pass
-	55_true_kmer_summary.txt
-	The mode kmer abundance is:  29 < pass
-	A1-2_true_kmer_summary.txt
-	The mode kmer abundance is:  16 < pass
-	A13_true_kmer_summary.txt
-	The mode kmer abundance is:  22 < pass
-	A23_true_kmer_summary.txt
-	The mode kmer abundance is:  33 < pass
-	A28_true_kmer_summary.txt
-	The mode kmer abundance is:  36 < pass
-	CB3_true_kmer_summary.txt
-	The mode kmer abundance is:  21 < pass
-	D2_true_kmer_summary.txt
-	The mode kmer abundance is:  11 < pass
-	Fus2_true_kmer_summary.txt
-	The mode kmer abundance is:  109 < 2lib
-	HB17_true_kmer_summary.txt
-	The mode kmer abundance is:  27 < pass
-	HB6_true_kmer_summary.txt
-	The mode kmer abundance is:  91 < 2 lib
-	PG_true_kmer_summary.txt
-	The mode kmer abundance is:  58 < pass
-	N139_true_kmer_summary.txt
-	The mode kmer abundance is:  26 < pass
-	FOP1_true_kmer_summary.txt
-	The mode kmer abundance is:  32 <- fail
-	FOP5_true_kmer_summary.txt
-	The mode kmer abundance is:  62 <- fail
-	L5_true_kmer_summary.txt
-	The mode kmer abundance is:  35 <- pass
-	PG18_true_kmer_summary.txt
-	The mode kmer abundance is:  24 <- pass
-	PG3_true_kmer_summary.txt
-	The mode kmer abundance is:  28 <- pass
-	A8_true_kmer_summary.txt
-	The mode kmer abundance is:  21 <- pass
-```
+'''
+The estimated genome size is:  64158121
+024_true_kmer_summary.txt
+The mode kmer abundance is:  30
+The estimated genome size is:  59324376
+025_true_kmer_summary.txt
+The mode kmer abundance is:  29
+The estimated genome size is:  69351314
+030_true_kmer_summary.txt
+The mode kmer abundance is:  24
+The estimated genome size is:  64520872
+036_true_kmer_summary.txt
+The mode kmer abundance is:  5
+The estimated genome size is:  35589866
+044_true_kmer_summary.txt
+The mode kmer abundance is:  5
+The estimated genome size is:  452258529
+049_true_kmer_summary.txt
+The mode kmer abundance is:  34
+The estimated genome size is:  56424510
+057_true_kmer_summary.txt
+The mode kmer abundance is:  5
+The estimated genome size is:  265385077
+083_true_kmer_summary.txt
+The mode kmer abundance is:  25
+The estimated genome size is:  61502122
+096_true_kmer_summary.txt
+The mode kmer abundance is:  5
+The estimated genome size is:  348646667
+097_true_kmer_summary.txt
+The mode kmer abundance is:  22
+The estimated genome size is:  63868207
+098_true_kmer_summary.txt
+The mode kmer abundance is:  5
+The estimated genome size is:  495964379
+101_true_kmer_summary.txt
+The mode kmer abundance is:  33
+The estimated genome size is:  57884967
+106_true_kmer_summary.txt
+The mode kmer abundance is:  20
+The estimated genome size is:  63717914
+118_true_kmer_summary.txt
+The mode kmer abundance is:  7
+The estimated genome size is:  262481354
+119_true_kmer_summary.txt
+The mode kmer abundance is:  33
+The estimated genome size is:  58479942
+172_true_kmer_summary.txt
+The mode kmer abundance is:  24
+The estimated genome size is:  63294175
+173_true_kmer_summary.txt
+The mode kmer abundance is:  5
+The estimated genome size is:  437136955
+182_true_kmer_summary.txt
+The mode kmer abundance is:  32
+The estimated genome size is:  62170328
+190_true_kmer_summary.txt
+The mode kmer abundance is:  5
+The estimated genome size is:  309277674
+196_true_kmer_summary.txt
+The mode kmer abundance is:  28
+The estimated genome size is:  59732382
+197_true_kmer_summary.txt
+The mode kmer abundance is:  28
+The estimated genome size is:  61229552
+199_true_kmer_summary.txt
+The mode kmer abundance is:  5
+The estimated genome size is:  520820360
+202_true_kmer_summary.txt
+The mode kmer abundance is:  32
+The estimated genome size is:  58471759
+saturn_true_kmer_summary.txt
+The mode kmer abundance is:  5
+The estimated genome size is:  471789289
+'''
 
+<!--
 #Assembly
 
 Assembly was performed with:

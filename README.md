@@ -331,12 +331,24 @@ Repeat masking was performed and used the following programs:
 The best assemblies were used to perform repeatmasking
 
 ```bash
-ProgDir=/home/passet/git_repos/tools/seq_tools/repeat_masking
-for BestAss in $(ls assembly/spades/*/*/*/contigs_min_500bp_renamed.fasta); do
-qsub $ProgDir/rep_modeling.sh $BestAss
-qsub $ProgDir/transposonPSI.sh $BestAss
-done
+	ProgDir=/home/passet/git_repos/tools/seq_tools/repeat_masking
+		for BestAss in $(ls assembly/spades/*/*/*/contigs_min_500bp_renamed.fasta); do
+		qsub $ProgDir/rep_modeling.sh $BestAss
+		qsub $ProgDir/transposonPSI.sh $BestAss
+	done
 ```
+
+# Summary of assemblies
+
+for File in $(ls assembly/spades/*/*/filtered_contigs/report.tsv); do 
+Organism=$(echo $File | rev |cut -f4 -d '/' | rev) 
+Strain=$(echo $File | rev |cut -f3 -d '/' | rev)
+echo $Organism > tmp_"$Strain".txt
+echo $Strain >> tmp_"$Strain".txt 
+cat $File | tail -n+2 | cut -f2 >> tmp_"$Strain".txt
+done
+paste tmp*.txt > assembly/spades/assembly_summary.tsv
+rm tmp*.txt
 
 <!--
 The number of bases masked by transposonPSI and Repeatmasker were summarised

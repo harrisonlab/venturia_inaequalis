@@ -248,7 +248,7 @@ Assembly was performed with:
 * Spades
 
 ## Spades Assembly
-All isolates except 036, 057 and 118 with mode kmer abundance below 10
+Isolates with mode kmer abundance 20 or above (i.e all except 036, 057 and 118)
 
 
 ```bash
@@ -292,19 +292,17 @@ Spades assembly with the 3 isolates with mode kmer below 10
 	done
 ```
 
-<!--
+
 Quast
 
 ```bash
-  ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/assembly_qc/quast
-  for Assembly in $(ls assembly/spades/*/*/filtered_contigs/contigs_min_500bp.fasta | grep 'FOP2'); do
-	# for Assembly in $(ls assembly/spades/*/*/*/contigs_min_500bp_renamed.fasta | grep 'Fus2_edited_v2'); do
-  # for Assembly in $(ls assembly/external_group/F.oxysporum/fo47/broad/fusarium_oxysporum_fo47_1_supercontigs.fasta); do
-    Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
-    Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
-    OutDir=assembly/spades/$Organism/$Strain/filtered_contigs
-    qsub $ProgDir/sub_quast.sh $Assembly $OutDir
-  done
+	ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
+	for Assembly in $(ls assembly/spades/*/*/filtered_contigs/contigs_min_500bp.fasta); do
+	Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+	Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
+	OutDir=assembly/spades/$Organism/$Strain/filtered_contigs
+	qsub $ProgDir/sub_quast.sh $Assembly $OutDir
+	done
 ```
 
 
@@ -312,35 +310,16 @@ Quast
 Contigs were renamed in accordance with ncbi recomendations.
 
 ```bash
-  ProgDir=~/git_repos/emr_repos/tools/seq_tools/assemblers/assembly_qc/remove_contaminants
-  touch tmp.csv
+	ProgDir=~/git_repos/tools/seq_tools/assemblers/assembly_qc/remove_contaminants
+	touch tmp.csv
 	for Assembly in $(ls assembly/spades/*/*/filtered_contigs/contigs_min_500bp.fasta); do
-    Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
-    Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
-    OutDir=assembly/spades/$Organism/$Strain/filtered_contigs
-    $ProgDir/remove_contaminants.py --inp $Assembly --out $OutDir/contigs_min_500bp_renamed.fasta --coord_file tmp.csv
-  done
-  rm tmp.csv
+	Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+	Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
+	OutDir=assembly/spades/$Organism/$Strain/filtered_contigs
+	$ProgDir/remove_contaminants.py --inp $Assembly --out $OutDir/contigs_min_500bp_renamed.fasta --coord_file tmp.csv
+	done
+	rm tmp.csv
 ```
-
-
-The Fus2 was manually edited as SIX9 was noted to be split over 2 contigs. These
-contigs were manually joined in geneious and exported back to the cluster
-at the location indicated below. These contigs were renamed.
-
-```bash
-  ProgDir=~/git_repos/emr_repos/tools/seq_tools/assemblers/assembly_qc/remove_contaminants
-  touch tmp.csv
-  for Assembly in $(ls assembly/spades/*/*/filtered_contigs/*_edited_*.fasta); do
-    Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
-    Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
-    OutDir=assembly/spades/$Organism/$Strain/filtered_contigs
-    $ProgDir/remove_contaminants.py --inp $Assembly --out $OutDir/contigs_min_500bp_renamed.fasta --coord_file tmp.csv
-  done
-  rm tmp.csv
-```
-
-
 
 
 # Repeatmasking
@@ -352,34 +331,14 @@ Repeat masking was performed and used the following programs:
 The best assemblies were used to perform repeatmasking
 
 ```bash
-	ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/repeat_masking
-	for BestAss in $(ls assembly/spades/*/*/*/contigs_min_500bp_renamed.fasta | grep 'FOP2'); do
-	# for BestAss in $(ls assembly/external_group/F.oxysporum/fo47/broad/fusarium_oxysporum_fo47_1_supercontigs.fasta); do
-		qsub $ProgDir/rep_modeling.sh $BestAss
-		qsub $ProgDir/transposonPSI.sh $BestAss
-	done
-```
-
-The published non-pathogen genome for isolate FO47 was also repeatmasked as
-this isolate was also used in experimental work.
-
-```bash
-	ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/repeat_masking
-	Fo47Ass=assembly/external_group/F.oxysporum/fo47/broad/fusarium_oxysporum_fo47_1_supercontigs.fasta
-	for BestAss in $(ls $Fo47Ass); do
-		qsub $ProgDir/rep_modeling.sh $BestAss
-		qsub $ProgDir/transposonPSI.sh $BestAss
-	done
-```
-
-Fo47 masked contigs were noted to still contain additional text following spaces.
-This disrupted downstream programs.
-```bash
-for File in $(ls repeat_masked/F.oxysporum/fo47/*/fo47_contigs_*masked.fa); do
-sed -i 's/ of Fusarium oxysporum Fo47//g' $File
+ProgDir=/home/passet/git_repos/tools/seq_tools/repeat_masking
+for BestAss in $(ls assembly/spades/*/*/*/contigs_min_500bp_renamed.fasta); do
+qsub $ProgDir/rep_modeling.sh $BestAss
+qsub $ProgDir/transposonPSI.sh $BestAss
 done
 ```
 
+<!--
 The number of bases masked by transposonPSI and Repeatmasker were summarised
 using the following commands:
 

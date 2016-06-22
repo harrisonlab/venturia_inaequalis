@@ -297,11 +297,11 @@ Quast
 
 ```bash
 	ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
-	for Assembly in $(ls assembly/spades/*/*/filtered_contigs/contigs_min_500bp.fasta); do
-	Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
-	Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
-	OutDir=assembly/spades/$Organism/$Strain/filtered_contigs
-	qsub $ProgDir/sub_quast.sh $Assembly $OutDir
+		for Assembly in $(ls assembly/spades/*/*/filtered_contigs/contigs_min_500bp.fasta); do
+		Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+		Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
+		OutDir=assembly/spades/$Organism/$Strain/filtered_contigs
+		qsub $ProgDir/sub_quast.sh $Assembly $OutDir
 	done
 ```
 
@@ -312,15 +312,28 @@ Contigs were renamed in accordance with ncbi recomendations.
 ```bash
 	ProgDir=~/git_repos/tools/seq_tools/assemblers/assembly_qc/remove_contaminants
 	touch tmp.csv
-	for Assembly in $(ls assembly/spades/*/*/filtered_contigs/contigs_min_500bp.fasta); do
-	Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
-	Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
-	OutDir=assembly/spades/$Organism/$Strain/filtered_contigs
-	$ProgDir/remove_contaminants.py --inp $Assembly --out $OutDir/contigs_min_500bp_renamed.fasta --coord_file tmp.csv
+		for Assembly in $(ls assembly/spades/*/*/filtered_contigs/contigs_min_500bp.fasta); do
+		Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+		Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
+		OutDir=assembly/spades/$Organism/$Strain/filtered_contigs
+		$ProgDir/remove_contaminants.py --inp $Assembly --out $OutDir/contigs_min_500bp_renamed.fasta --coord_file tmp.csv
 	done
 	rm tmp.csv
 ```
 
+# Summary of assemblies
+
+```bash
+	for File in $(ls assembly/spades/*/*/filtered_contigs/report.tsv); do 
+		Organism=$(echo $File | rev |cut -f4 -d '/' | rev) 
+		Strain=$(echo $File | rev |cut -f3 -d '/' | rev)
+		echo $Organism > tmp_"$Strain".txt
+		echo $Strain >> tmp_"$Strain".txt 
+		cat $File | tail -n+2 | cut -f2 >> tmp_"$Strain".txt
+	done
+	paste tmp*.txt > assembly/spades/assembly_summary.tsv
+	rm tmp*.txt
+```
 
 # Repeatmasking
 
@@ -338,145 +351,170 @@ The best assemblies were used to perform repeatmasking
 	done
 ```
 
-# Summary of assemblies
-
-for File in $(ls assembly/spades/*/*/filtered_contigs/report.tsv); do 
-Organism=$(echo $File | rev |cut -f4 -d '/' | rev) 
-Strain=$(echo $File | rev |cut -f3 -d '/' | rev)
-echo $Organism > tmp_"$Strain".txt
-echo $Strain >> tmp_"$Strain".txt 
-cat $File | tail -n+2 | cut -f2 >> tmp_"$Strain".txt
-done
-paste tmp*.txt > assembly/spades/assembly_summary.tsv
-rm tmp*.txt
-
-<!--
 The number of bases masked by transposonPSI and Repeatmasker were summarised
 using the following commands:
 
 ```bash
-for RepDir in $(ls -d repeat_masked/F.*/*/* | grep -e 'fo47' -e '4287'); do
-Strain=$(echo $RepDir | rev | cut -f2 -d '/' | rev)
-Organism=$(echo $RepDir | rev | cut -f3 -d '/' | rev)  
-RepMaskGff=$(ls $RepDir/*_contigs_hardmasked.gff)
-TransPSIGff=$(ls $RepDir/*_contigs_unmasked.fa.TPSI.allHits.chains.gff3)
-printf "$Organism\t$Strain\n"
-printf "The number of bases masked by RepeatMasker:\t"
-sortBed -i $RepMaskGff | bedtools merge | awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}'
-printf "The number of bases masked by TransposonPSI:\t"
-sortBed -i $TransPSIGff | bedtools merge | awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}'
-printf "The total number of masked bases are:\t"
-cat $RepMaskGff $TransPSIGff | sortBed | bedtools merge | awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}'
-echo
-done
+	for RepDir in $(ls -d repeat_masked/v.*/*/*); do
+		Strain=$(echo $RepDir | rev | cut -f2 -d '/' | rev)
+		Organism=$(echo $RepDir | rev | cut -f3 -d '/' | rev)  
+		RepMaskGff=$(ls $RepDir/*_contigs_hardmasked.gff)
+		TransPSIGff=$(ls $RepDir/*_contigs_unmasked.fa.TPSI.allHits)
+		printf "$Organism\t$Strain\n"
+		printf "The number of bases masked by RepeatMasker:\t"
+		sortBed -i $RepMaskGff | bedtools merge | awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}'
+		printf "The number of bases masked by TransposonPSI:\t"
+		sortBed -i $TransPSIGff | bedtools merge | awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}'
+		printf "The total number of masked bases are:\t"
+		cat $RepMaskGff $TransPSIGff | sortBed | bedtools merge | awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}'
+		]echo
+	]done
 ```
+Results of bases masked by repeatmasker
+'''
+v.inaequalis    007
+The number of bases masked by RepeatMasker:     34407509
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   34407509
 
-```
-	F.avenaceum	PG8
-	The number of bases masked by RepeatMasker:	0
-	The number of bases masked by TransposonPSI:	0
-	The total number of masked bases are:	0
+v.inaequalis    024
+The number of bases masked by RepeatMasker:     33510544
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   33510544
 
-	F.oxysporum_fsp_cepae		125
-	The number of bases masked by RepeatMasker:		3707484
-	The number of bases masked by TransposonPSI:		1210934
-	The total number of masked bases are:		3952973
+v.inaequalis    025
+The number of bases masked by RepeatMasker:     34645619
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   34645619
 
-	F.oxysporum_fsp_cepae		55
-	The number of bases masked by RepeatMasker:		3206161
-	The number of bases masked by TransposonPSI:		1031019
-	The total number of masked bases are:		3466359
+v.inaequalis    030
+The number of bases masked by RepeatMasker:     33066245
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   33066245
 
-	F.oxysporum_fsp_cepae		A1-2
-	The number of bases masked by RepeatMasker:		1937168
-	The number of bases masked by TransposonPSI:		816426
-	The total number of masked bases are:		2177343
+v.inaequalis    036
+The number of bases masked by RepeatMasker:     71808
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   71808
 
-	F.oxysporum_fsp_cepae		A13
-	The number of bases masked by RepeatMasker:		4414509
-	The number of bases masked by TransposonPSI:		1555142
-	The total number of masked bases are:		4712084
+v.inaequalis    044
+The number of bases masked by RepeatMasker:     33705055
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   33705055
 
-	F.oxysporum_fsp_cepae		A23
-	The number of bases masked by RepeatMasker:		3156362
-	The number of bases masked by TransposonPSI:		1061656
-	The total number of masked bases are:		3446078
+v.inaequalis    049
+The number of bases masked by RepeatMasker:     31089941
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   31089941
 
-	F.oxysporum_fsp_cepae		A28
-	The number of bases masked by RepeatMasker:		4001386
-	The number of bases masked by TransposonPSI:		1189369
-	The total number of masked bases are:		4304881
+v.inaequalis    057
+The number of bases masked by RepeatMasker:     7009434
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   7009434
 
-	F.oxysporum_fsp_cepae		CB3
-	The number of bases masked by RepeatMasker:		2382071
-	The number of bases masked by TransposonPSI:		842157
-	The total number of masked bases are:		2630520
+v.inaequalis    083
+The number of bases masked by RepeatMasker:     30796550
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   30796550
 
-	F.oxysporum_fsp_cepae		D2
-	The number of bases masked by RepeatMasker:		1363000
-	The number of bases masked by TransposonPSI:		594012
-	The total number of masked bases are:		1632798
+v.inaequalis    096
+The number of bases masked by RepeatMasker:     33861179
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   33861179
 
-	F.oxysporum_fsp_cepae	Fus2
-	The number of bases masked by RepeatMasker:	3716805
-	The number of bases masked by TransposonPSI:	1280301
-	The total number of masked bases are:	3934042
+v.inaequalis    097
+The number of bases masked by RepeatMasker:     33777696
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   33777696
 
-	F.oxysporum_fsp_cepae		HB17
-	The number of bases masked by RepeatMasker:		3385838
-	The number of bases masked by TransposonPSI:		1077091
-	The total number of masked bases are:		3649652
+v.inaequalis    098
+The number of bases masked by RepeatMasker:     32129773
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   32129773
 
-	F.oxysporum_fsp_cepae		HB6
-	The number of bases masked by RepeatMasker:		3216000
-	The number of bases masked by TransposonPSI:		995170
-	The total number of masked bases are:		3455823
+v.inaequalis    101
+The number of bases masked by RepeatMasker:     30249028
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   30249028
 
-	F.oxysporum_fsp_cepae		PG
-	The number of bases masked by RepeatMasker:		2769568
-	The number of bases masked by TransposonPSI:		865813
-	The total number of masked bases are:		3005423
+v.inaequalis    106
+The number of bases masked by RepeatMasker:     29372196
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   29372196
 
-	F.oxysporum_fsp_narcissi		N139
-	The number of bases masked by RepeatMasker:		5404179
-	The number of bases masked by TransposonPSI:		1655249
-	The total number of masked bases are:		5709023
+v.inaequalis    118
+The number of bases masked by RepeatMasker:     9267255
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   9267255
 
-	F.oxysporum_fsp_pisi	FOP1
-	The number of bases masked by RepeatMasker:	8494861
-	The number of bases masked by TransposonPSI:	2353732
-	The total number of masked bases are:	8868988
+v.inaequalis    119
+The number of bases masked by RepeatMasker:     33887998
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   33887998
 
-	F.oxysporum_fsp_pisi		FOP5
-	The number of bases masked by RepeatMasker:		3880611
-	The number of bases masked by TransposonPSI:		1313995
-	The total number of masked bases are:		4193700
+v.inaequalis    172
+The number of bases masked by RepeatMasker:     32246642
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   32246642
 
-	F.oxysporum_fsp_pisi		L5
-	The number of bases masked by RepeatMasker:		1287737
-	The number of bases masked by TransposonPSI:		417513
-	The total number of masked bases are:		1456488
+v.inaequalis    173
+The number of bases masked by RepeatMasker:     29861271
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   29861271
 
-	F.oxysporum_fsp_pisi		PG18
-	The number of bases masked by RepeatMasker:		5349661
-	The number of bases masked by TransposonPSI:		1627436
-	The total number of masked bases are:		5673770
+v.inaequalis    182
+The number of bases masked by RepeatMasker:     33169962
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   33169962
 
-	F.oxysporum_fsp_pisi		PG3
-	The number of bases masked by RepeatMasker:		4686428
-	The number of bases masked by TransposonPSI:		1663269
-	The total number of masked bases are:		5011872
+v.inaequalis    190
+The number of bases masked by RepeatMasker:     0
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   0
 
-	F.proliferatum		A8
-	The number of bases masked by RepeatMasker:		1065627
-	The number of bases masked by TransposonPSI:		278366
-	The total number of masked bases are:		1266227
+v.inaequalis    196
+The number of bases masked by RepeatMasker:     31586869
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   31586869
 
-	F.oxysporum	fo47
-	The number of bases masked by RepeatMasker:	2610912
-	The number of bases masked by TransposonPSI:	806717
-	The total number of masked bases are:	2842870
-```
+v.inaequalis    197
+The number of bases masked by RepeatMasker:     31393780
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   31393780
+
+v.inaequalis    199
+The number of bases masked by RepeatMasker:     33016953
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   33016953
+
+v.inaequalis    202
+The number of bases masked by RepeatMasker:     31903088
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   31903088
+
+v.inaequalis    saturn
+The number of bases masked by RepeatMasker:     31550846
+The number of bases masked by TransposonPSI:    0
+The total number of masked bases are:   31550846
+'''
+
+# RNA-seq data download
+
+Dowloaded Thakur et al RNA-seq data from NCBI 
+
+prefetch -o raw_rna/unpaired/v.inaequalis SRR2164202
+fastq-dump -O raw_rna/unpaired/v.inaequalis SRR2164202
+prefetch -o raw_rna/unpaired/v.inaequalis SRR2164317
+fastq-dump -O raw_rna/unpaired/v.inaequalis SRR2164317
+prefetch -o raw_rna/unpaired/v.inaequalis SRR2164320
+fastq-dump -O raw_rna/unpaired/v.inaequalis SRR2164320
+prefetch -o raw_rna/paired/v.inaequalis SRR2164233
+fastq-dump -O raw_rna/paired/v.inaequalis SRR2164233
+prefetch -o raw_rna/paired/v.inaequalis SRR2164324
+fastq-dump -O raw_rna/paired/v.inaequalis SRR2164324
+prefetch -o raw_rna/paired/v.inaequalis SRR2164325
+fastq-dump -O raw_rna/paired/v.inaequalis SRR2164325
+
 
 # Gene Prediction
 
@@ -493,14 +531,14 @@ Gene prediction followed three steps:
 
 Quality of genome assemblies was assessed by looking for the gene space in the assemblies.
 ```bash
-	ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/cegma
-	cd /home/groups/harrisonlab/project_files/fusarium
-	for Genome in $(ls repeat_masked/F.*/*/*/*_contigs_unmasked.fa); do
+	ProgDir=/home/passet/git_repos/tools/gene_prediction/cegma
+		cd /home/groups/harrisonlab/project_files/venturia
+		for Genome in $(ls repeat_masked/v.*/*/*/*_contigs_unmasked.fa); do
 		echo $Genome;
 		qsub $ProgDir/sub_cegma.sh $Genome dna;
 	done
 ```
-
+<!--
 Outputs were summarised using the commands:
 ```bash
 	for File in $(ls gene_pred/cegma/F*/FOP1/*_dna_cegma.completeness_report); do
@@ -512,8 +550,12 @@ Outputs were summarised using the commands:
 
 	less gene_pred/cegma/cegma_results_dna_summary.txt
 ```
+for num in $(qstat | cut -f1 -d ‘ '); do 
+echo $num; 
+qdel $num; 
+done
 
-
+<!--
 #Gene prediction
 
 Gene prediction was performed for Fusarium genomes. Two gene prediction

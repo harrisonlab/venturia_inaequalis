@@ -538,23 +538,19 @@ Quality of genome assemblies was assessed by looking for the gene space in the a
 		qsub $ProgDir/sub_cegma.sh $Genome dna;
 	done
 ```
-<!--
+
 Outputs were summarised using the commands:
 ```bash
-	for File in $(ls gene_pred/cegma/F*/FOP1/*_dna_cegma.completeness_report); do
+	for File in $(ls gene_pred/cegma/v*/*/*_dna_cegma.completeness_report); do
 		Strain=$(echo $File | rev | cut -f2 -d '/' | rev);
 		Species=$(echo $File | rev | cut -f3 -d '/' | rev);
 		printf "$Species\t$Strain\n";
 		cat $File | head -n18 | tail -n+4;printf "\n";
 	done > gene_pred/cegma/cegma_results_dna_summary.txt
 
-	less gene_pred/cegma/cegma_results_dna_summary.txt
+less gene_pred/cegma/cegma_results_dna_summary.txt
 ```
-for num in $(qstat | cut -f1 -d ‘ '); do 
-echo $num; 
-qdel $num; 
-done
--->
+
 
 #Gene prediction
 
@@ -577,22 +573,22 @@ First, RNAseq data was aligned to V. inaequalis genomes.
 
 Perform qc of RNAseq timecourse data
 ```bash
-for File in $( ls raw_rna/*/*/*/*/*.fastq); do
-echo $File
-IlluminaAdapters=/home/armita/git_repos/emr_repos/tools/seq_tools/ncbi_adapters.fa
-ProgDir=/home/passet/git_repos/tools/seq_tools/rna_qc
-qsub $ProgDir/rna_qc_fastq-mcf_unpaired.sh $File $IlluminaAdapters RNA
-done
+	for File in $( ls raw_rna/*/*/*/*/*.fastq); do
+	echo $File
+		IlluminaAdapters=/home/armita/git_repos/emr_repos/tools/seq_tools/ncbi_adapters.fa
+		ProgDir=/home/passet/git_repos/tools/seq_tools/rna_qc
+		qsub $ProgDir/rna_qc_fastq-mcf_unpaired.sh $File $IlluminaAdapters RNA
+	done
 ```
 
-<!--
+
 Data quality was visualised using fastqc:
 ```bash
-	for RawData in $(ls qc_rna/paired/F.oxysporum_fsp_cepae/*/*/*.fq.gz); do
-		ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/dna_qc
-		echo $RawData;
-		qsub $ProgDir/run_fastqc.sh $RawData
-	done
+for RawData in $(ls qc_rna/*/v.inaequalis/*/*/*.fq.gz); do
+ProgDir=/home/passet/git_repos/tools/seq_tools/dna_qc
+echo $RawData;
+qsub $ProgDir/run_fastqc.sh $RawData
+done
 ```
 
 #### Aligning
@@ -603,21 +599,20 @@ single genome. The fragment length and stdev were printed to stdout while
 cufflinks was running.
 
 ```bash
-	for Assembly in $(ls repeat_masked/*/Fo47/*/*_contigs_unmasked.fa); do
-		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-		echo "$Organism - $Strain"
-		for RNADir in $(ls -d qc_rna/paired/F.oxysporum_fsp_cepae/*); do
-			Timepoint=$(echo $RNADir | rev | cut -f1 -d '/' | rev)
+	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa); do
+			Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+			Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+			echo "$Organism - $Strain"
+			for file in $(ls qc_rna/*/*/*/*/*.gz); do
+			Timepoint=$(echo $file | rev | cut -f2 -d '/' | rev)
 			echo "$Timepoint"
-			FileF=$(ls $RNADir/F/*_trim.fq.gz)
-			FileR=$(ls $RNADir/R/*_trim.fq.gz)
 			OutDir=alignment/$Organism/$Strain/$Timepoint
-			ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/RNAseq
-			qsub $ProgDir/tophat_alignment.sh $Assembly $FileF $FileR $OutDir
+			ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
+			qsub $ProgDir/tophat_alignment_unpaired.sh $Assembly $FileF $FileR $OutDir
 		done
 	done
 ```
+<!--
 Alignments were concatenated prior to running cufflinks:
 Cufflinks was run to produce the fragment length and stdev statistics:
 

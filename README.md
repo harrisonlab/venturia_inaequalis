@@ -599,32 +599,26 @@ single genome. The fragment length and stdev were printed to stdout while
 cufflinks was running.
 
 ```bash
-	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa); do
-		Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
-		while [ $Jobs -gt 1 ]; do
-		sleep 10
-		printf "."
-		Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
-		done
-			Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-			Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-			Paired=$(echo $Assembly | rev | cut -d '/' -f5 | rev)
-			echo "$Organism - $Strain"
-			for rna_file in $(ls qc_rna/*/*/*/*/*.gz); do
-			Timepoint=$(echo $rna_file | rev | cut -f2 -d '/' | rev)
-			echo "$Timepoint"
-			OutDir=alignment/$Paired/$Organism/$Strain/$Timepoint
-			ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
-			qsub $ProgDir/tophat_alignment_unpaired.sh $Assembly $rna_file $OutDir
-		done
-	done
+for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa | grep -w '007'); do
+Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+Paired=$(echo $Assembly | rev | cut -d '/' -f5 | rev)
+echo "$Organism - $Strain"
+for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'paired'); do
+Timepoint=$(echo $rna_file | rev | cut -f2 -d '/' | rev)
+echo "$Timepoint"
+OutDir=alignment/$Paired/$Organism/$Strain/$Timepoint
+ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
+qsub $ProgDir/tophat_alignment_unpaired.sh $Assembly $rna_file $OutDir
+done
+done
 ```
 
 Alignments were concatenated prior to running cufflinks:
 Cufflinks was run to produce the fragment length and stdev statistics:
 
 ```bash
-	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa); do
+	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa | grep -w '007'); do
 		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
 		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
 		AcceptedHits=alignment/$Organism/$Strain/concatenated/concatenated.bam
@@ -634,10 +628,7 @@ Cufflinks was run to produce the fragment length and stdev statistics:
 		samtools merge -f $AcceptedHits \
 		alignment/paired/$Organism/$Strain/V0/accepted_hits.bam \
 		alignment/paired/$Organism/$Strain/V2/accepted_hits.bam \
-		alignment/paired/$Organism/$Strain/V5/accepted_hits.bam \
-		alignment/unpaired/$Organism/$Strain/V0/accepted_hits.bam \
-		alignment/unpaired/$Organism/$Strain/V2/accepted_hits.bam \
-		alignment/unpaired/$Organism/$Strain/V5/accepted_hits.bam
+		alignment/paired/$Organism/$Strain/V5/accepted_hits.bam
 		cufflinks -o $OutDir/cufflinks -p 8 --max-intron-length 4000 $AcceptedHits 2>&1 | tee $OutDir/cufflinks/cufflinks.log
 	done
 ```
@@ -664,32 +655,36 @@ increase the accuracy of mapping.
 Then Rnaseq data was aligned to each genome assembly:
 
 ```bash
-	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa | grep -v 'FOP1'); do
-	# for Assembly in $(ls assembly/external_group/F.oxysporum/fo47/broad/fusarium_oxysporum_fo47_1_supercontigs.fasta); do
-		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-		echo "$Organism - $Strain"
-		for RNADir in $(ls -d qc_rna/paired/F.oxysporum_fsp_cepae/* | grep -e '_rep'); do
-			Timepoint=$(echo $RNADir | rev | cut -f1 -d '/' | rev)
-			echo "$Timepoint"
-			FileF=$(ls $RNADir/F/*_trim.fq.gz)
-			FileR=$(ls $RNADir/R/*_trim.fq.gz)
-			OutDir=alignment/$Organism/$Strain/$Timepoint
-			InsertGap='-20'
-			InsertStdDev='78'
-			Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
-			while [ $Jobs -gt 1 ]; do
-				sleep 10
-				printf "."
-				Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
-			done
-			printf "\n"
-			ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/RNAseq
-			qsub $ProgDir/tophat_alignment.sh $Assembly $FileF $FileR $OutDir $InsertGap $InsertStdDev
-		done
-	done
-```
+InsertGap='-20'
+InsertStdDev='78'
 
+for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa); do
+Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
+while [ $Jobs -gt 1 ]; do
+sleep 10
+printf "."
+Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
+done
+Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+Paired=$(echo $Assembly | rev | cut -d '/' -f5 | rev)
+echo "$Organism - $Strain"
+for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'paired'); do
+Timepoint=$(echo $rna_file | rev | cut -f2 -d '/' | rev)
+echo "$Timepoint"
+OutDir=alignment/$Paired/$Organism/$Strain/$Timepoint
+ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
+qsub $ProgDir/tophat_alignment_unpaired.sh $Assembly $rna_file $OutDir $InsertGap $InsertStdDev
+done
+for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'unpaired'); do
+Timepoint=$(echo $rna_file | rev | cut -f2 -d '/' | rev)
+echo "$Timepoint"
+OutDir=alignment/$Paired/$Organism/$Strain/$Timepoint
+ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
+qsub $ProgDir/tophat_alignment_unpaired.sh $Assembly $rna_file $OutDir
+done
+done
+```
 
 #### Braker prediction
 

@@ -600,24 +600,31 @@ cufflinks was running.
 
 ```bash
 	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa); do
+		Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
+		while [ $Jobs -gt 1 ]; do
+		sleep 10
+		printf "."
+		Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
+		done
 			Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
 			Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+			Paired=$(echo $Assembly | rev | cut -d '/' -f5 | rev)
 			echo "$Organism - $Strain"
-			for file in $(ls qc_rna/*/*/*/*/*.gz); do
-			Timepoint=$(echo $file | rev | cut -f2 -d '/' | rev)
+			for rna_file in $(ls qc_rna/*/*/*/*/*.gz); do
+			Timepoint=$(echo $rna_file | rev | cut -f2 -d '/' | rev)
 			echo "$Timepoint"
-			OutDir=alignment/$Organism/$Strain/$Timepoint
+			OutDir=alignment/$Paired/$Organism/$Strain/$Timepoint
 			ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
-			qsub $ProgDir/tophat_alignment_unpaired.sh $Assembly $FileF $FileR $OutDir
+			qsub $ProgDir/tophat_alignment_unpaired.sh $Assembly $rna_file $OutDir
 		done
 	done
 ```
-<!--
+
 Alignments were concatenated prior to running cufflinks:
 Cufflinks was run to produce the fragment length and stdev statistics:
 
 ```bash
-	for Assembly in $(ls repeat_masked/*/Fo47/*/*_contigs_softmasked.fa); do
+	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa); do
 		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
 		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
 		AcceptedHits=alignment/$Organism/$Strain/concatenated/concatenated.bam
@@ -625,32 +632,16 @@ Cufflinks was run to produce the fragment length and stdev statistics:
 		echo "$Organism - $Strain"
 		mkdir -p $OutDir
 		samtools merge -f $AcceptedHits \
-		alignment/$Organism/$Strain/55_72hrs_rep1/accepted_hits.bam \
-		alignment/$Organism/$Strain/55_72hrs_rep2/accepted_hits.bam \
-		alignment/$Organism/$Strain/55_72hrs_rep3/accepted_hits.bam \
-		alignment/$Organism/$Strain/FO47_72hrs_rep1/accepted_hits.bam \
-		alignment/$Organism/$Strain/FO47_72hrs_rep2/accepted_hits.bam \
-		alignment/$Organism/$Strain/FO47_72hrs_rep3/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_0hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_16hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_24hrs_prelim_rep1/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_36hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_48hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_4hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_72hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_72hrs_rep1/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_72hrs_rep2/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_72hrs_rep3/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_8hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_96hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_CzapekDox/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_GlucosePeptone/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_PDA/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_PDB/accepted_hits.bam
+		alignment/paired/$Organism/$Strain/V0/accepted_hits.bam \
+		alignment/paired/$Organism/$Strain/V2/accepted_hits.bam \
+		alignment/paired/$Organism/$Strain/V5/accepted_hits.bam \
+		alignment/unpaired/$Organism/$Strain/V0/accepted_hits.bam \
+		alignment/unpaired/$Organism/$Strain/V2/accepted_hits.bam \
+		alignment/unpaired/$Organism/$Strain/V5/accepted_hits.bam
 		cufflinks -o $OutDir/cufflinks -p 8 --max-intron-length 4000 $AcceptedHits 2>&1 | tee $OutDir/cufflinks/cufflinks.log
 	done
 ```
-
+<!--
 Output from stdout included:
 ```
 	Processed 22484 loci.                        [*************************] 100%

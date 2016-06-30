@@ -599,38 +599,38 @@ single genome. The fragment length and stdev were printed to stdout while
 cufflinks was running.
 
 ```bash
-for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa | grep -w '007'); do
-Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-Paired=$(echo $Assembly | rev | cut -d '/' -f5 | rev)
-echo "$Organism - $Strain"
-for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'paired'); do
-Timepoint=$(echo $rna_file | rev | cut -f2 -d '/' | rev)
-echo "$Timepoint"
-OutDir=alignment/$Paired/$Organism/$Strain/$Timepoint
-ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
-qsub $ProgDir/tophat_alignment_unpaired.sh $Assembly $rna_file $OutDir
-done
-done
+	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa | grep -w '007'); do
+		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+		Paired=$(echo $Assembly | rev | cut -d '/' -f5 | rev)
+		echo "$Organism - $Strain"
+		for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'paired'); do
+			Timepoint=$(echo $rna_file | rev | cut -f3 -d '/' | rev)
+			echo "$Timepoint"
+			OutDir=alignment/$Paired/$Organism/$Strain/$Timepoint
+			ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
+			qsub $ProgDir/tophat_alignment_unpaired.sh $Assembly $rna_file $OutDir
+		done
+	done
 ```
 
 Alignments were concatenated prior to running cufflinks:
 Cufflinks was run to produce the fragment length and stdev statistics:
 
 ```bash
-	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa | grep -w '007'); do
-		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-		AcceptedHits=alignment/$Organism/$Strain/concatenated/concatenated.bam
-		OutDir=gene_pred/cufflinks/$Organism/$Strain/concatenated_prelim
-		echo "$Organism - $Strain"
-		mkdir -p $OutDir
-		samtools merge -f $AcceptedHits \
-		alignment/paired/$Organism/$Strain/V0/accepted_hits.bam \
-		alignment/paired/$Organism/$Strain/V2/accepted_hits.bam \
-		alignment/paired/$Organism/$Strain/V5/accepted_hits.bam
-		cufflinks -o $OutDir/cufflinks -p 8 --max-intron-length 4000 $AcceptedHits 2>&1 | tee $OutDir/cufflinks/cufflinks.log
-	done
+for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa | grep -w '007'); do
+Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+AcceptedHits=alignment/$Organism/$Strain/concatenated/concatenated.bam
+OutDir=gene_pred/cufflinks/$Organism/$Strain/concatenated_prelim
+echo "$Organism - $Strain"
+mkdir -p $OutDir
+samtools merge -f $AcceptedHits \
+alignment/paired/$Organism/$Strain/V0/accepted_hits.bam \
+alignment/paired/$Organism/$Strain/V2/accepted_hits.bam \
+alignment/paired/$Organism/$Strain/V5/accepted_hits.bam
+cufflinks -o $OutDir/cufflinks -p 8 --max-intron-length 4000 $AcceptedHits 2>&1 | tee $OutDir/cufflinks/cufflinks.log
+done
 ```
 <!--
 Output from stdout included:

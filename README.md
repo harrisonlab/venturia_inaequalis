@@ -618,19 +618,20 @@ Alignments were concatenated prior to running cufflinks:
 Cufflinks was run to produce the fragment length and stdev statistics:
 
 ```bash
-for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa | grep -w '007'); do
-Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-AcceptedHits=alignment/$Organism/$Strain/concatenated/concatenated.bam
-OutDir=gene_pred/cufflinks/$Organism/$Strain/concatenated_prelim
-echo "$Organism - $Strain"
-mkdir -p $OutDir
-samtools merge -f $AcceptedHits \
-alignment/paired/$Organism/$Strain/V0/accepted_hits.bam \
-alignment/paired/$Organism/$Strain/V2/accepted_hits.bam \
-alignment/paired/$Organism/$Strain/V5/accepted_hits.bam
-cufflinks -o $OutDir/cufflinks -p 8 --max-intron-length 4000 $AcceptedHits 2>&1 | tee $OutDir/cufflinks/cufflinks.log
-done
+	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa | grep -w '007'); do
+		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+		echo "$Organism - $Strain"
+		mkdir -p alignment/repeat_masked/$Organism/$Strain/concatenated_prelim
+		AcceptedHits=alignment/repeat_masked/$Organism/$Strain/concatenated_prelim/concatenated.bam
+		samtools merge -f $AcceptedHits \
+		alignment/repeat_masked/$Organism/$Strain/V0/accepted_hits.bam \
+		alignment/repeat_masked/$Organism/$Strain/V2/accepted_hits.bam \
+		alignment/repeat_masked/$Organism/$Strain/V5/accepted_hits.bam
+		OutDir=gene_pred/cufflinks/$Organism/$Strain/concatenated_prelim
+		mkdir -p $OutDir
+		cufflinks -o $OutDir/cufflinks -p 8 --max-intron-length 4000 $AcceptedHits 2>&1 | tee $OutDir/cufflinks/cufflinks.log
+	done
 ```
 <!--
 Output from stdout included:

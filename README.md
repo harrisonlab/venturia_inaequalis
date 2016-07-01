@@ -633,20 +633,21 @@ Cufflinks was run to produce the fragment length and stdev statistics:
 		cufflinks -o $OutDir/cufflinks -p 8 --max-intron-length 4000 $AcceptedHits 2>&1 | tee $OutDir/cufflinks/cufflinks.log
 	done
 ```
-<!--
+
 Output from stdout included:
 ```
-	Processed 22484 loci.                        [*************************] 100%
-	Map Properties:
-	     Normalized Map Mass: 50507412.55
-	     Raw Map Mass: 50507412.55
-	     Fragment Length Distribution: Empirical (learned)
-	                   Estimated Mean: 181.98
-	                Estimated Std Dev: 78.39
-	[13:02:48] Assembling transcripts and estimating abundances.
-	Processed 22506 loci.                        [*************************] 100%
+> Processed 46895 loci.                        [*************************] 100%
+> Map Properties:
+>       Normalized Map Mass: 11055132.29
+>       Raw Map Mass: 11055132.29
+>       Fragment Length Distribution: Truncated Gaussian (default)
+>                     Default Mean: 200
+>                  Default Std Dev: 80
+[17:10:50] Assembling transcripts and estimating abundances.
+> Processed 46920 loci.                        [*************************] 100%
 ```
 
+<!--
 The Estimated Mean: 181.98 allowed calculation of of the mean insert gap to be
 -20bp 182-(97*2) where 97 was the mean read length. This was provided to tophat
 on a second run (as the -r option) along with the fragment length stdev to

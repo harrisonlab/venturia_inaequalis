@@ -22,3 +22,15 @@ cat raw_dna/pacbio/v.inaequalis/172/*/Analysis_Results/*.subreads.fastq > $OutDi
 ```
 # Canu Assembly
 
+Genome size based on MiSeq assembled genome of the same isolate
+
+```bash
+Reads=$(ls raw_dna/pacbio/*/*/extracted/concatenated_pacbio.fastq)
+GenomeSz="70m"
+Strain=$(echo $Reads | rev | cut -f3 -d '/' | rev)
+Organism=$(echo $Reads | rev | cut -f4 -d '/' | rev)
+Prefix="$Strain"_canu
+OutDir="assembly/canu/$Organism/$Strain/70m"
+ProgDir=~/git_repos/tools/seq_tools/assemblers/canu
+qsub $ProgDir/submit_canu.sh $Reads $GenomeSz $Prefix $OutDir
+```

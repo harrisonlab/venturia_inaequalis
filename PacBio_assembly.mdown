@@ -1,5 +1,5 @@
-# venturia_inaequalis
-command for assembly of V. inaequalis isolate 172 genome from PacBio platform
+# Venturia inaequalis PacBio
+commands for assembly of V. inaequalis isolate 172 genome from PacBio platform
 
 ==========
 
@@ -10,6 +10,7 @@ Note - all this work was performed in the directory:
 
 #Building of directory structure
 
+```bash
 RawDatDir=/home/harrir/projects/pacbio_test/v_inaeq/ENQ-933_Richard_Harrison_EMR.RH_PPBFX-340_S6_05-172
 mkdir -p raw_dna/pacbio/v.inaequalis/172
 cp -r $RawDatDir/A03_1 raw_dna/pacbio/v.inaequalis/172
@@ -18,4 +19,6 @@ cp -r $RawDatDir/E06_1 raw_dna/pacbio/v.inaequalis/172
 OutDir=raw_dna/pacbio/v.inaequalis/172/extracted
 mkdir -p $OutDir
 cat raw_dna/pacbio/v.inaequalis/172/*/Analysis_Results/*.subreads.fastq > $OutDir/concatenated_pacbio.fastq
+```
+# Canu Assembly
 

@@ -1,0 +1,11 @@
+# venturia_inaequalis
+command for assembly of V. inaequalis isolate 172 genome from PacBio platform
+
+==========
+
+Scripts used for the assembly of venturia isolate 172 
+Note - all this work was performed in the directory:
+/home/groups/harrisonlab/project_files/venturia
+
+
+#Building of directory structure

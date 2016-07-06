@@ -34,3 +34,110 @@ OutDir="assembly/canu/$Organism/$Strain/70m"
 ProgDir=~/git_repos/tools/seq_tools/assemblers/canu
 qsub $ProgDir/submit_canu.sh $Reads $GenomeSz $Prefix $OutDir
 ```
+
+
+# Assembly polished with Pilon
+
+```bash
+Assembly=assembly/canu/v.inaequalis/172/70m/172_canu.contigs.fasta
+Organism=v.inaequalis
+Strain=172
+IlluminaDirF=qc_dna/paired/v.inaequalis/172/F
+IlluminaDirR=qc_dna/paired/v.inaequalis/172/R
+TrimF_Read=$IlluminaDirF/172_S4_L001_R1_001_trim.fq.gz
+TrimR_Read=$IlluminaDirR/172_S4_L001_R2_001_trim.fq.gz
+OutDir=assembly/canu/$Organism/$Strain/polished
+ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/pilon
+qsub $ProgDir/sub_pilon_2_libs.sh $Assembly $TrimF_Read $TrimR_Read $OutDir
+```
+
+<!--
+#Spades Assembly
+
+```bash
+for PacBioDat in $(ls raw_dna/pacbio/*/*/extracted/concatenated_pacbio.fastq)
+do
+    Organism=$(echo $PacBioDat | rev | cut -f4 -d '/' | rev)
+    Strain=$(echo $PacBioDat | rev | cut -f3 -d '/' | rev)
+    IlluminaDir=$(ls -d qc_dna/paired/$Organism/$Strain)
+    TrimF_Read=$(ls $IlluminaDir/F/172_S4_L001_R1_001_trim.fq.gz)
+    TrimR_Read=$(ls $IlluminaDir/R/172_S4_L001_R2_001_trim.fq.gz)
+    OutDir=assembly/spades_pacbio/$Organism/"$Strain"
+    echo $TrimF_Read
+    echo $TrimR_Read
+    ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/spades/multiple_libraries
+    qsub $ProgDir/subSpades_2lib_pacbio.sh $PacBioDat $TrimF_Read $TrimR_Read $OutDir 50
+done
+```
+# Filter out contigs <500bp
+
+```bash
+Contigs=assembly/spades_pacbio/v.inaequalis/172/contigs.fasta
+AssemblyDir=$(dirname $Contigs)
+mkdir $AssemblyDir/filtered_contigs
+FilterDir=/home/passet/git_repos/tools/seq_tools/assemblers/abyss
+$FilterDir/filter_abyss_contigs.py $Contigs 500 > $AssemblyDir/filtered_contigs/contigs_min_500bp.fasta
+```
+
+#Merge Canu and spades assembly
+
+```bash
+for PacBioAssembly in $(ls assembly/canu/*/*/polished/pilon.fasta)
+do
+    Organism=v.inaequalis
+    Strain=172
+    HybridAssembly=$(ls assembly/spades_pacbio/$Organism/$Strain/contigs.fasta)
+    OutDir=assembly/merged_canu_spades/$Organism/$Strain
+    ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/quickmerge
+    echo $HybridAssembly
+    qsub $ProgDir/sub_quickmerge.sh $PacBioAssembly $HybridAssembly $OutDir
+done
+```
+
+Polished merged assembly using Pilon
+
+```bash
+for Assembly in $(ls assembly/merged_canu_spades/v.inaequlais/172/70m/merged.fasta)
+do
+    Organism=v.inaequlais
+    Strain=172
+    Reads=$(echo $Assembly | rev | cut -f2 -d '/' | rev)
+    IlluminaDirF=qc_dna/paired/v.inaequlais/172/F
+    IlluminaDirR=qc_dna/paired/v.inaequalis/172/R
+    TrimF_Read=$(ls $IlluminaDir/F/172_S4_L001_R1_001_trim.fq.gz)
+    TrimR_Read=$(ls $IlluminaDir/R/172_S4_L001_R2_001_trim.fq.gz)
+    OutDir=assembly/merged_canu_spades/$Organism/$Strain/polished/70m
+    ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/pilon
+    qsub $ProgDir/sub_pilon_2_libs.sh $Assembly $TrimF_Read $TrimR_Read $OutDir
+done
+```
+
+Contigs renamed in accordance with ncbi recommendations
+
+```bash
+ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/remove_contaminants
+touch tmp.csv
+for Assembly in $(ls assembly/merged_canu_spades/v.inaequalis/172/polished/70m/pilon.fasta)
+do
+    Organism=v.inaequalis
+    Strain=172
+    OutDir=assembly/merged_canu_spades/$Organism/$Strain/70m/filtered_contigs
+    mkdir -p $OutDir
+    $ProgDir/remove_contaminants.py --inp $Assembly --out $OutDir/"$Strain"_contigs_renamed.fasta --coord_file tmp.csv
+done
+rm tmp.csv
+```
+
+# Assembly stats collected using quast
+
+```bash
+ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
+for Assembly in $(ls assembly/merged_canu_spades/v.inaequalis/172/polished/70m/pilon.fasta)
+do
+    Organism=v.inaequalis
+    Strain=172
+    OutDir=$(dirname $Assembly)
+    qsub $ProgDir/sub_quast.sh $Assembly $OutDir
+done
+```
+-->

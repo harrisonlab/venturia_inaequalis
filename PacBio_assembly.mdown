@@ -39,19 +39,29 @@ qsub $ProgDir/submit_canu.sh $Reads $GenomeSz $Prefix $OutDir
 # Assembly polished with Pilon
 
 ```bash
-Assembly=assembly/canu/v.inaequalis/172/70m/172_canu.contigs.fasta
+for Assembly in $(ls assembly/canu/v.inaequalis/172/70m/172_canu.contigs.fasta); do
 Organism=v.inaequalis
 Strain=172
-IlluminaDirF=qc_dna/paired/v.inaequalis/172/F
-IlluminaDirR=qc_dna/paired/v.inaequalis/172/R
-TrimF_Read=$IlluminaDirF/172_S4_L001_R1_001_trim.fq.gz
-TrimR_Read=$IlluminaDirR/172_S4_L001_R2_001_trim.fq.gz
+IlluminaDir=$(ls -d qc_dna/paired/$Organism/$Strain)
+TrimF1_Read=$IlluminaDir/F/172_S4_L001_R1_001_trim.fq.gz
+TrimR1_Read=$IlluminaDir/R/172_S4_L001_R2_001_trim.fq.gz
 OutDir=assembly/canu/$Organism/$Strain/polished
 ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/pilon
-qsub $ProgDir/sub_pilon_2_libs.sh $Assembly $TrimF_Read $TrimR_Read $OutDir
+qsub $ProgDir/sub_pilon.sh $Assembly $TrimF1_Read $TrimR1_Read $OutDir
+done
 ```
-
 <!--
+quast for stats
+```bash
+ ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
+  for Assembly in $(ls assembly/canu/*/*/polished/pilon.fasta); do
+    Strain=$(echo $Assembly | rev | cut -f2 -d '/' | rev)
+    Organism=$(echo $Assembly | rev | cut -f3 -d '/' | rev)  
+    OutDir=assembly/canu/$Organism/$Strain/polished
+    qsub $ProgDir/sub_quast.sh $Assembly $OutDir
+  done
+  ```
+
 #Spades Assembly
 
 ```bash

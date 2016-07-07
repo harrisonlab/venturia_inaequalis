@@ -115,6 +115,22 @@ Filter out contigs < 500bp from assembly
     qsub $ProgDir/sub_quickmerge.sh $PacBioAssembly $HybridAssembly $OutDir
   done
 ```
+
+Merged assembly polished with Pilon
+
+```bash
+  for Assembly in $(ls assembly/merged_canu_spades/*/*/merged.fasta); do
+    Organism=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+    Strain=$(echo $Assembly | rev | cut -f2 -d '/' | rev)
+    IlluminaDir=$(ls -d qc_dna/paired/$Organism/$Strain)
+    TrimF1_Read=$(ls $IlluminaDir/F/172_S4_L001_R1_001_trim.fq.gz);
+    TrimR1_Read=$(ls $IlluminaDir/R/172_S4_L001_R2_001_trim.fq.gz);
+    OutDir=assembly/merged_canu_spades/$Organism/$Strain/polished
+    ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/pilon
+    qsub $ProgDir/sub_pilon.sh $Assembly $TrimF1_Read $TrimR1_Read $OutDir
+  done
+```
+
 <!--
 Quast
 

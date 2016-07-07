@@ -94,29 +94,28 @@ Filter out contigs < 500bp from assembly
   Quast
 
 ```bash
-ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
-for Assembly in $(ls assembly/spades_pacbio/*/*/filtered_contigs/contigs_min_500bp.fasta); do
-Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
-Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
-OutDir=assembly/spades_pacbio/$Organism/$Strain/filtered_contigs
-qsub $ProgDir/sub_quast.sh $Assembly $OutDir
-done
+  ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
+  for Assembly in $(ls assembly/spades_pacbio/*/*/filtered_contigs/contigs_min_500bp.fasta); do
+    Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+    Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
+    OutDir=assembly/spades_pacbio/$Organism/$Strain/filtered_contigs
+    qsub $ProgDir/sub_quast.sh $Assembly $OutDir
+  done
 ```
-<!--
 
 #Merge pacbio and hybrid assemblies
 
-for PacBioAssembly in $(ls assembly/canu/*/*/polished/pilon.fasta)
-do
-    Organism=P.fragariae
-    Strain=Bc16
+```bash
+  for PacBioAssembly in $(ls assembly/canu/*/*/polished/pilon.fasta); do
+    Organism=$(echo $PacBioAssembly | rev | cut -f4 -d '/' | rev)
+    Strain=$(echo $PacBioAssembly | rev | cut -f3 -d '/' | rev)
     HybridAssembly=$(ls assembly/spades_pacbio/$Organism/$Strain/contigs.fasta)
     OutDir=assembly/merged_canu_spades/$Organism/$Strain
-    ProgDir=/home/adamst/git_repos/tools/seq_tools/assemblers/quickmerge
-    echo $HybridAssembly
+    ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/quickmerge
     qsub $ProgDir/sub_quickmerge.sh $PacBioAssembly $HybridAssembly $OutDir
-done
-
+  done
+```
+<!--
 Quast
 
 ```bash

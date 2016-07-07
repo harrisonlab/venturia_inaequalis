@@ -131,57 +131,38 @@ Merged assembly polished with Pilon
   done
 ```
 
-<!--
-Quast
+Contigs renamed in accordance with ncbi recommendations
 
 ```bash
-  ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
-  for Assembly in $(ls assembly/spades_pacbio/*/*/filtered_contigs/contigs_min_500bp.fasta); do
-    Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
-    Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
-    OutDir=assembly/spades_pacbio/$Organism/$Strain/filtered_contigs
-    qsub $ProgDir/sub_quast.sh $Assembly $OutDir
-  done
-```
-
-```bash
-  ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
-  for Assembly in $(ls assembly/canu/*/*/*_canu.contigs.fasta); do
-    Strain=$(echo $Assembly | rev | cut -f2 -d '/' | rev)
-    Organism=$(echo $Assembly | rev | cut -f3 -d '/' | rev)  
-    OutDir=assembly/canu/$Organism/$Strain/filtered_contigs
-    qsub $ProgDir/sub_quast.sh $Assembly $OutDir
-  done
-```
-
-Contigs were renamed in accordance with ncbi recomendations.
-
-```bash
-  ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/remove_contaminants
+  ProgDir=~/git_repos/tools/seq_tools/assemblers/assembly_qc/remove_contaminants
   touch tmp.csv
-  for Assembly in $(ls assembly/spades_pacbio/*/*/filtered_contigs/contigs_min_500bp.fasta); do
+  for Assembly in $(ls assembly/merged_canu_spades/*/*/polished/pilon.fasta); do
     Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
     Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
-    OutDir=assembly/spades_pacbio/$Organism/$Strain/filtered_contigs
+    OutDir=assembly/merged_canu_spades/$Organism/$Strain/filtered_contigs
+    mkdir -p $OutDir
     $ProgDir/remove_contaminants.py --inp $Assembly --out $OutDir/contigs_min_500bp_renamed.fasta --coord_file tmp.csv
   done
   rm tmp.csv
 ```
 
+
+Quast of polished merged assembly
+
 ```bash
-  ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/remove_contaminants
-  touch tmp.csv
-  for Assembly in $(ls assembly/canu/*/*/*_canu.contigs.fasta); do
-    Organism=$(echo $Assembly | rev | cut -f3 -d '/' | rev)  
-    Strain=$(echo $Assembly | rev | cut -f2 -d '/' | rev)
+  ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
+  for Assembly in $(ls assembly/spades_pacbio/*/*/filtered_contigs/contigs_min_500bp.fasta); do
+    Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+    Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
     OutDir=assembly/spades_pacbio/$Organism/$Strain/filtered_contigs
-    $ProgDir/remove_contaminants.py --inp $Assembly --out $OutDir/"$Strain"_canu_contigs_renamed.fasta --coord_file tmp.csv
+    qsub $ProgDir/sub_quast.sh $Assembly $OutDir
   done
-  rm tmp.csv
 ```
 
 
 
+
+<!--
 # Analysis of preliminary assemblies
 
 ## Preparing data

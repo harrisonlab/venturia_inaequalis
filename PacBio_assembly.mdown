@@ -80,9 +80,43 @@ for PacBioDat in $(ls raw_dna/pacbio/*/*/extracted/concatenated_pacbio.fastq); d
   qsub $ProgDir/sub_spades_pacbio.sh $PacBioDat $TrimF1_Read $TrimR1_Read $OutDir 10
 done
 ```
+Filter out contigs < 500bp from assembly
 
+```bash
+  for Contigs in $(ls assembly/spades_pacbio/*/*/contigs.fasta); do
+    AssemblyDir=$(dirname $Contigs)
+    mkdir $AssemblyDir/filtered_contigs
+    FilterDir=/home/passet/git_repos/tools/seq_tools/assemblers/abyss
+    $FilterDir/filter_abyss_contigs.py $Contigs 500 > $AssemblyDir/filtered_contigs/contigs_min_500bp.fasta
+  done
+```
 
+  Quast
+
+```bash
+ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
+for Assembly in $(ls assembly/spades_pacbio/*/*/filtered_contigs/contigs_min_500bp.fasta); do
+Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
+OutDir=assembly/spades_pacbio/$Organism/$Strain/filtered_contigs
+qsub $ProgDir/sub_quast.sh $Assembly $OutDir
+done
+```
 <!--
+
+#Merge pacbio and hybrid assemblies
+
+for PacBioAssembly in $(ls assembly/canu/*/*/polished/pilon.fasta)
+do
+    Organism=P.fragariae
+    Strain=Bc16
+    HybridAssembly=$(ls assembly/spades_pacbio/$Organism/$Strain/contigs.fasta)
+    OutDir=assembly/merged_canu_spades/$Organism/$Strain
+    ProgDir=/home/adamst/git_repos/tools/seq_tools/assemblers/quickmerge
+    echo $HybridAssembly
+    qsub $ProgDir/sub_quickmerge.sh $PacBioAssembly $HybridAssembly $OutDir
+done
+
 Quast
 
 ```bash
@@ -223,3 +257,4 @@ Convert top blast hits into gff annotations
     $ProgDir/blast2gff.pl $Column2 $NumHits $BlastHitsCsv > $HitsGff
   done
 ```
+-->

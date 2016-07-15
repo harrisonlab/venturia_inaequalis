@@ -159,8 +159,158 @@ Quast of polished merged assembly
   done
 ```
 
+###Re-assembly of Pacbio isolate 172 with extra reads
+#Building of directory structure
+
+```bash
+RawDatDir=/home/harrir/projects/pacbio_test/v_inaeq/
+cp -r $RawDatDir/ENQ-933_Richard_Harrison_EMR.RH_PPBFX-340_S6_05-172_repeat.tar.gz raw_dna/pacbio/v.inaequalis/172
+tar -C /raw_dna/pacbio/v.inaequalis/172 -zxvf raw_dna/pacbio/v.inaequalis/172/ENQ-933_Richard_Harrison_EMR.RH_PPBFX-340_S6_05-172_repeat.tar.gz
+ mv raw_dna/pacbio/v.inaequalis/172/ENQ-933_Richard_Harrison_EMR.RH_PPBFX-340_S6_05-172_repeat/A03_1/ raw_dna/pacbio/v.inaequalis/172/repeat
+OutDir=raw_dna/pacbio/v.inaequalis/172/extracted
+cat raw_dna/pacbio/v.inaequalis/172/*/Analysis_Results/*.subreads.fastq > $OutDir/concatenated_pacbio.fastq
+```
+
+
+# Canu Assembly
+
+Genome size based on MiSeq assembled genome of the same isolate
+
+```bash
+Reads=$(ls raw_dna/pacbio/*/*/extracted/concatenated_pacbio.fastq)
+GenomeSz="70m"
+Strain=$(echo $Reads | rev | cut -f3 -d '/' | rev)
+Organism=$(echo $Reads | rev | cut -f4 -d '/' | rev)
+Prefix="$Strain"_canu
+OutDir="assembly/canu/$Organism/$Strain/repeat"
+ProgDir=~/git_repos/tools/seq_tools/assemblers/canu
+qsub $ProgDir/submit_canu.sh $Reads $GenomeSz $Prefix $OutDir
+```
 
 <!--
+### Assembly polished with Pilon
+
+```bash
+for Assembly in $(ls assembly/canu/v.inaequalis/172/repeat/172_canu.contigs.fasta); do
+    Organism=v.inaequalis
+    Strain=172
+    IlluminaDir=$(ls -d qc_dna/paired/$Organism/$Strain)
+    TrimF1_Read=$IlluminaDir/F/172_S4_L001_R1_001_trim.fq.gz
+    TrimR1_Read=$IlluminaDir/R/172_S4_L001_R2_001_trim.fq.gz
+    OutDir=assembly/canu/$Organism/$Strain/polished
+    ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/pilon
+    qsub $ProgDir/sub_pilon.sh $Assembly $TrimF1_Read $TrimR1_Read $OutDir
+done
+```
+
+quast for stats
+```bash
+ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
+for Assembly in $(ls assembly/canu/*/*/polished/pilon.fasta); do
+    Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+    Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
+    OutDir=assembly/canu/$Organism/$Strain/polished
+    qsub $ProgDir/sub_quast.sh $Assembly $OutDir
+done
+  ```
+
+ 
+
+# Spades Assembly
+
+```bash
+for PacBioDat in $(ls raw_dna/pacbio/*/*/extracted/concatenated_pacbio.fastq); do
+  Organism=$(echo $PacBioDat | rev | cut -f4 -d '/' | rev)
+  Strain=$(echo $PacBioDat | rev | cut -f3 -d '/' | rev)
+  IlluminaDir=$(ls -d qc_dna/paired/$Organism/$Strain)
+  TrimF1_Read=$(ls $IlluminaDir/F/172_S4_L001_R1_001_trim.fq.gz);
+  TrimR1_Read=$(ls $IlluminaDir/R/172_S4_L001_R2_001_trim.fq.gz);
+  OutDir=assembly/spades_pacbio/$Organism/"$Strain"
+  echo $TrimF1_Read
+  echo $TrimR1_Read
+  ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/spades
+  qsub $ProgDir/sub_spades_pacbio.sh $PacBioDat $TrimF1_Read $TrimR1_Read $OutDir 10
+done
+```
+Filter out contigs < 500bp from assembly
+
+```bash
+  for Contigs in $(ls assembly/spades_pacbio/*/*/contigs.fasta); do
+    AssemblyDir=$(dirname $Contigs)
+    mkdir $AssemblyDir/filtered_contigs
+    FilterDir=/home/passet/git_repos/tools/seq_tools/assemblers/abyss
+    $FilterDir/filter_abyss_contigs.py $Contigs 500 > $AssemblyDir/filtered_contigs/contigs_min_500bp.fasta
+  done
+```
+
+  Quast
+
+```bash
+  ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
+  for Assembly in $(ls assembly/spades_pacbio/*/*/filtered_contigs/contigs_min_500bp.fasta); do
+    Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+    Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
+    OutDir=assembly/spades_pacbio/$Organism/$Strain/filtered_contigs
+    qsub $ProgDir/sub_quast.sh $Assembly $OutDir
+  done
+```
+
+#Merge pacbio and hybrid assemblies
+
+```bash
+  for PacBioAssembly in $(ls assembly/canu/*/*/polished/pilon.fasta); do
+    Organism=$(echo $PacBioAssembly | rev | cut -f4 -d '/' | rev)
+    Strain=$(echo $PacBioAssembly | rev | cut -f3 -d '/' | rev)
+    HybridAssembly=$(ls assembly/spades_pacbio/$Organism/$Strain/contigs.fasta)
+    OutDir=assembly/merged_canu_spades/$Organism/$Strain
+    ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/quickmerge
+    qsub $ProgDir/sub_quickmerge.sh $PacBioAssembly $HybridAssembly $OutDir
+  done
+```
+
+Merged assembly polished with Pilon
+
+```bash
+  for Assembly in $(ls assembly/merged_canu_spades/*/*/merged.fasta); do
+    Organism=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+    Strain=$(echo $Assembly | rev | cut -f2 -d '/' | rev)
+    IlluminaDir=$(ls -d qc_dna/paired/$Organism/$Strain)
+    TrimF1_Read=$(ls $IlluminaDir/F/172_S4_L001_R1_001_trim.fq.gz);
+    TrimR1_Read=$(ls $IlluminaDir/R/172_S4_L001_R2_001_trim.fq.gz);
+    OutDir=assembly/merged_canu_spades/$Organism/$Strain/polished
+    ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/pilon
+    qsub $ProgDir/sub_pilon.sh $Assembly $TrimF1_Read $TrimR1_Read $OutDir
+  done
+```
+
+Contigs renamed in accordance with ncbi recommendations
+
+```bash
+  ProgDir=~/git_repos/tools/seq_tools/assemblers/assembly_qc/remove_contaminants
+  touch tmp.csv
+  for Assembly in $(ls assembly/merged_canu_spades/*/*/polished/pilon.fasta); do
+    Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+    Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
+    OutDir=assembly/merged_canu_spades/$Organism/$Strain/filtered_contigs
+    mkdir -p $OutDir
+    $ProgDir/remove_contaminants.py --inp $Assembly --out $OutDir/contigs_min_500bp_renamed.fasta --coord_file tmp.csv
+  done
+  rm tmp.csv
+```
+
+
+Quast of polished merged assembly
+
+```bash
+  ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
+  for Assembly in $(ls assembly/merged_canu_spades/*/*/filtered_contigs/contigs_min_500bp_renamed.fasta); do
+    Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+    Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
+    OutDir=assembly/merged_canu_spades/$Organism/$Strain/filtered_contigs
+    qsub $ProgDir/sub_quast.sh $Assembly $OutDir
+  done
+```
+
 # Analysis of preliminary assemblies
 
 ## Preparing data

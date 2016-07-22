@@ -647,9 +647,9 @@ Output from stdout included:
 > Processed 46920 loci.                        [*************************] 100%
 ```
 
-<!--
-The Estimated Mean: 181.98 allowed calculation of of the mean insert gap to be
--20bp 182-(97*2) where 97 was the mean read length. This was provided to tophat
+
+The Estimated Mean: 200 allowed calculation of of the mean insert gap to be
+-88 bp 200-(144*2) where 144 was the mean read length. This was provided to tophat
 on a second run (as the -r option) along with the fragment length stdev to
 increase the accuracy of mapping.
 
@@ -657,37 +657,37 @@ increase the accuracy of mapping.
 Then Rnaseq data was aligned to each genome assembly:
 
 ```bash
-InsertGap='-20'
-InsertStdDev='78'
+InsertGap='-88'
+InsertStdDev='80'
 
-for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa); do
-Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
-while [ $Jobs -gt 1 ]; do
-sleep 10
-printf "."
-Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
-done
-Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-Paired=$(echo $Assembly | rev | cut -d '/' -f5 | rev)
-echo "$Organism - $Strain"
-for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'paired'); do
-Timepoint=$(echo $rna_file | rev | cut -f2 -d '/' | rev)
-echo "$Timepoint"
-OutDir=alignment/$Paired/$Organism/$Strain/$Timepoint
-ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
-qsub $ProgDir/tophat_alignment_unpaired.sh $Assembly $rna_file $OutDir $InsertGap $InsertStdDev
-done
-for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'unpaired'); do
-Timepoint=$(echo $rna_file | rev | cut -f2 -d '/' | rev)
-echo "$Timepoint"
-OutDir=alignment/$Paired/$Organism/$Strain/$Timepoint
-ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
-qsub $ProgDir/tophat_alignment_unpaired.sh $Assembly $rna_file $OutDir
-done
-done
+	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa); do
+		Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
+		while [ $Jobs -gt 1 ]; do
+		sleep 10
+		printf "."
+		Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
+		done
+		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+		Paired=$(echo $Assembly | rev | cut -d '/' -f5 | rev)
+		echo "$Organism - $Strain"
+		for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'paired'); do
+			Timepoint=$(echo $rna_file | rev | cut -f2 -d '/' | rev)
+			echo "$Timepoint"
+			OutDir=alignment/$Paired/$Organism/$Strain/$Timepoint
+			ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
+			qsub $ProgDir/tophat_alignment_interlevered.sh $Assembly $rna_file $OutDir $InsertGap $InsertStdDev
+		done
+		for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'unpaired'); do
+			Timepoint=$(echo $rna_file | rev | cut -f2 -d '/' | rev)
+			echo "$Timepoint"
+			OutDir=alignment/$Paired/$Organism/$Strain/$Timepoint
+			ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
+			qsub $ProgDir/tophat_alignment_unpaired.sh $Assembly $rna_file $OutDir
+		done
+	done
 ```
-
+<!--
 #### Braker prediction
 
 ```bash

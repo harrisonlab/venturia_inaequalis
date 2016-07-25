@@ -654,34 +654,34 @@ on a second run (as the -r option) along with the fragment length stdev to
 increase the accuracy of mapping.
 
 
-Then Rnaseq data was aligned to each genome assembly:
+Then RNaseq data was aligned to each genome assembly:
 
 ```bash
 InsertGap='-88'
 InsertStdDev='80'
 
 	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa); do
-		Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
-		while [ $Jobs -gt 1 ]; do
-		sleep 10
-		printf "."
-		Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
+			Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
+			while [ $Jobs -gt 1 ]; do
+			sleep 10
+			printf "."
+			Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
 		done
-		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-		Paired=$(echo $Assembly | rev | cut -d '/' -f5 | rev)
-		echo "$Organism - $Strain"
-		for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'paired'); do
-			Timepoint=$(echo $rna_file | rev | cut -f2 -d '/' | rev)
+			Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+			Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+			Paired=$(echo $Assembly | rev | cut -d '/' -f5 | rev)
+			echo "$Organism - $Strain"
+			for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'paired'); do
+			Timepoint=$(echo $rna_file | rev | cut -f3 -d '/' | rev)
 			echo "$Timepoint"
-			OutDir=alignment/$Paired/$Organism/$Strain/$Timepoint
+			OutDir=alignment/$Paired/$Organism/$Strain/"$Timepoint"_paired
 			ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
 			qsub $ProgDir/tophat_alignment_interlevered.sh $Assembly $rna_file $OutDir $InsertGap $InsertStdDev
 		done
 		for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'unpaired'); do
-			Timepoint=$(echo $rna_file | rev | cut -f2 -d '/' | rev)
+			Timepoint=$(echo $rna_file | rev | cut -f3 -d '/' | rev)
 			echo "$Timepoint"
-			OutDir=alignment/$Paired/$Organism/$Strain/$Timepoint
+			OutDir=alignment/$Paired/$Organism/$Strain/"$Timepoint"_unpaired
 			ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
 			qsub $ProgDir/tophat_alignment_unpaired.sh $Assembly $rna_file $OutDir
 		done
@@ -691,7 +691,13 @@ InsertStdDev='80'
 #### Braker prediction
 
 ```bash
-	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa | grep -e 'FOP1'); do
+	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa); do
+			Jobs=$(qstat | grep 'sub_br' | grep 'qw' | wc -l)
+		while [ $Jobs -gt 1 ]; do
+		sleep 10
+		printf "."
+		Jobs=$(qstat | grep 'sub_br' | grep 'qw' | wc -l)
+		done
 		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
 		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
 		echo "$Organism - $Strain"
@@ -723,11 +729,11 @@ InsertStdDev='80'
 		AcceptedHits=alignment/$Organism/$Strain/concatenated/concatenated.bam
 		GeneModelName="$Organism"_"$Strain"_braker_new
 		rm -r /home/armita/prog/augustus-3.1/config/species/"$Organism"_"$Strain"_braker_new
-		ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/braker1
+		ProgDir=/home/passet/git_repos/tools/gene_prediction/braker1
 		qsub $ProgDir/sub_braker_fungi.sh $Assembly $OutDir $AcceptedHits $GeneModelName
 	done
 ```
-
+<!--
 Fasta and gff files were extracted from Braker1 output.
 
 ```bash

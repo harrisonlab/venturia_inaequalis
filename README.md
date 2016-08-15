@@ -757,73 +757,17 @@ Ran remaining genomes
 	done
 ```
 
-<!--
+
 Fasta and gff files were extracted from Braker1 output.
 
 ```bash
-	for File in $(ls gene_pred/braker/F.*/*_braker_new/*/augustus.gff); do
-		getAnnoFasta.pl $File
-		OutDir=$(dirname $File)
-		echo "##gff-version 3" > $OutDir/augustus_extracted.gff
-		cat $File | grep -v '#' >> $OutDir/augustus_extracted.gff
-	done
+for File in $(ls gene_pred/braker/v.*/*_braker_new/*/augustus.gff); do
+getAnnoFasta.pl $File
+OutDir=$(dirname $File)
+echo "##gff-version 3" > $OutDir/augustus_extracted.gff
+cat $File | grep -v '#' >> $OutDir/augustus_extracted.gff
+done
 ```
-
-The relationship between gene models and aligned reads was investigated. To do
-this aligned reads needed to be sorted and indexed:
-
-Note - IGV was used to view aligned reads against the Fus2 genome on my local
-machine.
-
-```bash
-	InBam=alignment/F.oxysporum_fsp_cepae/Fus2_edited_v2/concatenated/concatenated.bam
-	ViewBam=alignment/F.oxysporum_fsp_cepae/Fus2_edited_v2/concatenated/concatenated_view.bam
-	SortBam=alignment/F.oxysporum_fsp_cepae/Fus2_edited_v2/concatenated/concatenated_sorted
-	samtools view -b $InBam > $ViewBam
-	samtools sort $ViewBam $SortBam
-	samtools index $SortBam.bam
-```
-
-
-Cufflinks was run to compare the predicted genes to assembled transcripts:
-
-```bash
-	for Assembly in $(ls repeat_masked/*/FOP1/*/*_contigs_softmasked.fa); do
-		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-		AcceptedHits=alignment/$Organism/$Strain/concatenated/concatenated.bam
-		OutDir=gene_pred/cufflinks/$Organism/$Strain/concatenated
-		echo "$Organism - $Strain"
-		mkdir -p $OutDir
-		samtools merge -f $AcceptedHits \
-		alignment/$Organism/$Strain/55_72hrs_rep1/accepted_hits.bam \
-		alignment/$Organism/$Strain/55_72hrs_rep2/accepted_hits.bam \
-		alignment/$Organism/$Strain/55_72hrs_rep3/accepted_hits.bam \
-		alignment/$Organism/$Strain/FO47_72hrs_rep1/accepted_hits.bam \
-		alignment/$Organism/$Strain/FO47_72hrs_rep2/accepted_hits.bam \
-		alignment/$Organism/$Strain/FO47_72hrs_rep3/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_0hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_16hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_24hrs_prelim_rep1/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_36hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_48hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_4hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_72hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_72hrs_rep1/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_72hrs_rep2/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_72hrs_rep3/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_8hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_96hrs_prelim/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_CzapekDox/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_GlucosePeptone/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_PDA/accepted_hits.bam \
-		alignment/$Organism/$Strain/Fus2_PDB/accepted_hits.bam
-		ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/RNAseq
-		qsub $ProgDir/sub_cufflinks.sh $AcceptedHits $OutDir/cuflfinks
-	# cufflinks -o $OutDir/cufflinks -p 8 --max-intron-length 4000 $AcceptedHits 2>&1 | tee $OutDir/cufflinks/cufflinks.log
-	done
-```
-
 
 
 ## Supplimenting Braker gene models with CodingQuary genes
@@ -837,22 +781,34 @@ Note - cufflinks doesn't always predict direction of a transcript and
 therefore features can not be restricted by strand when they are intersected.
 
 ```bash
-	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa | grep -e 'FOP1'); do
+	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa); do 
+			Jobs=$(qstat | grep 'sub_cu' | grep 'qw' | wc -l)
+			while [ $Jobs -gt 1 ]; do
+			sleep 10
+			printf "."
+		Jobs=$(qstat | grep 'sub_cu' | grep 'qw' | wc -l)
+		done
 		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
 		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
 		echo "$Organism - $Strain"
 		OutDir=gene_pred/cufflinks/$Organism/$Strain/concatenated
 		mkdir -p $OutDir
-		AcceptedHits=alignment/$Organism/$Strain/concatenated/concatenated.bam
-		ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/RNAseq
+		AcceptedHits=alignment/repeat_masked/$Organism/$Strain/concatenated/concatenated.bam
+		ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
 		qsub $ProgDir/sub_cufflinks.sh $AcceptedHits $OutDir
 	done
 ```
-
+<!--
 Secondly, genes were predicted using CodingQuary:
 
 ```bash
 	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa | grep -e 'FOP1'); do
+	Jobs=$(qstat | grep 'sub_Co' | grep 'qw' | wc -l)
+while [ $Jobs -gt 1 ]; do
+sleep 10
+printf "."
+Jobs=$(qstat | grep 'sub_Co' | grep 'qw' | wc -l)
+done
 		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
 		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
 		echo "$Organism - $Strain"

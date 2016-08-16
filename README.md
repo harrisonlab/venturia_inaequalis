@@ -798,27 +798,28 @@ therefore features can not be restricted by strand when they are intersected.
 		qsub $ProgDir/sub_cufflinks.sh $AcceptedHits $OutDir
 	done
 ```
-<!--
+
 Secondly, genes were predicted using CodingQuary:
 
 ```bash
-	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa | grep -e 'FOP1'); do
-	Jobs=$(qstat | grep 'sub_Co' | grep 'qw' | wc -l)
-while [ $Jobs -gt 1 ]; do
-sleep 10
-printf "."
-Jobs=$(qstat | grep 'sub_Co' | grep 'qw' | wc -l)
-done
+	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa); do
+			Jobs=$(qstat | grep 'sub_Co' | grep 'qw' | wc -l)
+			while [ $Jobs -gt 1 ]; do
+			sleep 10
+			printf "."
+			Jobs=$(qstat | grep 'sub_Co' | grep 'qw' | wc -l)
+			done
 		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
 		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
 		echo "$Organism - $Strain"
 		OutDir=gene_pred/codingquary/$Organism/$Strain
 		CufflinksGTF=gene_pred/cufflinks/$Organism/$Strain/concatenated/transcripts.gtf
-		ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/codingquary
+		ProgDir=/home/passet/git_repos/tools/gene_prediction/codingquary
 		qsub $ProgDir/sub_CodingQuary.sh $Assembly $CufflinksGTF $OutDir
 	done
 ```
 
+<!--
 Then, additional transcripts were added to Braker gene models, when CodingQuary
 genes were predicted in regions of the genome, not containing Braker gene
 models:

@@ -819,17 +819,17 @@ Secondly, genes were predicted using CodingQuary:
 	done
 ```
 
-<!--
+
 Then, additional transcripts were added to Braker gene models, when CodingQuary
 genes were predicted in regions of the genome, not containing Braker gene
 models:
 
 ```bash
-	for BrakerGff in $(ls gene_pred/braker/F.*/*_braker_new/*/augustus.gff3 | grep -e 'FOP1'); do
+	for BrakerGff in $(ls gene_pred/braker/v.*/*_braker_new/*/augustus.gff3); do
 		Strain=$(echo $BrakerGff| rev | cut -d '/' -f3 | rev | sed 's/_braker_new//g')
 		Organism=$(echo $BrakerGff | rev | cut -d '/' -f4 | rev)
 		echo "$Organism - $Strain"
-		# BrakerGff=gene_pred/braker/$Organism/$Strain/F.oxysporum_fsp_cepae_Fus2_braker/augustus_extracted.gff
+		# BrakerGff=gene_pred/braker/$Organism/$Strain/v.inaequalis_*/augustus_extracted.gff
 		Assembly=$(ls repeat_masked/$Organism/$Strain/*/"$Strain"_contigs_softmasked.fa)
 		CodingQuaryGff=gene_pred/codingquary/$Organism/$Strain/out/PredictedPass.gff3
 		PGNGff=gene_pred/codingquary/$Organism/$Strain/out/PGN_predictedPass.gff3
@@ -843,12 +843,11 @@ models:
 
 		bedtools intersect -v -a $CodingQuaryGff -b $BrakerGff | grep 'gene'| cut -f2 -d'=' | cut -f1 -d';' > $AddGenesList
 		bedtools intersect -v -a $PGNGff -b $BrakerGff | grep 'gene'| cut -f2 -d'=' | cut -f1 -d';' >> $AddGenesList
-		ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation
+		ProgDir=/home/passet/git_repos/tools/seq_tools/feature_annotation
 		$ProgDir/gene_list_to_gff.pl $AddGenesList $CodingQuaryGff CodingQuarry_v2.0 ID CodingQuary > $AddGenesGff
 		$ProgDir/gene_list_to_gff.pl $AddGenesList $PGNGff PGNCodingQuarry_v2.0 ID CodingQuary >> $AddGenesGff
-		ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/codingquary
-		# GffFile=gene_pred/codingquary/F.oxysporum_fsp_cepae/Fus2_edited_v2/additional/additional_genes.gff
-		# GffFile=gene_pred/codingquary/F.oxysporum_fsp_cepae/Fus2_edited_v2/out/PredictedPass.gff3
+		ProgDir=/home/passet/git_repos/tools/gene_prediction/codingquary
+
 
 		$ProgDir/add_CodingQuary_features.pl $AddGenesGff $Assembly > $FinalDir/final_genes_CodingQuary.gff3
 		$ProgDir/gff2fasta.pl $Assembly $FinalDir/final_genes_CodingQuary.gff3 $FinalDir/final_genes_CodingQuary
@@ -864,54 +863,139 @@ models:
 		GffAppended=$FinalDir/final_genes_appended.gff3
 		cat $GffBraker $GffQuary > $GffAppended
 
-		# cat $BrakerGff $AddDir/additional_gene_parsed.gff3 | bedtools sort > $FinalGff
 	done
 ```
+
 
 The final number of genes per isolate was observed using:
 ```bash
-for DirPath in $(ls -d gene_pred/codingquary/F.*/*/final); do
-echo $DirPath;
-cat $DirPath/final_genes_Braker.pep.fasta | grep '>' | wc -l;
-cat $DirPath/final_genes_CodingQuary.pep.fasta | grep '>' | wc -l;
-cat $DirPath/final_genes_combined.pep.fasta | grep '>' | wc -l;
-echo "";
-done
-```
-
-
-## ORF finder
-
-The genome was searched in six reading frames for any start codon and following
-translated identification of a start codon translating sequence until a stop
-codon was found. This is based upon the atg.pl script used in paper describing
-the P. infestans genome. Additional functionality was added to this script by
-also printing ORFs in .gff format.
-
-
-```bash
-	ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/ORF_finder
-	for Genome in $(ls repeat_masked/F.*/*/*/*_contigs_unmasked.fa); do
-		qsub $ProgDir/run_ORF_finder.sh $Genome
+	for DirPath in $(ls -d gene_pred/codingquary/v.*/*/final); do
+	echo $DirPath;
+	cat $DirPath/final_genes_Braker.pep.fasta | grep '>' | wc -l;
+	cat $DirPath/final_genes_CodingQuary.pep.fasta | grep '>' | wc -l;
+	cat $DirPath/final_genes_combined.pep.fasta | grep '>' | wc -l;
+	echo "";
 	done
 ```
+Output:
 
-The Gff files from the the ORF finder are not in true Gff3 format. These were
-corrected using the following commands:
+gene_pred/codingquary/v.inaequalis/007/final
+12019
+1409
+13428
 
-```bash
-	ProgDir=~/git_repos/emr_repos/tools/seq_tools/feature_annotation
-	for ORF_Gff in $(ls gene_pred/ORF_finder/*/*/*_ORF.gff | grep -v '_F_atg_' | grep -v '_R_atg_'); do
-		ORF_Gff_mod=$(echo $ORF_Gff | sed 's/_ORF.gff/_ORF_corrected.gff3/g')
-		echo ""
-		echo "Correcting the following file:"
-		echo $ORF_Gff
-		echo "Redirecting to:"
-		echo $ORF_Gff_mod
-		$ProgDir/gff_corrector.pl $ORF_Gff > $ORF_Gff_mod
-	done
-```
+gene_pred/codingquary/v.inaequalis/024/final
+12073
+1245
+13318
 
+gene_pred/codingquary/v.inaequalis/025/final
+14495
+3522
+18017
+
+gene_pred/codingquary/v.inaequalis/030/final
+12073
+1278
+13351
+
+gene_pred/codingquary/v.inaequalis/044/final
+12164
+1320
+13484
+
+gene_pred/codingquary/v.inaequalis/049/final
+12026
+1220
+13246
+
+gene_pred/codingquary/v.inaequalis/057/final
+13405
+1122
+14527
+
+gene_pred/codingquary/v.inaequalis/083/final
+12024
+1392
+13416
+
+gene_pred/codingquary/v.inaequalis/096/final
+12085
+1231
+13316
+
+gene_pred/codingquary/v.inaequalis/097/final
+12026
+1183
+13209
+
+gene_pred/codingquary/v.inaequalis/098/final
+12030
+1257
+13287
+
+gene_pred/codingquary/v.inaequalis/101/final
+12023
+1272
+13295
+
+gene_pred/codingquary/v.inaequalis/106/final
+11988
+1288
+13276
+
+gene_pred/codingquary/v.inaequalis/118/final
+10392
+3397
+13789
+
+gene_pred/codingquary/v.inaequalis/119/final
+12063
+1257
+13320
+
+gene_pred/codingquary/v.inaequalis/172/final
+12087
+1343
+13430
+
+gene_pred/codingquary/v.inaequalis/173/final
+12002
+1154
+13156
+
+gene_pred/codingquary/v.inaequalis/182/final
+12050
+1192
+13242
+
+gene_pred/codingquary/v.inaequalis/196/final
+12029
+1207
+13236
+
+gene_pred/codingquary/v.inaequalis/197/final
+12094
+1259
+13353
+
+gene_pred/codingquary/v.inaequalis/199/final
+12031
+1467
+13498
+
+gene_pred/codingquary/v.inaequalis/202/final
+11935
+1170
+13105
+
+gene_pred/codingquary/v.inaequalis/saturn/final
+11967
+1183
+13150
+
+
+<!--
 #Functional annotation
 
 ## A) Interproscan
@@ -983,53 +1067,6 @@ commands:
 
 #Genomic analysis
 
-## Comparison to FoL 4287
-
-BLast searches were used to identify which genes had homologs on which
-chromosomes of the Fusarium lycopersici genome.
-
-```bash
-	FoLGenomeFa=assembly/external_group/F.oxysporum_fsp_lycopersici/4287_chromosomal/ensembl/Fusarium_oxysporum.FO2.31.dna.chromosome.fa
-	for Proteome in $(ls gene_pred/codingquary/F.*/*/*/final_genes_combined.pep.fasta | grep -e 'FOP1'); do
-	# for Proteome in $(ls assembly/external_group/F.oxysporum/fo47/broad/fusarium_oxysporum_fo47_1_proteins.fasta); do
-	# for Proteome in $(ls gene_pred/external_group/F.oxysporum_fsp_lycopersici/4287/Fusox1/Fusox1_GeneCatalog_proteins_20110522_parsed.fa); do
-		Strain=$(echo $Proteome | rev | cut -f3 -d '/' | rev)
-		Organism=$(echo $Proteome | rev | cut -f4 -d '/' | rev)
-		echo "$Organism - $Strain"
-		OutDir=analysis/blast_homology/$Organism/$Strain
-		ProgDir=/home/armita/git_repos/emr_repos/tools/pathogen/blast
-		qsub $ProgDir/run_blast2csv.sh $Proteome protein $FoLGenomeFa $OutDir
-	done
-```
-
-Convert top blast hits into gff annotations
-
-```bash
-	for BlastHitsCsv in $(ls analysis/blast_homology/F.*/*/4287_chromosomal_final_genes_combined.pep.fasta_hits.csv | grep -e 'FOP1'); do
-		Organism=$(echo $BlastHitsCsv | rev | cut -f3 -d '/' | rev)
-		Strain=$(echo $BlastHitsCsv | rev | cut -f2 -d '/' | rev)
-		echo "$Organism - $Strain"
-		HitsGff=$(echo $BlastHitsCsv | sed  's/.csv/.gff/g')
-		Column2="$Strain"_gene_homolog
-		NumHits=1
-		ProgDir=/home/armita/git_repos/emr_repos/tools/pathogen/blast
-		$ProgDir/blast2gff.pl $Column2 $NumHits $BlastHitsCsv > $HitsGff
-	done
-```
-
-#### 2.6.3) Intersecting blast hits with genes from FoL
-
-```bash
-	for HitsGff in $(ls analysis/blast_homology/F.*/*/4287_chromosomal_final_genes_combined.pep.fasta_hits.gff); do
-		Organism=$(echo $HitsGff | rev | cut -f3 -d '/' | rev)
-		Strain=$(echo $HitsGff| rev | cut -f2 -d '/' | rev)
-		echo "$Organism - $Strain"
-		HitsDir=$(dirname $HitsGff)
-		FoLGenes=assembly/external_group/F.oxysporum_fsp_lycopersici/4287_chromosomal/ensembl/Fusarium_oxysporum.FO2.31.chr.gff3
-		FoLIntersect=$HitsDir/4287_chromosomal_final_genes_combined_intersect.bed
-		bedtools intersect -wo -a $HitsGff -b $FoLGenes > $FoLIntersect
-	done
-```
 
 ## Effector genes
 
@@ -1038,11 +1075,7 @@ gene models using a number of approaches:
 
  * A) From Augustus gene models - Identifying secreted proteins
  * B) From Augustus gene models - Effector identification using EffectorP
- * D) From ORF fragments - Signal peptide & RxLR motif  
- * E) From ORF fragments - Hmm evidence of WY domains  
- * F) From ORF fragments - Hmm evidence of RxLR effectors  
-
-
+ 
 ### A) From Augustus gene models - Identifying secreted proteins
 
 Required programs:
@@ -1064,11 +1097,11 @@ the following commands:
 		BaseName="$Organism""_$Strain"_final_preds
 		$SplitfileDir/splitfile_500.py --inp_fasta $Proteome --out_dir $SplitDir --out_base $BaseName
 		for File in $(ls $SplitDir/*_final_preds_*); do
-			Jobs=$(qstat | grep 'pred_sigP' | grep 'qw' | wc -l)
-			while [ $Jobs -gt 1 ]; do
+			Jobs=$(qstat | grep 'pred_sigP' | wc -l)
+			while [ $Jobs -gt 20 ]; do
 				sleep 10
 				printf "."
-				Jobs=$(qstat | grep 'pred_sigP' | grep 'qw' | wc -l)
+				Jobs=$(qstat | grep 'pred_sigP' | wc -l)
 			done
 			printf "\n"
 			echo $File
@@ -1134,39 +1167,6 @@ Required programs:
 	done
 
 ```
-
-### C) Identification of MIMP-flanking genes
-
-```bash
-	for Genome in $(ls repeat_masked/F.*/*/*/*_contigs_unmasked.fa | grep -e 'FOP1'); do
-		Organism=$(echo "$Genome" | rev | cut -d '/' -f4 | rev)
-		Strain=$(echo "$Genome" | rev | cut -d '/' -f3 | rev)
-		BrakerGff=$(ls gene_pred/codingquary/$Organism/"$Strain"/final/final_genes_CodingQuary.gff3)
-		QuaryGff=$(ls gene_pred/codingquary/$Organism/"$Strain"/final/final_genes_Braker.gff3)
-		OutDir=analysis/mimps/$Organism/$Strain
-		mkdir -p "$OutDir"
-		echo "$Organism - $Strain"
-		ProgDir="/home/armita/git_repos/emr_repos/tools/pathogen/mimp_finder"
-		$ProgDir/mimp_finder.pl $Genome $OutDir/"$Strain"_mimps.fa $OutDir/"$Strain"_mimps.gff > $OutDir/"$Strain"_mimps.log
-		$ProgDir/gffexpander.pl +- 2000 $OutDir/"$Strain"_mimps.gff > $OutDir/"$Strain"_mimps_exp.gff
-		echo "The number of mimps identified:"
-		cat $OutDir/"$Strain"_mimps.fa | grep '>' | wc -l
-		bedtools intersect -u -a $BrakerGff -b $OutDir/"$Strain"_mimps_exp.gff > $OutDir/"$Strain"_genes_in_2kb_mimp.gff
-		bedtools intersect -u -a $QuaryGff -b $OutDir/"$Strain"_mimps_exp.gff >> $OutDir/"$Strain"_genes_in_2kb_mimp.gff
-		echo "The following transcripts intersect mimps:"
-		MimpGenesTxt=$OutDir/"$Strain"_genes_in_2kb_mimp.txt
-		cat $OutDir/"$Strain"_genes_in_2kb_mimp.gff | grep -w 'mRNA' | cut -f9 | cut -f1 -d';' | cut -f2 -d'=' > $MimpGenesTxt
-		cat $MimpGenesTxt | wc -l
-		echo ""
-	done
-```
-
-```bash
-	cat gene_pred/final_genes_signalp-4.1/F.oxysporum_fsp_cepae/Fus2_edited_v2/Fus2_edited_v2_final_sp.aa | grep '>' | sed 's/>//g' | cut -f1 -d '-' | sed -r 's/\s//g' > gene_pred/final_genes_signalp-4.1/F.oxysporum_fsp_cepae/Fus2_edited_v2/Fus2_edited_v2_final_sp_headers.txt
-	cat analysis/effectorP/F.oxysporum_fsp_cepae/Fus2/F.oxysporum_fsp_cepae_Fus2_EffectorP.txt | grep 'Effector' | cut -f1 | sed 's/|//g' > analysis/effectorP/F.oxysporum_fsp_cepae/Fus2/F.oxysporum_fsp_cepae_Fus2_EffectorP_headers.txt
-	cat gene_pred/trans_mem/F.oxysporum_fsp_cepae/Fus2_edited_v2/Fus2_edited_v2_TM_genes_pos.txt | cut -f1 > gene_pred/trans_mem/F.oxysporum_fsp_cepae/Fus2_edited_v2/Fus2_edited_v2_TM_genes_pos_headers.txt
-```
-
 
 
 # 4. Genomic analysis

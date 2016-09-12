@@ -995,7 +995,7 @@ gene_pred/codingquary/v.inaequalis/saturn/final
 13150
 
 
-<!--
+
 #Functional annotation
 
 ## A) Interproscan
@@ -1007,25 +1007,25 @@ Note: This is a long-running script. As such, these commands were run using
 'screen' to allow jobs to be submitted and monitored in the background.
 This allows the session to be disconnected and reconnected over time.
 
-Screen ouput detailing the progress of submission of interporscan jobs
+Screen ouput detailing the progress of submission of interproscan jobs
 was redirected to a temporary output file named interproscan_submission.log .
 
 ```bash
 	screen -a
-	cd /home/groups/harrisonlab/project_files/fusarium
-	ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation/interproscan
-	for Genes in $(ls gene_pred/codingquary/F.*/*/*/final_genes_combined.pep.fasta | grep -e 'FOP1'); do
+	cd /home/groups/harrisonlab/project_files/venturia
+	ProgDir=/home/passet/git_repos/tools/seq_tools/feature_annotation/interproscan
+	for Genes in $(ls gene_pred/codingquary/v.*/*/*/final_genes_combined.pep.fasta); do
 		echo $Genes
 		$ProgDir/sub_interproscan.sh $Genes
 	done 2>&1 | tee -a interproscan_submisison.log
 ```
-
+<!--
 Following interproscan annotation split files were combined using the following
 commands:
 
 ```bash
-	ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation/interproscan
-	for Proteins in $(ls gene_pred/codingquary/F.*/*/*/final_genes_combined.pep.fasta | grep 'FOP1'); do
+	ProgDir=/home/passet/git_repos/tools/seq_tools/feature_annotation/interproscan
+	for Proteins in $(ls gene_pred/codingquary/v.*/*/*/final_genes_combined.pep.fasta); do
 		Strain=$(echo $Proteins | rev | cut -d '/' -f3 | rev)
 		Organism=$(echo $Proteins | rev | cut -d '/' -f4 | rev)
 		echo "$Organism - $Strain"

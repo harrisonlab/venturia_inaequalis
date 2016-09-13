@@ -187,6 +187,56 @@ ProgDir=~/git_repos/tools/seq_tools/assemblers/canu
 qsub $ProgDir/submit_canu.sh $Reads $GenomeSz $Prefix $OutDir
 ```
 
+
+
+###Another Re-assembly of Pacbio isolate 172 with further reads
+#Building of directory structure
+
+3rd data set
+```bash
+RawDatDir=/home/harrir/projects/pacbio_test/v_inaeq
+cp -r $RawDatDir/Richard_Harrison_NEMR.RH.ENQ-933.C.02_S6_SAM22709_PRO1095_S6_HMW_05-172.tar.gz raw_dna/pacbio/v.inaequalis/172
+cd raw_dna/pacbio/v.inaequalis/172
+  tar -zxvf raw_dna/pacbio/v.inaequalis/172/Richard_Harrison_NEMR.RH.ENQ-933.C.02_S6_SAM22709_PRO1095_S6_HMW_05-172.tar.gz 
+  cd ../../../..
+mv raw_dna/pacbio/v.inaequalis/172/tgac/pnp/raw/pacbio-1/n56105/2016_07_20_PSEQ1128_342/G03_1/ raw_dna/pacbio/v.inaequalis/172/
+mv raw_dna/pacbio/v.inaequalis/172/tgac/pnp/raw/pacbio-1/n56105/2016_07_20_PSEQ1128_342/H03_1/ raw_dna/pacbio/v.inaequalis/172/
+```
+
+4th data set
+```bash
+RawDatDir=/home/harrir/projects/pacbio_test/v_inaeq
+cp -r $RawDatDir/S6_Richard_Harrison_extra_data_NEMR.RH.ENQ-933.C.02_Raw_reads.tar.gz raw_dna/pacbio/v.inaequalis/172
+cd raw_dna/pacbio/v.inaequalis/172
+  tar -zxvf raw_dna/pacbio/v.inaequalis/172/S6_Richard_Harrison_extra_data_NEMR.RH.ENQ-933.C.02_Raw_reads.tar.gz 
+  cd ../../../..
+mv raw_dna/pacbio/v.inaequalis/172/Raw_reads/A01_1 raw_dna/pacbio/v.inaequalis/172/
+mv raw_dna/pacbio/v.inaequalis/172/Raw_reads/B01_1 raw_dna/pacbio/v.inaequalis/172/
+mv raw_dna/pacbio/v.inaequalis/172/Raw_reads/C01_1 raw_dna/pacbio/v.inaequalis/172/
+```
+
+Concatenated Pacbio data from all 4 data sets (9 pacbio cells in total)
+```bash
+OutDir=raw_dna/pacbio/v.inaequalis/172/extracted
+cat raw_dna/pacbio/v.inaequalis/172/*/Analysis_Results/*.subreads.fastq > $OutDir/concatenated_pacbio.fastq
+'''
+
+<!--
+# Canu Assembly
+
+Genome size based on MiSeq assembled genome of the same isolate
+
+```bash
+Reads=$(ls raw_dna/pacbio/*/*/extracted/concatenated_pacbio.fastq)
+GenomeSz="70m"
+Strain=$(echo $Reads | rev | cut -f3 -d '/' | rev)
+Organism=$(echo $Reads | rev | cut -f4 -d '/' | rev)
+Prefix="$Strain"_canu
+OutDir="assembly/canu/$Organism/$Strain/repeat"
+ProgDir=~/git_repos/tools/seq_tools/assemblers/canu
+qsub $ProgDir/submit_canu.sh $Reads $GenomeSz $Prefix $OutDir
+```
+
 <!--
 ### Assembly polished with Pilon
 

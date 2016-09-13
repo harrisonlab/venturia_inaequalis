@@ -1019,7 +1019,7 @@ was redirected to a temporary output file named interproscan_submission.log .
 		$ProgDir/sub_interproscan.sh $Genes
 	done 2>&1 | tee -a interproscan_submisison.log
 ```
-<!--
+
 Following interproscan annotation split files were combined using the following
 commands:
 
@@ -1035,7 +1035,7 @@ commands:
 	done
 ```
 
-
+<!--
 ## B) SwissProt
 
 

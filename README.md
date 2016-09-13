@@ -1035,31 +1035,37 @@ commands:
 	done
 ```
 
-<!--
+
 ## B) SwissProt
 
 
-
 ```bash
-	for Proteome in $(ls gene_pred/codingquary/F.*/*/*/final_genes_combined.pep.fasta | grep -e 'FOP1'); do
+	for Proteome in $(ls gene_pred/codingquary/v.*/*/*/final_genes_combined.pep.fasta); do
+			Jobs=$(qstat | grep 'sub_sw' | grep 'qw' | wc -l)
+			while [ $Jobs -gt 1 ]; do
+			sleep 10
+			printf "."
+			Jobs=$(qstat | grep 'sub_sw' | grep 'qw' | wc -l)
+			done
 		Strain=$(echo $Proteome | rev | cut -f3 -d '/' | rev)
 		Organism=$(echo $Proteome | rev | cut -f4 -d '/' | rev)
 		OutDir=gene_pred/swissprot/$Organism/$Strain
 		SwissDbDir=../../uniprot/swissprot
 		SwissDbName=uniprot_sprot
-		ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation/swissprot
+		ProgDir=/home/passet/git_repos/tools/seq_tools/feature_annotation/swissprot
 		qsub $ProgDir/sub_swissprot.sh $Proteome $OutDir $SwissDbDir $SwissDbName
 	done
 ```
 
+<!--
 ```bash
-	for SwissTable in $(ls gene_pred/swissprot/*/*/swissprot_v2015_10_hits.tbl | grep -e 'FOP1'); do
+	for SwissTable in $(ls gene_pred/swissprot/*/*/swissprot_v2015_10_hits.tbl); do
 		# SwissTable=gene_pred/swissprot/Fus2/swissprot_v2015_10_hits.tbl
 		Strain=$(echo $SwissTable | rev | cut -f2 -d '/' | rev)
 		Organism=$(echo $SwissTable | rev | cut -f3 -d '/' | rev)
 		echo "$Organism - $Strain"
 		OutTable=gene_pred/swissprot/$Organism/$Strain/swissprot_v2015_tophit_parsed.tbl
-		ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation/swissprot
+		ProgDir=/home/passet/git_repos/tools/seq_tools/feature_annotation/swissprot
 		$ProgDir/swissprot_parser.py --blast_tbl $SwissTable --blast_db_fasta ../../uniprot/swissprot/uniprot_sprot.fasta > $OutTable
 	done
 ```

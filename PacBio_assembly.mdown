@@ -238,6 +238,16 @@ OutDir="assembly/canu/$Organism/$Strain/Repeat_2"
 ProgDir=~/git_repos/tools/seq_tools/assemblers/canu
 qsub $ProgDir/submit_canu.sh $Reads $GenomeSz $Prefix $OutDir
 ```
+quast of canu
+```bash
+  ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
+  for Assembly in $(ls assembly/canu/v.inaequalis/172/Repeat_2/172_canu.contigs.fasta); do
+    Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+    Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
+    OutDir=assembly/canu/$Organism/$Strain/Repeat_2
+    qsub $ProgDir/sub_quast.sh $Assembly $OutDir
+  done
+```
 
 ### Assembly polished with Pilon
 
@@ -257,33 +267,41 @@ qsub $ProgDir/submit_canu.sh $Reads $GenomeSz $Prefix $OutDir
 
 quast for stats
 ```bash
-  ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
-    for Assembly in $(ls assembly/canu/*/*/polished_repeat/pilon.fasta); do
-    Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
-    Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
-    OutDir=assembly/canu/$Organism/$Strain/polished_repeat
-    qsub $ProgDir/sub_quast.sh $Assembly $OutDir
-  done
-  ```
+ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
+for Assembly in $(ls assembly/canu/*/*/polished_repeat/pilon.fasta); do
+Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
+OutDir=assembly/canu/$Organism/$Strain/polished_repeat
+qsub $ProgDir/sub_quast.sh $Assembly $OutDir
+done
+```
 
- 
-<!--
+```bash
+  Assembly=assembly/canu/v.inaequalis/172/polished_repeat/pilon.fasta
+  Reads=raw_dna/pacbio/v.inaequalis/172/extracted/concatenated_pacbio.fastq
+  OutDir=analysis/genome_alignment/bwa/v.inaequalis/172/vs_172
+  ProgDir=/home/passet/git_repos/tools/seq_tools/genome_alignment/bwa
+  qsub $ProgDir/sub_bwa_pacbio.sh $Assembly $Reads $OutDir
+```
+
 # Spades Assembly
 
 ```bash
-for PacBioDat in $(ls raw_dna/pacbio/*/*/extracted/concatenated_pacbio.fastq); do
-  Organism=$(echo $PacBioDat | rev | cut -f4 -d '/' | rev)
-  Strain=$(echo $PacBioDat | rev | cut -f3 -d '/' | rev)
-  IlluminaDir=$(ls -d qc_dna/paired/$Organism/$Strain)
-  TrimF1_Read=$(ls $IlluminaDir/F/172_S4_L001_R1_001_trim.fq.gz);
-  TrimR1_Read=$(ls $IlluminaDir/R/172_S4_L001_R2_001_trim.fq.gz);
-  OutDir=assembly/spades_pacbio/$Organism/"$Strain"
-  echo $TrimF1_Read
-  echo $TrimR1_Read
-  ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/spades
-  qsub $ProgDir/sub_spades_pacbio.sh $PacBioDat $TrimF1_Read $TrimR1_Read $OutDir 10
-done
+  for PacBioDat in $(ls raw_dna/pacbio/*/*/extracted/concatenated_pacbio.fastq); do
+    Organism=$(echo $PacBioDat | rev | cut -f4 -d '/' | rev)
+    Strain=$(echo $PacBioDat | rev | cut -f3 -d '/' | rev)
+    IlluminaDir=$(ls -d qc_dna/paired/$Organism/$Strain)
+    TrimF1_Read=$(ls $IlluminaDir/F/172_S4_L001_R1_001_trim.fq.gz);
+    TrimR1_Read=$(ls $IlluminaDir/R/172_S4_L001_R2_001_trim.fq.gz);
+    OutDir=assembly/spades_pacbio/$Organism/"$Strain"/
+    echo $TrimF1_Read
+    echo $TrimR1_Read
+    ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/spades
+    qsub $ProgDir/sub_spades_pacbio.sh $PacBioDat $TrimF1_Read $TrimR1_Read $OutDir 10
+  done
 ```
+
+<!--
 Filter out contigs < 500bp from assembly
 
 ```bash
@@ -306,6 +324,15 @@ Filter out contigs < 500bp from assembly
     qsub $ProgDir/sub_quast.sh $Assembly $OutDir
   done
 ```
+
+ ```bash
+  Assembly=assembly/canu/v.inaequalis/172/polished_repeat/pilon.fasta
+  Reads=raw_dna/pacbio/v.inaequalis/172/extracted/concatenated_pacbio.fastq
+  OutDir=analysis/genome_alignment/bwa/v.inaequalis/172/vs_172
+  ProgDir=/home/passet/git_repos/tools/seq_tools/genome_alignment/bwa
+  qsub $ProgDir/sub_bwa_pacbio.sh $Assembly $Reads $OutDir
+```
+
 
 #Merge pacbio and hybrid assemblies
 

@@ -237,11 +237,10 @@ ProgDir=~/git_repos/tools/seq_tools/assemblers/canu
 qsub $ProgDir/submit_canu.sh $Reads $GenomeSz $Prefix $OutDir
 ```
 
-<!--
 ### Assembly polished with Pilon
 
 ```bash
-for Assembly in $(ls assembly/canu/v.inaequalis/172/repeat/172_canu.contigs.fasta); do
+  for Assembly in $(ls assembly/canu/v.inaequalis/172/Repeat_2/172_canu.contigs.fasta); do
     Organism=v.inaequalis
     Strain=172
     IlluminaDir=$(ls -d qc_dna/paired/$Organism/$Strain)
@@ -250,9 +249,10 @@ for Assembly in $(ls assembly/canu/v.inaequalis/172/repeat/172_canu.contigs.fast
     OutDir=assembly/canu/$Organism/$Strain/polished
     ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/pilon
     qsub $ProgDir/sub_pilon.sh $Assembly $TrimF1_Read $TrimR1_Read $OutDir
-done
+  done
 ```
 
+<!--
 quast for stats
 ```bash
 ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast

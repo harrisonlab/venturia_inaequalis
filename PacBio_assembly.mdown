@@ -193,6 +193,7 @@ qsub $ProgDir/submit_canu.sh $Reads $GenomeSz $Prefix $OutDir
 #Building of directory structure
 
 3rd data set
+
 ```bash
 RawDatDir=/home/harrir/projects/pacbio_test/v_inaeq
 cp -r $RawDatDir/Richard_Harrison_NEMR.RH.ENQ-933.C.02_S6_SAM22709_PRO1095_S6_HMW_05-172.tar.gz raw_dna/pacbio/v.inaequalis/172
@@ -204,6 +205,7 @@ mv raw_dna/pacbio/v.inaequalis/172/tgac/pnp/raw/pacbio-1/n56105/2016_07_20_PSEQ1
 ```
 
 4th data set
+
 ```bash
 RawDatDir=/home/harrir/projects/pacbio_test/v_inaeq
 cp -r $RawDatDir/S6_Richard_Harrison_extra_data_NEMR.RH.ENQ-933.C.02_Raw_reads.tar.gz raw_dna/pacbio/v.inaequalis/172
@@ -219,10 +221,10 @@ Concatenated Pacbio data from all 4 data sets (9 pacbio cells in total)
 ```bash
 OutDir=raw_dna/pacbio/v.inaequalis/172/extracted
 cat raw_dna/pacbio/v.inaequalis/172/*/Analysis_Results/*.subreads.fastq > $OutDir/concatenated_pacbio.fastq
-'''
+```
 
 
-# Canu Assembly
+#Canu Assembly
 
 Genome size based on MiSeq assembled genome of the same isolate
 
@@ -246,26 +248,26 @@ qsub $ProgDir/submit_canu.sh $Reads $GenomeSz $Prefix $OutDir
     IlluminaDir=$(ls -d qc_dna/paired/$Organism/$Strain)
     TrimF1_Read=$IlluminaDir/F/172_S4_L001_R1_001_trim.fq.gz
     TrimR1_Read=$IlluminaDir/R/172_S4_L001_R2_001_trim.fq.gz
-    OutDir=assembly/canu/$Organism/$Strain/polished
+    OutDir=assembly/canu/$Organism/$Strain/polished_repeat
     ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/pilon
     qsub $ProgDir/sub_pilon.sh $Assembly $TrimF1_Read $TrimR1_Read $OutDir
   done
 ```
 
-<!--
+
 quast for stats
 ```bash
-ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
-for Assembly in $(ls assembly/canu/*/*/polished/pilon.fasta); do
+  ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/assembly_qc/quast
+    for Assembly in $(ls assembly/canu/*/*/polished_repeat/pilon.fasta); do
     Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
     Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
-    OutDir=assembly/canu/$Organism/$Strain/polished
+    OutDir=assembly/canu/$Organism/$Strain/polished_repeat
     qsub $ProgDir/sub_quast.sh $Assembly $OutDir
-done
+  done
   ```
 
  
-
+<!--
 # Spades Assembly
 
 ```bash

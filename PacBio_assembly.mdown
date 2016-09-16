@@ -301,13 +301,12 @@ done
   done
 ```
 
-<!--
+
 Filter out contigs < 500bp from assembly
 
 ```bash
   for Contigs in $(ls assembly/spades_pacbio/*/*/contigs.fasta); do
     AssemblyDir=$(dirname $Contigs)
-    mkdir $AssemblyDir/filtered_contigs
     FilterDir=/home/passet/git_repos/tools/seq_tools/assemblers/abyss
     $FilterDir/filter_abyss_contigs.py $Contigs 500 > $AssemblyDir/filtered_contigs/contigs_min_500bp.fasta
   done
@@ -320,20 +319,20 @@ Filter out contigs < 500bp from assembly
   for Assembly in $(ls assembly/spades_pacbio/*/*/filtered_contigs/contigs_min_500bp.fasta); do
     Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
     Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
-    OutDir=assembly/spades_pacbio/$Organism/$Strain/filtered_contigs
+    OutDir=assembly/spades_pacbio/$Organism/$Strain/filtered_contigs_repeat
     qsub $ProgDir/sub_quast.sh $Assembly $OutDir
   done
 ```
 
  ```bash
-  Assembly=assembly/canu/v.inaequalis/172/polished_repeat/pilon.fasta
+  Assembly=assembly/spades_pacbio/v.inaequalis/172/filtered_contigs/contigs_min_500bp.fasta
   Reads=raw_dna/pacbio/v.inaequalis/172/extracted/concatenated_pacbio.fastq
-  OutDir=analysis/genome_alignment/bwa/v.inaequalis/172/vs_172
+  OutDir=analysis/genome_alignment/bwa/v.inaequalis/172/vs_172_spades
   ProgDir=/home/passet/git_repos/tools/seq_tools/genome_alignment/bwa
   qsub $ProgDir/sub_bwa_pacbio.sh $Assembly $Reads $OutDir
 ```
 
-
+<!--
 #Merge pacbio and hybrid assemblies
 
 ```bash
@@ -389,6 +388,15 @@ Quast of polished merged assembly
     qsub $ProgDir/sub_quast.sh $Assembly $OutDir
   done
 ```
+
+ ```bash
+  Assembly=assembly/spades_pacbio/v.inaequalis/172/filtered_contigs/contigs_min_500bp.fasta
+  Reads=raw_dna/pacbio/v.inaequalis/172/extracted/concatenated_pacbio.fastq
+  OutDir=analysis/genome_alignment/bwa/v.inaequalis/172/vs_172_merged
+  ProgDir=/home/passet/git_repos/tools/seq_tools/genome_alignment/bwa
+  qsub $ProgDir/sub_bwa_pacbio.sh $Assembly $Reads $OutDir
+```
+
 
 # Analysis of preliminary assemblies
 

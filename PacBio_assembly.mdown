@@ -332,20 +332,22 @@ Filter out contigs < 500bp from assembly
   qsub $ProgDir/sub_bwa_pacbio.sh $Assembly $Reads $OutDir
 ```
 
-<!--
+
 #Merge pacbio and hybrid assemblies
 
 ```bash
-  for PacBioAssembly in $(ls assembly/canu/*/*/polished/pilon.fasta); do
+  for PacBioAssembly in $(ls assembly/canu/*/*/polished_repeat/pilon.fasta); do
     Organism=$(echo $PacBioAssembly | rev | cut -f4 -d '/' | rev)
     Strain=$(echo $PacBioAssembly | rev | cut -f3 -d '/' | rev)
     HybridAssembly=$(ls assembly/spades_pacbio/$Organism/$Strain/contigs.fasta)
-    OutDir=assembly/merged_canu_spades/$Organism/$Strain
+    AnchorLength=500000
+    OutDir=assembly/merged_canu_spades/$Organism/$Strain/
     ProgDir=/home/passet/git_repos/tools/seq_tools/assemblers/quickmerge
-    qsub $ProgDir/sub_quickmerge.sh $PacBioAssembly $HybridAssembly $OutDir
+    qsub $ProgDir/sub_quickmerge.sh $PacBioAssembly $HybridAssembly $OutDir $AnchorLength
   done
 ```
 
+<!--
 Merged assembly polished with Pilon
 
 ```bash
@@ -366,10 +368,10 @@ Contigs renamed in accordance with ncbi recommendations
 ```bash
   ProgDir=~/git_repos/tools/seq_tools/assemblers/assembly_qc/remove_contaminants
   touch tmp.csv
-  for Assembly in $(ls assembly/merged_canu_spades/*/*/polished/pilon.fasta); do
+  for Assembly in $(ls assembly/merged_canu_spades_repeat/*/*/polished/pilon.fasta); do
     Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
     Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
-    OutDir=assembly/merged_canu_spades/$Organism/$Strain/filtered_contigs
+    OutDir=assembly/merged_canu_spades_repeat/$Organism/$Strain/filtered_contigs
     mkdir -p $OutDir
     $ProgDir/remove_contaminants.py --inp $Assembly --out $OutDir/contigs_min_500bp_renamed.fasta --coord_file tmp.csv
   done

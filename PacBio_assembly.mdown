@@ -276,6 +276,8 @@ qsub $ProgDir/sub_quast.sh $Assembly $OutDir
 done
 ```
 
+bwa alignment of canu contigs to pacbio
+
 ```bash
   Assembly=assembly/canu/v.inaequalis/172/polished_repeat/pilon.fasta
   Reads=raw_dna/pacbio/v.inaequalis/172/extracted/concatenated_pacbio.fastq
@@ -324,7 +326,9 @@ Filter out contigs < 500bp from assembly
   done
 ```
 
- ```bash
+bwa alignment of spades contigs to pacbio
+
+```bash
   Assembly=assembly/spades_pacbio/v.inaequalis/172/filtered_contigs/contigs_min_500bp.fasta
   Reads=raw_dna/pacbio/v.inaequalis/172/extracted/concatenated_pacbio.fastq
   OutDir=analysis/genome_alignment/bwa/v.inaequalis/172/vs_172_spades
@@ -347,7 +351,7 @@ Filter out contigs < 500bp from assembly
   done
 ```
 
-<!--
+
 Merged assembly polished with Pilon
 
 ```bash
@@ -363,6 +367,7 @@ Merged assembly polished with Pilon
   done
 ```
 
+<!--
 Contigs renamed in accordance with ncbi recommendations
 
 ```bash
@@ -391,7 +396,9 @@ Quast of polished merged assembly
   done
 ```
 
- ```bash
+bwa alignment of merged contigs to pacbio
+
+```bash
   Assembly=assembly/spades_pacbio/v.inaequalis/172/filtered_contigs/contigs_min_500bp.fasta
   Reads=raw_dna/pacbio/v.inaequalis/172/extracted/concatenated_pacbio.fastq
   OutDir=analysis/genome_alignment/bwa/v.inaequalis/172/vs_172_merged

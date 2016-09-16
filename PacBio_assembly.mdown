@@ -367,19 +367,19 @@ Merged assembly polished with Pilon
   done
 ```
 
-<!--
+
 Contigs renamed in accordance with ncbi recommendations
 
 ```bash
   ProgDir=~/git_repos/tools/seq_tools/assemblers/assembly_qc/remove_contaminants
   touch tmp.csv
-  for Assembly in $(ls assembly/merged_canu_spades_repeat/*/*/polished/pilon.fasta); do
-    Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
-    Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
-    OutDir=assembly/merged_canu_spades_repeat/$Organism/$Strain/filtered_contigs
-    mkdir -p $OutDir
-    $ProgDir/remove_contaminants.py --inp $Assembly --out $OutDir/contigs_min_500bp_renamed.fasta --coord_file tmp.csv
-  done
+    for Assembly in $(ls assembly/merged_canu_spades/*/*/polished/pilon.fasta); do
+      Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+      Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
+      OutDir=assembly/merged_canu_spades/$Organism/$Strain/filtered_contigs
+      mkdir -p $OutDir
+      $ProgDir/remove_contaminants.py --inp $Assembly --out $OutDir/contigs_min_500bp_renamed.fasta --coord_file tmp.csv
+    done
   rm tmp.csv
 ```
 
@@ -399,13 +399,15 @@ Quast of polished merged assembly
 bwa alignment of merged contigs to pacbio
 
 ```bash
-  Assembly=assembly/spades_pacbio/v.inaequalis/172/filtered_contigs/contigs_min_500bp.fasta
+  Assembly=ls assembly/merged_canu_spades/*/*/filtered_contigs/contigs_min_500bp_renamed.fasta
   Reads=raw_dna/pacbio/v.inaequalis/172/extracted/concatenated_pacbio.fastq
   OutDir=analysis/genome_alignment/bwa/v.inaequalis/172/vs_172_merged
   ProgDir=/home/passet/git_repos/tools/seq_tools/genome_alignment/bwa
   qsub $ProgDir/sub_bwa_pacbio.sh $Assembly $Reads $OutDir
 ```
 
+
+<!-- 
 
 # Analysis of preliminary assemblies
 

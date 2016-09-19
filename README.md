@@ -1057,10 +1057,10 @@ commands:
 	done
 ```
 
-<!--
+
 ```bash
 	for SwissTable in $(ls gene_pred/swissprot/*/*/swissprot_v2015_10_hits.tbl); do
-		# SwissTable=gene_pred/swissprot/Fus2/swissprot_v2015_10_hits.tbl
+		# SwissTable=gene_pred/swissprot/v_inaequalis/swissprot_v2015_10_hits.tbl
 		Strain=$(echo $SwissTable | rev | cut -f2 -d '/' | rev)
 		Organism=$(echo $SwissTable | rev | cut -f3 -d '/' | rev)
 		echo "$Organism - $Strain"
@@ -1070,6 +1070,7 @@ commands:
 	done
 ```
 
+<!--
 
 #Genomic analysis
 

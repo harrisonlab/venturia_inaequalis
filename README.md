@@ -1070,7 +1070,6 @@ commands:
 	done
 ```
 
-<!--
 
 #Genomic analysis
 
@@ -1093,10 +1092,10 @@ Proteins that were predicted to contain signal peptides were identified using
 the following commands:
 
 ```bash
-	SplitfileDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation/signal_peptides
-	ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation/signal_peptides
+	SplitfileDir=/home/passet/git_repos/tools/seq_tools/feature_annotation/signal_peptides
+	ProgDir=/home/passet/git_repos/tools/seq_tools/feature_annotation/signal_peptides
 	CurPath=$PWD
-	for Proteome in $(ls gene_pred/codingquary/F.*/*/*/final_genes_combined.pep.fasta | grep -e 'FOP1'); do
+	for Proteome in $(ls gene_pred/codingquary/v.*/*/*/final_genes_combined.pep.fasta); do
 		Strain=$(echo $Proteome | rev | cut -f3 -d '/' | rev)
 		Organism=$(echo $Proteome | rev | cut -f4 -d '/' | rev)
 		SplitDir=gene_pred/final_genes_split/$Organism/$Strain
@@ -1106,9 +1105,9 @@ the following commands:
 		for File in $(ls $SplitDir/*_final_preds_*); do
 			Jobs=$(qstat | grep 'pred_sigP' | wc -l)
 			while [ $Jobs -gt 20 ]; do
-				sleep 10
-				printf "."
-				Jobs=$(qstat | grep 'pred_sigP' | wc -l)
+			sleep 10
+			printf "."
+			Jobs=$(qstat | grep 'pred_sigP' | wc -l)
 			done
 			printf "\n"
 			echo $File
@@ -1117,7 +1116,7 @@ the following commands:
 	done
 ```
 
-
+<!--
 The batch files of predicted secreted proteins needed to be combined into a
 single file for each strain. This was done with the following commands:
 ```bash

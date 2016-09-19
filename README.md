@@ -1116,11 +1116,11 @@ the following commands:
 	done
 ```
 
-<!--
+
 The batch files of predicted secreted proteins needed to be combined into a
 single file for each strain. This was done with the following commands:
 ```bash
-	for SplitDir in $(ls -d gene_pred/final_genes_split/*/FOP1); do
+	for SplitDir in $(ls -d gene_pred/final_genes_split/*/*); do
 		Strain=$(echo $SplitDir | rev |cut -d '/' -f1 | rev)
 		Organism=$(echo $SplitDir | rev |cut -d '/' -f2 | rev)
 		InStringAA=''
@@ -1141,6 +1141,7 @@ single file for each strain. This was done with the following commands:
 	done
 ```
 
+<!--
 Some proteins that are incorporated into the cell membrane require secretion.
 Therefore proteins with a transmembrane domain are not likely to represent
 cytoplasmic or apoplastic effectors.

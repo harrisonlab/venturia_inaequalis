@@ -1163,23 +1163,71 @@ Proteins containing a transmembrane domain were identified:
 	done
 ```
 
-<!--
 Those proteins with transmembrane domains were removed from lists of Signal peptide containing proteins
 
 ```bash
-    for File in $(ls gene_pred/trans_mem/*/*/*_TM_genes_neg.txt | grep -v 'HB17' | grep -e 'cepae' -e 'proliferatum' -e 'narcissi' | grep -e 'Fus2_canu_new' -e '125' -e 'A23'); do
-        Strain=$(echo $File | rev | cut -f2 -d '/' | rev)
-        Organism=$(echo $File | rev | cut -f3 -d '/' | rev)
-        echo "$Organism - $Strain"
-        TmHeaders=$(echo "$File" | sed 's/neg.txt/neg_headers.txt/g')
-        cat $File | cut -f1 > $TmHeaders
-        SigP=$(ls gene_pred/final_genes_signalp-4.1/$Organism/$Strain/*_final_sp.aa)
-        OutDir=$(dirname $SigP)
-        ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/ORF_finder
-        $ProgDir/extract_from_fasta.py --fasta $SigP --headers $TmHeaders > $OutDir/"$Strain"_final_sp_no_trans_mem.aa
-        cat $OutDir/"$Strain"_final_sp_no_trans_mem.aa | grep '>' | wc -l
-    done
+for File in $(ls gene_pred/trans_mem/*/*/*_TM_genes_neg.txt); do
+Strain=$(echo $File | rev | cut -f2 -d '/' | rev)
+Organism=$(echo $File | rev | cut -f3 -d '/' | rev)
+echo "$Organism - $Strain"
+TmHeaders=$(echo "$File" | sed 's/neg.txt/neg_headers.txt/g')
+cat $File | cut -f1 > $TmHeaders
+SigP=$(ls gene_pred/final_genes_signalp-4.1/$Organism/$Strain/*_final_sp.aa)
+OutDir=$(dirname $SigP)
+ProgDir=/home/passet/git_repos/tools/gene_prediction/ORF_finder
+$ProgDir/extract_from_fasta.py --fasta $SigP --headers $TmHeaders > $OutDir/"$Strain"_final_sp_no_trans_mem.aa
+cat $OutDir/"$Strain"_final_sp_no_trans_mem.aa | grep '>' | wc -l
+done
 ```
+
+v.inaequalis - 007
+1474
+v.inaequalis - 024
+1510
+v.inaequalis - 025
+1711
+v.inaequalis - 030
+1488
+v.inaequalis - 044
+1477
+v.inaequalis - 049
+1463
+v.inaequalis - 057
+1425
+v.inaequalis - 083
+1493
+v.inaequalis - 096
+1480
+v.inaequalis - 097
+1468
+v.inaequalis - 098
+1489
+v.inaequalis - 101
+1483
+v.inaequalis - 106
+1464
+v.inaequalis - 118
+979
+v.inaequalis - 119
+1468
+v.inaequalis - 172
+1473
+v.inaequalis - 173
+1480
+v.inaequalis - 182
+1462
+v.inaequalis - 196
+1510
+v.inaequalis - 197
+1500
+v.inaequalis - 199
+1486
+v.inaequalis - 202
+1467
+v.inaequalis - saturn
+1471
+
+
 
 ### B) From Augustus gene models - Effector identification using EffectorP
 
@@ -1187,18 +1235,95 @@ Required programs:
  * EffectorP.py
 
 ```bash
-	for Proteome in $(ls gene_pred/codingquary/F.*/*/*/final_genes_combined.pep.fasta | grep -e 'FOP1'); do
+	for Proteome in $(ls gene_pred/codingquary/v.*/*/*/final_genes_combined.pep.fasta); do
+		Jobs=$(qstat | grep 'pred_e' | grep 'qw' | wc -l)
+		while [ $Jobs -gt 1 ]; do
+			sleep 10
+			printf "."
+			Jobs=$(qstat | grep 'pred_e' | grep 'qw' | wc -l)
+		done
 		Strain=$(echo $Proteome | rev | cut -f3 -d '/' | rev)
 		Organism=$(echo $Proteome | rev | cut -f4 -d '/' | rev)
 		BaseName="$Organism"_"$Strain"_EffectorP
 		OutDir=analysis/effectorP/$Organism/$Strain
-		ProgDir=~/git_repos/emr_repos/tools/seq_tools/feature_annotation/fungal_effectors
+		ProgDir=~/git_repos/tools/seq_tools/feature_annotation/fungal_effectors
 		qsub $ProgDir/pred_effectorP.sh $Proteome $BaseName $OutDir
 	done
-
 ```
 
 
+Those genes that were predicted as secreted and tested positive by effectorP were identified:
+
+```bash
+for File in $(ls analysis/effectorP/*/*/*_EffectorP.txt); do
+Strain=$(echo $File | rev | cut -f2 -d '/' | rev)
+Organism=$(echo $File | rev | cut -f3 -d '/' | rev)
+echo "$Organism - $Strain"
+Headers=$(echo "$File" | sed 's/_EffectorP.txt/_EffectorP_headers.txt/g')
+cat $File | grep 'Effector' | cut -f1 > $Headers
+Secretome=$(ls gene_pred/final_genes_signalp-4.1/$Organism/$Strain/*_final_sp_no_trans_mem.aa)
+OutFile=$(echo "$File" | sed 's/_EffectorP.txt/_EffectorP_secreted.aa/g')
+ProgDir=/home/passet/git_repos/tools/gene_prediction/ORF_finder
+$ProgDir/extract_from_fasta.py --fasta $Secretome --headers $Headers > $OutFile
+OutFileHeaders=$(echo "$File" | sed 's/_EffectorP.txt/_EffectorP_secreted_headers.txt/g')
+cat $OutFile | grep '>' | tr -d '>' > $OutFileHeaders
+cat $OutFileHeaders | wc -l
+Gff=$(ls gene_pred/codingquary/$Organism/$Strain/*/final_genes_appended.gff3)
+EffectorP_Gff=$(echo "$File" | sed 's/_EffectorP.txt/_EffectorP_secreted.gff/g')
+ProgDir=/home/passet/git_repos/tools/gene_prediction/ORF_finder
+$ProgDir/extract_gff_for_sigP_hits.pl $OutFileHeaders $Gff effectorP ID > $EffectorP_Gff
+done
+```
+
+v.inaequalis - 007
+583
+v.inaequalis - 024
+637
+v.inaequalis - 025
+681
+v.inaequalis - 030
+614
+v.inaequalis - 044
+606
+v.inaequalis - 049
+594
+v.inaequalis - 057
+554
+v.inaequalis - 083
+610
+v.inaequalis - 096
+609
+v.inaequalis - 097
+608
+v.inaequalis - 098
+615
+v.inaequalis - 101
+605
+v.inaequalis - 106
+600
+v.inaequalis - 118
+419
+v.inaequalis - 119
+599
+v.inaequalis - 172
+609
+v.inaequalis - 173
+589
+v.inaequalis - 182
+587
+v.inaequalis - 196
+628
+v.inaequalis - 197
+624
+v.inaequalis - 199
+611
+v.inaequalis - 202
+608
+v.inaequalis - saturn
+609
+
+
+<!--
 # 4. Genomic analysis
 
 

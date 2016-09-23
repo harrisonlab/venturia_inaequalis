@@ -407,96 +407,66 @@ bwa alignment of merged contigs to pacbio
 ```
 
 
-<!-- 
+## Folder tidying
 
-# Analysis of preliminary assemblies
-
-## Preparing data
-
+To avoid  any potential overwritting of Isolate 172 miseq assembly analysis renamed pacbio assembly folders named "172" to "172_pacbio"
 
 ```bash
-  ProjDir=/home/groups/harrisonlab/project_files/fusarium
-  cd $ProjDir
-
-  Fus2_pacbio_canu=assembly/pacbio_test/F.oxysporum_fsp_cepae/Fus2_pacbio_canu/test/Fus2_pacbio_canu.fa
-  Fus2_pacbio_spades=assembly/pacbio_test/F.oxysporum_fsp_cepae/Fus2_pacbio_spades/test/Fus2_pacbio_spades.fa
-  Fus2_pacbio_merged=assembly/pacbio_test/F.oxysporum_fsp_cepae/Fus2_pacbio_merged/test/Fus2_pacbio_merged.fa
-
-  mkdir -p $(dirname $Fus2_pacbio_canu)
-  mkdir -p $(dirname $Fus2_pacbio_spades)
-  mkdir -p $(dirname $Fus2_pacbio_merged)
-  cp /home/harrir/projects/pacbio_test/fus2/fus2-auto/fus2.contigs.fasta $Fus2_pacbio_canu
-  cp /home/harrir/projects/pacbio_test/spades/FUS2/scaffolds.fasta $Fus2_pacbio_spades
-  cp /home/harrir/projects/pacbio_test/hybrid_merge/fus2/merged.fasta $Fus2_pacbio_merged
+  mv raw_dna/pacbio/*/* raw_dna/pacbio/v.inaequalis/172_pacbio
+  mv assembly/canu/v.inaequalis/172/ assembly/canu/v.inaequalis/172_pacbio
+  mv assembly/spades_pacbio/v.inaequalis/172/ assembly/spades_pacbio/v.inaequalis/172_pacbio
+  mv assembly/merged_canu_spades/v.inaequalis/172/ assembly/merged_canu_spades/v.inaequalis/172_pacbio
+  mv analysis/genome_alignment/bwa/v.inaequalis/172/ analysis/genome_alignment/bwa/v.inaequalis/172_pacbio
 ```
 
-## Repeatmasking
 
+
+# Analysis of assemblies
+
+
+
+# Repeatmasking
+
+Repeat masking was performed and used the following programs:
+  Repeatmasker
+  Repeatmodeler
+
+Repeat masking of canu assembly
 ```bash
-Fus2_pacbio_canu=assembly/pacbio_test/F.oxysporum_fsp_cepae/Fus2_pacbio_canu/test/Fus2_pacbio_canu.fa
-Fus2_pacbio_spades=assembly/pacbio_test/F.oxysporum_fsp_cepae/Fus2_pacbio_spades/test/Fus2_pacbio_spades.fa
-Fus2_pacbio_merged=assembly/pacbio_test/F.oxysporum_fsp_cepae/Fus2_pacbio_merged/test/Fus2_pacbio_merged.fa
-for Assembly in $(ls $Fus2_pacbio_spades $Fus2_pacbio_merged $Fus2_pacbio_canu); do
-  ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/repeat_masking
-  qsub $ProgDir/rep_modeling.sh $Assembly
-  qsub $ProgDir/transposonPSI.sh $Assembly
+  ProgDir=/home/passet/git_repos/tools/seq_tools/repeat_masking
+  for Ass in $(ls assembly/canu/*/*/polished_repeat/pilon.fasta); do
+    qsub $ProgDir/rep_modeling.sh $Ass
+    qsub $ProgDir/transposonPSI.sh $Ass
+  done
+```
+
+Ran repeatmasking of merged assembly too
+```bash
+  ProgDir=/home/passet/git_repos/tools/seq_tools/repeat_masking
+  for Ass in $(ls assembly/merged_canu_spades/*/*/filtered_contigs/contigs_min_500bp_renamed.fasta); do
+    qsub $ProgDir/rep_modeling.sh $Ass
+    qsub $ProgDir/transposonPSI.sh $Ass
 done
 ```
 
-## Blast searches of LS region genes vs FoC
-
-Some preliminary commands were used to analyse Pacbio assemblies Richard had generated
-
-Blast searches were performed against these assembled contigs to identify which
-contigs contained blast homologs from known FoL LS genes.
-
-Headers of LS genes from FoL had previously been extracted. These were used to
-extract the relevant proteins from fasta files.
+<!--
+The number of bases masked by transposonPSI and Repeatmasker were summarised
+using the following commands:
 
 ```bash
-  ProtFastaUnparsed=assembly/external_group/F.oxysporum_fsp_lycopersici/4287/Fusox1/Fusox1_GeneCatalog_proteins_20110522.aa.fasta
-  ProtFasta=analysis/FoL_ls_genes/4287_proteins_renamed.fasta
-  cat $ProtFastaUnparsed | sed -r "s/^>.*FOXG/>FOXG/g" > $ProtFasta
-  for File in $(ls analysis/FoL_ls_genes/chr_*_gene_headers.txt); do
-    Chr=$(echo $File | rev | cut -f3 -d '_' | rev);
-    echo $File;
-    echo "extracting proteins associated with chromosome: $Chr";
-    OutFile=$(echo $File | sed 's/_headers.txt/.aa/g')
-    ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/ORF_finder
-    $ProgDir/extract_from_fasta.py --fasta $ProtFasta --headers $File | grep -v -P '^$' > $OutFile
-  done
-```
-
-```bash
-  Fus2_pacbio_canu=assembly/pacbio_test/F.oxysporum_fsp_cepae/Fus2_pacbio_canu/test/Fus2_pacbio_canu.fa
-  Fus2_pacbio_spades=assembly/pacbio_test/F.oxysporum_fsp_cepae/Fus2_pacbio_spades/test/Fus2_pacbio_spades.fa
-  Fus2_pacbio_merged=assembly/pacbio_test/F.oxysporum_fsp_cepae/Fus2_pacbio_merged/test/Fus2_pacbio_merged.fa
-  for Genome in $(ls $Fus2_pacbio_spades $Fus2_pacbio_merged $Fus2_pacbio_canu); do
-    for Proteome in $(ls analysis/FoL_ls_genes/chr_*_gene.aa); do
-      Strain=$(echo $Genome | rev | cut -f3 -d '/' | rev)
-      Organism=$(echo $Genome | rev | cut -f4 -d '/' | rev)
-      Chr=$(echo $Proteome | rev | cut -f2 -d '_' | rev);
-      echo "$Organism - $Strain - $Chr"
-      OutDir=analysis/blast_homology/$Organism/$Strain
-      ProgDir=/home/armita/git_repos/emr_repos/tools/pathogen/blast
-      qsub $ProgDir/run_blast2csv.sh $Proteome protein $Genome $OutDir
-    done
-  done
-```
-
-Convert top blast hits into gff annotations
-
-```bash
-  for BlastHitsCsv in $(ls analysis/blast_homology/*/Fus2_pacbio_*/*_chr_*_gene.aa_hits.csv); do
-    Organism=$(echo $BlastHitsCsv | rev | cut -f3 -d '/' | rev)
-    Strain=$(echo $BlastHitsCsv | rev | cut -f2 -d '/' | rev)
-    echo "$Organism - $Strain"
-    HitsGff=$(echo $BlastHitsCsv | sed  's/.csv/.gff/g')
-    Chr=$(echo $BlastHitsCsv | rev | cut -f3 -d '_' | rev);
-    Column2=Chr"$Chr"_gene_homolog
-    NumHits=1
-    ProgDir=/home/armita/git_repos/emr_repos/tools/pathogen/blast
-    $ProgDir/blast2gff.pl $Column2 $NumHits $BlastHitsCsv > $HitsGff
-  done
-```
+  for RepDir in $(ls -d repeat_masked/v.*/172_pacbio/*); do
+    Strain=$(echo $RepDir | rev | cut -f2 -d '/' | rev)
+    Organism=$(echo $RepDir | rev | cut -f3 -d '/' | rev)  
+    RepMaskGff=$(ls $RepDir/*_contigs_hardmasked.gff)
+    TransPSIGff=$(ls $RepDir/*_contigs_unmasked.fa.TPSI.allHits)
+    printf "$Organism\t$Strain\n"
+    printf "The number of bases masked by RepeatMasker:\t"
+    sortBed -i $RepMaskGff | bedtools merge | awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}'
+    printf "The number of bases masked by TransposonPSI:\t"
+    sortBed -i $TransPSIGff | bedtools merge | awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}'
+    printf "The total number of masked bases are:\t"
+    cat $RepMaskGff $TransPSIGff | sortBed | bedtools merge | awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}'
+    ]echo
+  ]done
+  ```
 -->

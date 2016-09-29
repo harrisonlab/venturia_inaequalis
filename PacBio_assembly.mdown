@@ -449,7 +449,6 @@ Ran repeatmasking of merged assembly too
 done
 ```
 
-<!--
 The number of bases masked by transposonPSI and Repeatmasker were summarised
 using the following commands:
 
@@ -466,7 +465,17 @@ using the following commands:
     sortBed -i $TransPSIGff | bedtools merge | awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}'
     printf "The total number of masked bases are:\t"
     cat $RepMaskGff $TransPSIGff | sortBed | bedtools merge | awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}'
-    ]echo
-  ]done
+    echo
+  done
   ```
--->
+
+
+v.inaequalis    172_pacbio
+The number of bases masked by RepeatMasker:     33982597
+The number of bases masked by TransposonPSI:    10254
+The total number of masked bases are:   Differing number of GFF fields encountered at line: 32896.
+
+v.inaequalis    172_pacbio
+The number of bases masked by RepeatMasker:     34180552
+The number of bases masked by TransposonPSI:    10254
+The total number of masked bases are:   Differing number of GFF fields encountered at line: 34454. 

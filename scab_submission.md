@@ -39,12 +39,12 @@ ftp ftp-private.ncbi.nlm.nih.gov
 cd uploads/tom.passey@emr.ac.uk_GHO2Umdl
 mkdir Vi_sra_PRJNA354841
 cd Vi_sra_PRJNA354841
-# put Vi_sra_PRJNA354841
+put Vi_sra_PRJNA354841
 prompt
 mput *
 bye
 cd ../
-rm -r $SubFolder
+#rm -r $SubFolder
 ```
 
 

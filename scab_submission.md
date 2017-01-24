@@ -89,6 +89,12 @@ the fasta files to be screened by the contamination screen
 prior to creating your final annotated submission.'
 ```
 
+Uploaded file:
+
+```
+home/groups/harrisonlab/project_files/venturia/assembly/merged_canu_spades/v.inaequalis/172_pacbio/filtered_contigs/contigs_min_500bp_renamed.fasta
+```
+
 #NCBI response
 
 NCBI responded that the file looked good so no edits required

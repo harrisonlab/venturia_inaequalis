@@ -74,3 +74,21 @@ Total results:
  This equates to an estimated genome coverage of 97.18 .
 ```
 
+The following note was provided in the WGS submission page on NCBI in the box
+labeled "Private comments to NCBI staff":
+
+```
+I have been advised to submit my assemblies to NCBI early in my submission process to ensure that my contigs pass the contamination screen. This assembly will be revised as appropriate, including renaming of contigs where needed. Please allow me to modify this submission at a later date, including upload of the final gene models.
+
+'For future submissions, you could send us the fasta files early
+in the submission process so we can run them through our foreign
+contamination screen. We will let you know if we find any
+sequences to exclude or trim before you generate your final
+WGS submission.'...'*IMPORTANT* Include a comment that you are submitting
+the fasta files to be screened by the contamination screen
+prior to creating your final annotated submission.'
+```
+
+#NCBI response
+
+NCBI responded that the file looked good so no edits required

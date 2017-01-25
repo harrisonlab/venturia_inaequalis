@@ -479,3 +479,376 @@ v.inaequalis    172_pacbio
 The number of bases masked by RepeatMasker:     34180552
 The number of bases masked by TransposonPSI:    10254
 The total number of masked bases are:   Differing number of GFF fields encountered at line: 34454. 
+
+
+# Gene Prediction
+
+
+Gene prediction followed three steps:
+  Pre-gene prediction
+    - Quality of PacBio genome assembly assessed using Cegma to see how many core eukaryotic genes can be identified.
+  Gene model training
+    - Gene models were trained using assembled RNAseq data as part of the Braker1 pipeline
+  Gene prediction
+    - Gene models were used to predict genes in genomes as part of the the Braker1 pipeline. This used RNAseq data as hints for gene models.
+
+# Pre-gene prediction
+
+Quality of genome assembly assessed by looking for the gene space in the assemblies.
+```bash
+  ProgDir=/home/passet/git_repos/tools/gene_prediction/cegma
+    cd /home/groups/harrisonlab/project_files/venturia
+    for Genome in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
+    echo $Genome;
+    qsub $ProgDir/sub_cegma.sh $Genome dna;
+  done
+```
+<!--
+Outputs were summarised using the commands:
+```bash
+  for File in $(ls gene_pred/cegma/v*/*/*_dna_cegma.completeness_report); do
+    Strain=$(echo $File | rev | cut -f2 -d '/' | rev);
+    Species=$(echo $File | rev | cut -f3 -d '/' | rev);
+    printf "$Species\t$Strain\n";
+    cat $File | head -n18 | tail -n+4;printf "\n";
+  done > gene_pred/cegma/cegma_results_dna_summary.txt
+
+less gene_pred/cegma/cegma_results_dna_summary.txt
+```
+
+
+#Gene prediction
+
+Gene prediction was performed for V. inaequalis genomes. Two gene prediction
+approaches were used:
+
+Gene prediction using Braker1
+Prediction of all putative ORFs in the genome using the ORF finder (atg.pl)
+approach.
+
+
+## Gene prediction 1 - Braker1 gene model training and prediction
+
+Gene prediction was performed using Braker1.
+
+First, RNAseq data was aligned to V. inaequalis genomes.
+* qc of RNA seq data is detailed below:
+
+
+
+Perform qc of RNAseq timecourse data
+```bash
+  for File in $( ls raw_rna/*/*/*/*/*.fastq); do
+  echo $File
+    IlluminaAdapters=/home/armita/git_repos/emr_repos/tools/seq_tools/ncbi_adapters.fa
+    ProgDir=/home/passet/git_repos/tools/seq_tools/rna_qc
+    qsub $ProgDir/rna_qc_fastq-mcf_unpaired.sh $File $IlluminaAdapters RNA
+  done
+```
+
+
+Data quality was visualised using fastqc:
+```bash
+for RawData in $(ls qc_rna/*/v.inaequalis/*/*/*.fq.gz); do
+ProgDir=/home/passet/git_repos/tools/seq_tools/dna_qc
+echo $RawData;
+qsub $ProgDir/run_fastqc.sh $RawData
+done
+```
+
+#### Aligning
+
+Insert sizes of the RNA seq library were unknown until a draft alignment could
+be made. To do this tophat and cufflinks were run, aligning the reads against a
+single genome. The fragment length and stdev were printed to stdout while
+cufflinks was running.
+
+```bash
+  for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa | grep -w '007'); do
+    Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+    Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+    Paired=$(echo $Assembly | rev | cut -d '/' -f5 | rev)
+    echo "$Organism - $Strain"
+    for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'paired'); do
+      Timepoint=$(echo $rna_file | rev | cut -f3 -d '/' | rev)
+      echo "$Timepoint"
+      OutDir=alignment/$Paired/$Organism/$Strain/$Timepoint
+      ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
+      qsub $ProgDir/tophat_alignment_unpaired.sh $Assembly $rna_file $OutDir
+    done
+  done
+```
+
+Alignments were concatenated prior to running cufflinks:
+Cufflinks was run to produce the fragment length and stdev statistics:
+
+```bash
+  for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa | grep -w '007'); do
+    Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+    Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+    echo "$Organism - $Strain"
+    mkdir -p alignment/repeat_masked/$Organism/$Strain/concatenated_prelim
+    AcceptedHits=alignment/repeat_masked/$Organism/$Strain/concatenated_prelim/concatenated.bam
+    samtools merge -f $AcceptedHits \
+    alignment/repeat_masked/$Organism/$Strain/V0/accepted_hits.bam \
+    alignment/repeat_masked/$Organism/$Strain/V2/accepted_hits.bam \
+    alignment/repeat_masked/$Organism/$Strain/V5/accepted_hits.bam
+    OutDir=gene_pred/cufflinks/$Organism/$Strain/concatenated_prelim
+    mkdir -p $OutDir
+    cufflinks -o $OutDir/cufflinks -p 8 --max-intron-length 4000 $AcceptedHits 2>&1 | tee $OutDir/cufflinks/cufflinks.log
+  done
+```
+
+Output from stdout included:
+```
+> Processed 46895 loci.                        [*************************] 100%
+> Map Properties:
+>       Normalized Map Mass: 11055132.29
+>       Raw Map Mass: 11055132.29
+>       Fragment Length Distribution: Truncated Gaussian (default)
+>                     Default Mean: 200
+>                  Default Std Dev: 80
+[17:10:50] Assembling transcripts and estimating abundances.
+> Processed 46920 loci.                        [*************************] 100%
+```
+
+
+The Estimated Mean: 200 allowed calculation of of the mean insert gap to be
+-88 bp 200-(144*2) where 144 was the mean read length. This was provided to tophat
+on a second run (as the -r option) along with the fragment length stdev to
+increase the accuracy of mapping.
+
+
+Then RNaseq data was aligned to each genome assembly:
+
+```bash
+InsertGap='-88'
+InsertStdDev='80'
+
+  for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa); do
+      Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
+      while [ $Jobs -gt 1 ]; do
+      sleep 10
+      printf "."
+      Jobs=$(qstat | grep 'tophat' | grep 'qw' | wc -l)
+    done
+      Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+      Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+      Paired=$(echo $Assembly | rev | cut -d '/' -f5 | rev)
+      echo "$Organism - $Strain"
+      for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'paired'); do
+      Timepoint=$(echo $rna_file | rev | cut -f3 -d '/' | rev)
+      echo "$Timepoint"
+      OutDir=alignment/$Paired/$Organism/$Strain/"$Timepoint"_paired
+      ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
+      qsub $ProgDir/tophat_alignment_interlevered.sh $Assembly $rna_file $OutDir $InsertGap $InsertStdDev
+    done
+    for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'unpaired'); do
+      Timepoint=$(echo $rna_file | rev | cut -f3 -d '/' | rev)
+      echo "$Timepoint"
+      OutDir=alignment/$Paired/$Organism/$Strain/"$Timepoint"_unpaired
+      ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
+      qsub $ProgDir/tophat_alignment_unpaired.sh $Assembly $rna_file $OutDir
+    done
+  done
+```
+
+#### Braker prediction
+
+Before braker predictiction was performed, I double checked that I had the
+genemark key in my user area and copied it over from the genemark install
+directory:
+
+```bash
+ls ~/.gm_key
+cp /home/armita/prog/genemark/gm_key_64 ~/.gm_key
+```
+Checked with 1 isolate genome first
+
+```bash
+  for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa | grep "024"); do
+      Jobs=$(qstat | grep 'sub_br' | grep 'qw' | wc -l)
+      while [ $Jobs -gt 1 ]; do
+      sleep 10
+      printf "."
+      Jobs=$(qstat | grep 'sub_br' | grep 'qw' | wc -l)
+      done
+    Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+    Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+    echo "$Organism - $Strain"
+    mkdir -p alignment/repeat_masked/$Organism/$Strain/concatenated
+    samtools merge -f alignment/repeat_masked/$Organism/$Strain/concatenated/concatenated.bam \
+    alignment/repeat_masked/$Organism/$Strain/V0_unpaired/accepted_hits.bam \
+    alignment/repeat_masked/$Organism/$Strain/V2_unpaired/accepted_hits.bam \
+    alignment/repeat_masked/$Organism/$Strain/V5_unpaired/accepted_hits.bam \
+    alignment/repeat_masked/$Organism/$Strain/V0_paired/accepted_hits.bam \
+    alignment/repeat_masked/$Organism/$Strain/V2_paired/accepted_hits.bam \
+    alignment/repeat_masked/$Organism/$Strain/V5_paired/accepted_hits.bam
+    OutDir=gene_pred/braker/$Organism/"$Strain"_braker_new
+    AcceptedHits=alignment/repeat_masked/$Organism/$Strain/concatenated/concatenated.bam
+    GeneModelName="$Organism"_"$Strain"_braker_new
+    rm -r /home/armita/prog/augustus-3.1/config/species/"$Organism"_"$Strain"_braker_new
+    ProgDir=/home/passet/git_repos/tools/gene_prediction/braker1
+    qsub $ProgDir/sub_braker_fungi.sh $Assembly $OutDir $AcceptedHits $GeneModelName
+  done
+```
+Ran remaining genomes
+
+```bash
+  for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa | grep -v "024"); do
+      Jobs=$(qstat | grep 'sub_br' | grep 'qw' | wc -l)
+      while [ $Jobs -gt 1 ]; do
+      sleep 10
+      printf "."
+      Jobs=$(qstat | grep 'sub_br' | grep 'qw' | wc -l)
+      done
+    Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+    Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+    echo "$Organism - $Strain"
+    mkdir -p alignment/repeat_masked/$Organism/$Strain/concatenated
+    samtools merge -f alignment/repeat_masked/$Organism/$Strain/concatenated/concatenated.bam \
+    alignment/repeat_masked/$Organism/$Strain/V0_unpaired/accepted_hits.bam \
+    alignment/repeat_masked/$Organism/$Strain/V2_unpaired/accepted_hits.bam \
+    alignment/repeat_masked/$Organism/$Strain/V5_unpaired/accepted_hits.bam \
+    alignment/repeat_masked/$Organism/$Strain/V0_paired/accepted_hits.bam \
+    alignment/repeat_masked/$Organism/$Strain/V2_paired/accepted_hits.bam \
+    alignment/repeat_masked/$Organism/$Strain/V5_paired/accepted_hits.bam
+    OutDir=gene_pred/braker/$Organism/"$Strain"_braker_new
+    AcceptedHits=alignment/repeat_masked/$Organism/$Strain/concatenated/concatenated.bam
+    GeneModelName="$Organism"_"$Strain"_braker_new
+    rm -r /home/armita/prog/augustus-3.1/config/species/"$Organism"_"$Strain"_braker_new
+    ProgDir=/home/passet/git_repos/tools/gene_prediction/braker1
+    qsub $ProgDir/sub_braker_fungi.sh $Assembly $OutDir $AcceptedHits $GeneModelName
+  done
+```
+
+
+Fasta and gff files were extracted from Braker1 output.
+
+```bash
+for File in $(ls gene_pred/braker/v.*/*_braker_new/*/augustus.gff); do
+getAnnoFasta.pl $File
+OutDir=$(dirname $File)
+echo "##gff-version 3" > $OutDir/augustus_extracted.gff
+cat $File | grep -v '#' >> $OutDir/augustus_extracted.gff
+done
+```
+
+
+## Supplimenting Braker gene models with CodingQuary genes
+
+Additional genes were added to Braker gene predictions, using CodingQuary in
+pathogen mode to predict additional regions.
+
+Fistly, aligned RNAseq data was assembled into transcripts using Cufflinks.
+
+Note - cufflinks doesn't always predict direction of a transcript and
+therefore features can not be restricted by strand when they are intersected.
+
+```bash
+  for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa); do 
+      Jobs=$(qstat | grep 'sub_cu' | grep 'qw' | wc -l)
+      while [ $Jobs -gt 1 ]; do
+      sleep 10
+      printf "."
+    Jobs=$(qstat | grep 'sub_cu' | grep 'qw' | wc -l)
+    done
+    Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+    Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+    echo "$Organism - $Strain"
+    OutDir=gene_pred/cufflinks/$Organism/$Strain/concatenated
+    mkdir -p $OutDir
+    AcceptedHits=alignment/repeat_masked/$Organism/$Strain/concatenated/concatenated.bam
+    ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
+    qsub $ProgDir/sub_cufflinks.sh $AcceptedHits $OutDir
+  done
+```
+
+Secondly, genes were predicted using CodingQuary:
+
+```bash
+  for Assembly in $(ls repeat_masked/*/*/*/*_contigs_softmasked.fa); do
+      Jobs=$(qstat | grep 'sub_Co' | grep 'qw' | wc -l)
+      while [ $Jobs -gt 1 ]; do
+      sleep 10
+      printf "."
+      Jobs=$(qstat | grep 'sub_Co' | grep 'qw' | wc -l)
+      done
+    Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+    Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+    echo "$Organism - $Strain"
+    OutDir=gene_pred/codingquary/$Organism/$Strain
+    CufflinksGTF=gene_pred/cufflinks/$Organism/$Strain/concatenated/transcripts.gtf
+    ProgDir=/home/passet/git_repos/tools/gene_prediction/codingquary
+    qsub $ProgDir/sub_CodingQuary.sh $Assembly $CufflinksGTF $OutDir
+  done
+```
+
+
+Then, additional transcripts were added to Braker gene models, when CodingQuary
+genes were predicted in regions of the genome, not containing Braker gene
+models:
+
+```bash
+  for BrakerGff in $(ls gene_pred/braker/v.*/*_braker_new/*/augustus.gff3); do
+    Strain=$(echo $BrakerGff| rev | cut -d '/' -f3 | rev | sed 's/_braker_new//g')
+    Organism=$(echo $BrakerGff | rev | cut -d '/' -f4 | rev)
+    echo "$Organism - $Strain"
+    # BrakerGff=gene_pred/braker/$Organism/$Strain/v.inaequalis_*/augustus_extracted.gff
+    Assembly=$(ls repeat_masked/$Organism/$Strain/*/"$Strain"_contigs_softmasked.fa)
+    CodingQuaryGff=gene_pred/codingquary/$Organism/$Strain/out/PredictedPass.gff3
+    PGNGff=gene_pred/codingquary/$Organism/$Strain/out/PGN_predictedPass.gff3
+    AddDir=gene_pred/codingquary/$Organism/$Strain/additional
+    FinalDir=gene_pred/codingquary/$Organism/$Strain/final
+    AddGenesList=$AddDir/additional_genes.txt
+    AddGenesGff=$AddDir/additional_genes.gff
+    FinalGff=$AddDir/combined_genes.gff
+    mkdir -p $AddDir
+    mkdir -p $FinalDir
+
+    bedtools intersect -v -a $CodingQuaryGff -b $BrakerGff | grep 'gene'| cut -f2 -d'=' | cut -f1 -d';' > $AddGenesList
+    bedtools intersect -v -a $PGNGff -b $BrakerGff | grep 'gene'| cut -f2 -d'=' | cut -f1 -d';' >> $AddGenesList
+    ProgDir=/home/passet/git_repos/tools/seq_tools/feature_annotation
+    $ProgDir/gene_list_to_gff.pl $AddGenesList $CodingQuaryGff CodingQuarry_v2.0 ID CodingQuary > $AddGenesGff
+    $ProgDir/gene_list_to_gff.pl $AddGenesList $PGNGff PGNCodingQuarry_v2.0 ID CodingQuary >> $AddGenesGff
+    ProgDir=/home/passet/git_repos/tools/gene_prediction/codingquary
+
+
+    $ProgDir/add_CodingQuary_features.pl $AddGenesGff $Assembly > $FinalDir/final_genes_CodingQuary.gff3
+    $ProgDir/gff2fasta.pl $Assembly $FinalDir/final_genes_CodingQuary.gff3 $FinalDir/final_genes_CodingQuary
+    cp $BrakerGff $FinalDir/final_genes_Braker.gff3
+    $ProgDir/gff2fasta.pl $Assembly $FinalDir/final_genes_Braker.gff3 $FinalDir/final_genes_Braker
+    cat $FinalDir/final_genes_Braker.pep.fasta $FinalDir/final_genes_CodingQuary.pep.fasta | sed -r 's/\*/X/g' > $FinalDir/final_genes_combined.pep.fasta
+    cat $FinalDir/final_genes_Braker.cdna.fasta $FinalDir/final_genes_CodingQuary.cdna.fasta > $FinalDir/final_genes_combined.cdna.fasta
+    cat $FinalDir/final_genes_Braker.gene.fasta $FinalDir/final_genes_CodingQuary.gene.fasta > $FinalDir/final_genes_combined.gene.fasta
+    cat $FinalDir/final_genes_Braker.upstream3000.fasta $FinalDir/final_genes_CodingQuary.upstream3000.fasta > $FinalDir/final_genes_combined.upstream3000.fasta
+
+    GffBraker=$FinalDir/final_genes_CodingQuary.gff3
+    GffQuary=$FinalDir/final_genes_Braker.gff3
+    GffAppended=$FinalDir/final_genes_appended.gff3
+    cat $GffBraker $GffQuary > $GffAppended
+
+  done
+```
+
+
+The final number of genes per isolate was observed using:
+```bash
+  for DirPath in $(ls -d gene_pred/codingquary/v.*/*/final); do
+  echo $DirPath;
+  cat $DirPath/final_genes_Braker.pep.fasta | grep '>' | wc -l;
+  cat $DirPath/final_genes_CodingQuary.pep.fasta | grep '>' | wc -l;
+  cat $DirPath/final_genes_combined.pep.fasta | grep '>' | wc -l;
+  echo "";
+  done
+```
+Output:
+
+gene_pred/codingquary/v.inaequalis/172_Pacbio/final
+12087
+1343
+13430
+
+
+
+-->

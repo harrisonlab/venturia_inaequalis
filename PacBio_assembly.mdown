@@ -503,10 +503,10 @@ Quality of genome assembly assessed by looking for the gene space in the assembl
     qsub $ProgDir/sub_cegma.sh $Genome dna;
   done
 ```
-<!--
+
 Outputs were summarised using the commands:
 ```bash
-  for File in $(ls gene_pred/cegma/v*/*/*_dna_cegma.completeness_report); do
+  for File in $(ls gene_pred/cegma/v*/*/*_dna_cegma.completeness_report | grep "172_pacbio"); do
     Strain=$(echo $File | rev | cut -f2 -d '/' | rev);
     Species=$(echo $File | rev | cut -f3 -d '/' | rev);
     printf "$Species\t$Strain\n";
@@ -516,45 +516,38 @@ Outputs were summarised using the commands:
 less gene_pred/cegma/cegma_results_dna_summary.txt
 ```
 
+Output:
 
+v.inaequalis    172_pacbio
+              #Prots  %Completeness  -  #Total  Average  %Ortho
+
+  Complete      238       95.97      -   260     1.09      7.98
+
+   Group 1       61       92.42      -    66     1.08      8.20
+   Group 2       54       96.43      -    59     1.09      7.41
+   Group 3       59       96.72      -    68     1.15     11.86
+   Group 4       64       98.46      -    67     1.05      4.69
+
+   Partial      245       98.79      -   273     1.11      9.80
+
+   Group 1       64       96.97      -    70     1.09      7.81
+   Group 2       55       98.21      -    61     1.11      9.09
+   Group 3       61      100.00      -    73     1.20     16.39
+   Group 4       65      100.00      -    69     1.06      6.15
+
+<!--
 #Gene prediction
 
-Gene prediction was performed for V. inaequalis genomes. Two gene prediction
-approaches were used:
-
-Gene prediction using Braker1
-Prediction of all putative ORFs in the genome using the ORF finder (atg.pl)
-approach.
+Gene prediction was performed for V. inaequalis PacBio genome.
 
 
 ## Gene prediction 1 - Braker1 gene model training and prediction
 
 Gene prediction was performed using Braker1.
 
-First, RNAseq data was aligned to V. inaequalis genomes.
-* qc of RNA seq data is detailed below:
+First, RNAseq data from Thakur et al was aligned to V. inaequalis PacBio genome.
+* qc of RNA seq data is detailed in README.md
 
-
-
-Perform qc of RNAseq timecourse data
-```bash
-  for File in $( ls raw_rna/*/*/*/*/*.fastq); do
-  echo $File
-    IlluminaAdapters=/home/armita/git_repos/emr_repos/tools/seq_tools/ncbi_adapters.fa
-    ProgDir=/home/passet/git_repos/tools/seq_tools/rna_qc
-    qsub $ProgDir/rna_qc_fastq-mcf_unpaired.sh $File $IlluminaAdapters RNA
-  done
-```
-
-
-Data quality was visualised using fastqc:
-```bash
-for RawData in $(ls qc_rna/*/v.inaequalis/*/*/*.fq.gz); do
-ProgDir=/home/passet/git_repos/tools/seq_tools/dna_qc
-echo $RawData;
-qsub $ProgDir/run_fastqc.sh $RawData
-done
-```
 
 #### Aligning
 
@@ -579,6 +572,7 @@ cufflinks was running.
   done
 ```
 
+<!--
 Alignments were concatenated prior to running cufflinks:
 Cufflinks was run to produce the fragment length and stdev statistics:
 
@@ -654,6 +648,10 @@ InsertStdDev='80'
 ```
 
 #### Braker prediction
+
+Gene prediction using Braker1
+Prediction of all putative ORFs in the genome using the ORF finder (atg.pl)
+approach.
 
 Before braker predictiction was performed, I double checked that I had the
 genemark key in my user area and copied it over from the genemark install

@@ -291,12 +291,12 @@ Move to the directory where the output of SNP calling should be placed
 mkdir -p /home/groups/harrisonlab/project_files/venturia/SNP_calling
 cd /home/groups/harrisonlab/project_files/venturia/SNP_calling
 ```
-<!--
+
 ###Start SNP calling with GATK
 The submission script required needs to be custom-prepared for each analysis, depending on what samples are being analysed.
 See inside the submission script below.
 
 ```bash
-scripts=/home/passet/git_repos_venturia_inaequalis/
+scripts=/home/passet/git_repos/scripts/venturia_inaequalis
 qsub $scripts/sub_SNP_calling_multithreaded.sh
 ```

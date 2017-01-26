@@ -243,18 +243,17 @@ Ran cleanup of rest of alignments
 		qsub $ProgDir/sub_pre_snp_calling.sh $Alignment $Isolate
 	done
 ```
-<!--
+Copy cleanup outputs into alignment folders
+```bash
+	for Isolate in 007 024 025 030 036 044 049 057 083 096 097 098 101 106 118 119 172 173 182 190 196 197 199 202 saturn 
+	do
+		Bam="$Isolate"_172_pacbio_contigs_unmasked.fa_aligned_nomulti_proper_sorted_nodup_rg.bam
+		Bai="$Isolate"_172_pacbio_contigs_unmasked.fa_aligned_nomulti_proper_sorted_nodup_rg.bam.bai
+		Txt="$Isolate"_172_pacbio_contigs_unmasked.fa_aligned_nomulti_proper_sorted_nodup.txt
+		Directory=alignment/bowtie/*/$Isolate/vs_172_PacBio
+		mv $Bam $Directory
+		mv $Bai $Directory
+		mv $Txt $Directory
+	done
 ```
-qsub $scripts/sub_pre_snp_calling.sh $input/007/*/007_172_pacbio_contigs_unmasked.fa_aligned.sam 007
-qsub $scripts/sub_pre_snp_calling.sh $input/55/55_Fus2_canu_contigs_unmasked.fa_aligned.sam FOC55
-qsub $scripts/sub_pre_snp_calling.sh $input/A1-2/A1-2_Fus2_canu_contigs_unmasked.fa_aligned.sam FOCA1-2
-qsub $scripts/sub_pre_snp_calling.sh $input/A13/A13_Fus2_canu_contigs_unmasked.fa_aligned.sam FOCA13
-qsub $scripts/sub_pre_snp_calling.sh $input/A23/A23_Fus2_canu_contigs_unmasked.fa_aligned.sam FOCA23
-qsub $scripts/sub_pre_snp_calling.sh $input/A28/A28_Fus2_canu_contigs_unmasked.fa_aligned.sam FOCA28
-qsub $scripts/sub_pre_snp_calling.sh $input/CB3/CB3_Fus2_canu_contigs_unmasked.fa_aligned.sam FOCCB3
-qsub $scripts/sub_pre_snp_calling.sh $input/D2/D2_Fus2_canu_contigs_unmasked.fa_aligned.sam FOCD2
-qsub $scripts/sub_pre_snp_calling.sh $input/Fus2/Fus2_Fus2_canu_contigs_unmasked.fa_aligned.sam FOCFus2
-qsub $scripts/sub_pre_snp_calling.sh $input/HB6/HB6_Fus2_canu_contigs_unmasked.fa_aligned.sam FOCHB6
-qsub $scripts/sub_pre_snp_calling.sh $input/PG/PG_Fus2_canu_contigs_unmasked.fa_aligned.sam FOCPG
-```
--->
+

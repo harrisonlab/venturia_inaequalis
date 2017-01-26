@@ -606,7 +606,6 @@ You are using Cufflinks v2.2.1, which is the most recent release.
 > Processed 47219 loci.                        [*************************] 100%
 ```
 
-<!--
 The Estimated Mean: 200 allowed calculation of of the mean insert gap to be
 -88 bp 200-(144*2) where 144 was the mean read length. This was provided to tophat
 on a second run (as the -r option) along with the fragment length stdev to
@@ -619,7 +618,7 @@ Then RNaseq data was aligned to the PacBio genome assembly:
 InsertGap='-88'
 InsertStdDev='80'
 
-  for Assembly in $(ls repeat_masked/*/*/filtered_contigs_repmask/*_contigs_unmasked.fa); do
+  for Assembly in $(ls repeat_masked/*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
       Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
       Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
       Paired=$(echo $Assembly | rev | cut -d '/' -f5 | rev)
@@ -641,6 +640,7 @@ InsertStdDev='80'
   done
 ```
 
+<!--
 #### Braker prediction
 
 Gene prediction using Braker1

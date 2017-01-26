@@ -256,4 +256,47 @@ Copy cleanup outputs into alignment folders
 		mv $Txt $Directory
 	done
 ```
+##SNP calling
+Run a SNP calling script developed by Maria
 
+To change in each analysis:
+
+input=/home/groups/harrisonlab/project_files/venturia/alignment/bowtie
+reference=/home/groups/harrisonlab/project_files/venturia/repeat_masked/v.inaequalis/172_pacbio/filtered_contigs_repmask/172_pacbio_contigs_unmasked.fa
+
+
+filename=$(basename "$reference")
+output="${filename%.*}.dict"
+
+###Prepare genome reference indexes required by GATK
+```bash
+java -jar /home/sobczm/bin/picard-tools-2.5.0/picard.jar CreateSequenceDictionary R=$reference O=$input/$output
+samtools faidx $reference
+```
+
+Copy index file to same folder as BAM alignments
+
+```bash
+for Isolate in 007 024 025 030 036 044 049 057 083 096 097 098 101 106 118 119 172 173 182 190 196 197 199 202 saturn 
+	do
+    Index=repeat_masked/v.inaequalis/172_pacbio/filtered_contigs_repmask/172_pacbio_contigs_unmasked.fa.fai
+    Directory=alignment/bowtie/*/$Isolate/vs_172_PacBio/
+    cp $Index $Directory
+done
+```
+
+Move to the directory where the output of SNP calling should be placed
+
+```bash
+mkdir -p /home/groups/harrisonlab/project_files/venturia/SNP_calling
+cd /home/groups/harrisonlab/project_files/venturia/SNP_calling
+```
+<!--
+###Start SNP calling with GATK
+The submission script required needs to be custom-prepared for each analysis, depending on what samples are being analysed.
+See inside the submission script below.
+
+```bash
+scripts=/home/passet/git_repos_venturia_inaequalis/
+qsub $scripts/sub_SNP_calling_multithreaded.sh
+```

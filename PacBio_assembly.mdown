@@ -690,7 +690,6 @@ Fasta and gff files were extracted from Braker1 output.
   done
 ```
 
-<!--
 ## Supplimenting Braker gene models with CodingQuary genes
 
 Additional genes were added to Braker gene predictions, using CodingQuary in
@@ -702,13 +701,7 @@ Note - cufflinks doesn't always predict direction of a transcript and
 therefore features can not be restricted by strand when they are intersected.
 
 ```bash
-  for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa); do 
-      Jobs=$(qstat | grep 'sub_cu' | grep 'qw' | wc -l)
-      while [ $Jobs -gt 1 ]; do
-      sleep 10
-      printf "."
-    Jobs=$(qstat | grep 'sub_cu' | grep 'qw' | wc -l)
-    done
+  for Assembly in $(ls repeat_masked/*/*/filtered_*/*_contigs_unmasked.fa | grep -w "172_pacbio"); do 
     Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
     Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
     echo "$Organism - $Strain"
@@ -719,7 +712,7 @@ therefore features can not be restricted by strand when they are intersected.
     qsub $ProgDir/sub_cufflinks.sh $AcceptedHits $OutDir
   done
 ```
-
+<!--
 Secondly, genes were predicted using CodingQuary:
 
 ```bash

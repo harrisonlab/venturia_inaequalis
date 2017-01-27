@@ -678,19 +678,19 @@ Ran braker prediction on PacBio genome
     qsub $ProgDir/sub_braker_fungi.sh $Assembly $OutDir $AcceptedHits $GeneModelName
   done
 ```
-<!--
+
 Fasta and gff files were extracted from Braker1 output.
 
 ```bash
-for File in $(ls gene_pred/braker/v.*/*_braker_new/*/augustus.gff); do
-getAnnoFasta.pl $File
-OutDir=$(dirname $File)
-echo "##gff-version 3" > $OutDir/augustus_extracted.gff
-cat $File | grep -v '#' >> $OutDir/augustus_extracted.gff
-done
+  for File in $(ls gene_pred/braker/v.*/172_pacbio_braker_new/*/augustus.gff); do
+    getAnnoFasta.pl $File
+    OutDir=$(dirname $File)
+    echo "##gff-version 3" > $OutDir/augustus_extracted.gff
+    cat $File | grep -v '#' >> $OutDir/augustus_extracted.gff
+  done
 ```
 
-
+<!--
 ## Supplimenting Braker gene models with CodingQuary genes
 
 Additional genes were added to Braker gene predictions, using CodingQuary in

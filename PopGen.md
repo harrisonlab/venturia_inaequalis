@@ -273,6 +273,10 @@ output="${filename%.*}.dict"
 java -jar /home/sobczm/bin/picard-tools-2.5.0/picard.jar CreateSequenceDictionary R=$reference O=$input/$output
 samtools faidx $reference
 ```
+.dict file saved in wrong place 
+```bash
+cp alignment/bowtie/172_pacbio_contigs_unmasked.dict repeat_masked/v.inaequalis/172_pacbio/filtered_contigs_repmask/
+```
 
 Copy index file to same folder as BAM alignments
 

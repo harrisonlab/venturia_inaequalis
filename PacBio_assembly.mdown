@@ -486,7 +486,7 @@ The total number of masked bases are:   Differing number of GFF fields encounter
 
 Gene prediction followed three steps:
   Pre-gene prediction
-    - Quality of PacBio genome assembly assessed using Cegma to see how many core eukaryotic genes can be identified.
+    - Quality of merged PacBio genome assembly assessed using Cegma to see how many core eukaryotic genes can be identified.
   Gene model training
     - Gene models were trained using assembled RNAseq data as part of the Braker1 pipeline
   Gene prediction
@@ -727,18 +727,18 @@ Secondly, genes were predicted using CodingQuary:
   done
 ```
 
-<!--
+
 Then, additional transcripts were added to Braker gene models, when CodingQuary
 genes were predicted in regions of the genome, not containing Braker gene
 models:
 
 ```bash
-  for BrakerGff in $(ls gene_pred/braker/v.*/*_braker_new/*/augustus.gff3); do
+  for BrakerGff in $(ls gene_pred/braker/v.*/172_pacbio_braker_new/*/augustus.gff3); do
     Strain=$(echo $BrakerGff| rev | cut -d '/' -f3 | rev | sed 's/_braker_new//g')
     Organism=$(echo $BrakerGff | rev | cut -d '/' -f4 | rev)
     echo "$Organism - $Strain"
     # BrakerGff=gene_pred/braker/$Organism/$Strain/v.inaequalis_*/augustus_extracted.gff
-    Assembly=$(ls repeat_masked/$Organism/$Strain/*/"$Strain"_contigs_softmasked.fa)
+    Assembly=$(ls repeat_masked/$Organism/$Strain/filtered_*/"$Strain"_contigs_softmasked.fa)
     CodingQuaryGff=gene_pred/codingquary/$Organism/$Strain/out/PredictedPass.gff3
     PGNGff=gene_pred/codingquary/$Organism/$Strain/out/PGN_predictedPass.gff3
     AddDir=gene_pred/codingquary/$Organism/$Strain/additional
@@ -777,21 +777,22 @@ models:
 
 The final number of genes per isolate was observed using:
 ```bash
-  for DirPath in $(ls -d gene_pred/codingquary/v.*/*/final); do
-  echo $DirPath;
-  cat $DirPath/final_genes_Braker.pep.fasta | grep '>' | wc -l;
-  cat $DirPath/final_genes_CodingQuary.pep.fasta | grep '>' | wc -l;
-  cat $DirPath/final_genes_combined.pep.fasta | grep '>' | wc -l;
-  echo "";
+  for DirPath in $(ls -d gene_pred/codingquary/v.*/*/final | grep -w "172_pacbio"); do
+    echo $DirPath;
+    cat $DirPath/final_genes_Braker.pep.fasta | grep '>' | wc -l;
+    cat $DirPath/final_genes_CodingQuary.pep.fasta | grep '>' | wc -l;
+    cat $DirPath/final_genes_combined.pep.fasta | grep '>' | wc -l;
+    echo "";
   done
 ```
 Output:
 
-gene_pred/codingquary/v.inaequalis/172_Pacbio/final
-12087
-1343
-13430
+gene_pred/codingquary/v.inaequalis/172_pacbio/final
+12198
+1673
+13871
 
 
+<!--
 
 -->

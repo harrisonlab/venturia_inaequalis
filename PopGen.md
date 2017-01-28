@@ -320,15 +320,17 @@ vcflib=/home/sobczm/bin/vcflib/bin
 
 $vcflib/vcfremovesamples SNP_calling/172_pacbio_contigs_unmasked.vcf 036 172 saturn >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.vcf
 ```
-<!--
+
 ###Only retain biallelic high-quality SNPS with no missing data for genetic analyses.
 ```bash
-for vcf in $(ls SNP_calling/*_contigs_unmasked.vcf); do
-echo $vcf
-script=/home/passet/git_repos/scripts/popgen/snp
-qsub $script/sub_vcf_parser.sh $vcf
+	for vcf in $(ls SNP_calling/*_contigs_unmasked.vcf) 
+	do
+		echo $vcf
+		script=/home/passet/git_repos/scripts/popgen/snp
+		qsub $script/sub_vcf_parser.sh $vcf
+	done
 ```
-
+<!--
 ###In some organisms, may want to thin (subsample) SNPs in high linkage diseqilibrium down to
 1 SNP  per e.g. 10 kbp just for the population structure analyses.
 #vcftools=/home/sobczm/bin/vcftools/bin

@@ -330,12 +330,24 @@ $vcflib/vcfremovesamples SNP_calling/172_pacbio_contigs_unmasked.vcf 036 172 sat
 		qsub $script/sub_vcf_parser.sh $vcf
 	done
 ```
-<!--
-###In some organisms, may want to thin (subsample) SNPs in high linkage diseqilibrium down to
-1 SNP  per e.g. 10 kbp just for the population structure analyses.
-#vcftools=/home/sobczm/bin/vcftools/bin
-#$vcftools/vcftools --vcf $input_vcf --thin 10000 --recode --out ${input_vcf%.vcf}_thinned
 
+###In some organisms, may want to thin (subsample) SNPs in high linkage diseqilibrium down to
+1 SNP  per e.g. 10 kbp just for the population structure analyses. Files had to be renamed after running
+```bash
+input=SNP_calling
+vcftools=/home/sobczm/bin/vcftools/bin
+$vcftools/vcftools --vcf $input/172_pacbio_contigs_unmasked.vcf --thin 10000 --recode --out ${input/vcf%.vcf}172_pacbio_contigs_unmasked_thinned
+mv SNP_calling172_pacbio_contigs_unmasked_thinned.log SNP_calling/172_pacbio_contigs_unmasked_thinned.log
+mv SNP_calling172_pacbio_contigs_unmasked_thinned.recode.vcf SNP_calling/172_pacbio_contigs_unmasked_thinned.recode.vcf
+
+input=SNP_calling
+vcftools=/home/sobczm/bin/vcftools/bin
+$vcftools/vcftools --vcf $input/Ash_farm_172_pacbio_contigs_unmasked.vcf --thin 10000 --recode --out ${input/vcf%.vcf}Ash_farm_172_pacbio_contigs_unmasked_thinned
+mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_thinned.log SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_thinned.log
+mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_thinned.recode.vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_thinned.recode.vcf
+```
+
+<!--
 ###General VCF stats (remember that vcftools needs to have the PERL library exported)
 ```bash
 perl /home/sobczm/bin/vcftools/bin/vcf-stats \

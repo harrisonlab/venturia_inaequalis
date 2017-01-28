@@ -342,28 +342,45 @@ mv SNP_calling172_pacbio_contigs_unmasked_thinned.recode.vcf SNP_calling/172_pac
 
 input=SNP_calling
 vcftools=/home/sobczm/bin/vcftools/bin
+$vcftools/vcftools --vcf $input/172_pacbio_contigs_unmasked_filtered.vcf --thin 10000 --recode --out ${input/vcf%.vcf}172_pacbio_contigs_unmasked_filtered_thinned
+mv SNP_calling172_pacbio_contigs_unmasked_filtered_thinned.log SNP_calling/172_pacbio_contigs_unmasked_filtered_thinned.log
+mv SNP_calling172_pacbio_contigs_unmasked_filtered_thinned.recode.vcf SNP_calling/172_pacbio_contigs_unmasked_filtered_thinned.recode.vcf
+
+input=SNP_calling
+vcftools=/home/sobczm/bin/vcftools/bin
 $vcftools/vcftools --vcf $input/Ash_farm_172_pacbio_contigs_unmasked.vcf --thin 10000 --recode --out ${input/vcf%.vcf}Ash_farm_172_pacbio_contigs_unmasked_thinned
 mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_thinned.log SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_thinned.log
 mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_thinned.recode.vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_thinned.recode.vcf
+
+input=SNP_calling
+vcftools=/home/sobczm/bin/vcftools/bin
+$vcftools/vcftools --vcf $input/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf --thin 10000 --recode --out ${input/vcf%.vcf}Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned
+mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_filtered_thinned.log SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.log
+mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.vcf
 ```
 
 <!--
 ###General VCF stats (remember that vcftools needs to have the PERL library exported)
 ```bash
 perl /home/sobczm/bin/vcftools/bin/vcf-stats \
-SNP_calling/_contigs_unmasked.vcf >SNP_calling/_contigs_unmasked.stat
+SNP_calling/172_pacbio_contigs_unmasked.vcf >SNP_calling/172_pacbio_contigs_unmasked.stat
 perl /home/sobczm/bin/vcftools/bin/vcf-stats \
-SNP_calling/_contigs_unmasked_filtered.vcf >SNP_calling/_contigs_unmasked_filtered.stat
+SNP_calling/172_pacbio_contigs_unmasked_filtered.vcf >SNP_calling/_contigs_unmasked_filtered.stat
 
 perl /home/sobczm/bin/vcftools/bin/vcf-stats \
-SNP_calling/Ash_farm__contigs_unmasked.vcf >SNP_calling/Ash_farm__contigs_unmasked.stat
+SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.vcf >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.stat
 perl /home/sobczm/bin/vcftools/bin/vcf-stats \
-SNP_calling/Ash_farm__contigs_unmasked_filtered.vcf >SNP_calling/Ash_farm__contigs_unmasked_filtered.stat
+SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.stat
 ```
+
 
 ###Calculate the index for percentage of shared SNP alleles between the individuals
 ```bash
-$scripts/similarity_percentage.py Fus2_canu_contigs_unmasked_filtered.vcf
+	for vcf in $(ls SNP_calling/*_contigs_unmasked_filtered.vcf)
+	do
+		scripts=/home/passet/git_repos/scripts/popgen/snp
+		$scripts/similarity_percentage.py $vcf
+	done
 ```
 
 ###Visualise the output as heatmap and clustering dendrogram

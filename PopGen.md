@@ -304,3 +304,66 @@ See inside the submission script below.
 scripts=/home/passet/git_repos/scripts/venturia_inaequalis
 qsub $scripts/sub_SNP_calling_multithreaded.sh
 ```
+
+##Determining genentic structure
+
+
+###Removal of Isolates for analysis
+Want to be able to run analysis without: 
+Isolate 172 as the same isolate as genome
+Isolate 036 due to poor quality of sequencing (due to initial low library concentration on to MiSeq)
+Saturn isolate as not from the same orchard (and therefore not currently of interest)
+
+```bash
+vcftools=/home/sobczm/bin/vcftools/bin
+vcflib=/home/sobczm/bin/vcflib/bin
+
+$vcflib/vcfremovesamples SNP_calling/172_pacbio_contigs_unmasked.vcf 036 172 saturn >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.vcf
+```
+<!--
+###Only retain biallelic high-quality SNPS with no missing data for genetic analyses.
+```bash
+for vcf in $(ls SNP_calling/*_contigs_unmasked.vcf); do
+echo $vcf
+script=/home/passet/git_repos/scripts/popgen/snp
+qsub $script/sub_vcf_parser.sh $vcf
+```
+
+###In some organisms, may want to thin (subsample) SNPs in high linkage diseqilibrium down to
+1 SNP  per e.g. 10 kbp just for the population structure analyses.
+#vcftools=/home/sobczm/bin/vcftools/bin
+#$vcftools/vcftools --vcf $input_vcf --thin 10000 --recode --out ${input_vcf%.vcf}_thinned
+
+###General VCF stats (remember that vcftools needs to have the PERL library exported)
+```bash
+perl /home/sobczm/bin/vcftools/bin/vcf-stats \
+SNP_calling/_contigs_unmasked.vcf >SNP_calling/_contigs_unmasked.stat
+perl /home/sobczm/bin/vcftools/bin/vcf-stats \
+SNP_calling/_contigs_unmasked_filtered.vcf >SNP_calling/_contigs_unmasked_filtered.stat
+
+perl /home/sobczm/bin/vcftools/bin/vcf-stats \
+SNP_calling/Ash_farm__contigs_unmasked.vcf >SNP_calling/Ash_farm__contigs_unmasked.stat
+perl /home/sobczm/bin/vcftools/bin/vcf-stats \
+SNP_calling/Ash_farm__contigs_unmasked_filtered.vcf >SNP_calling/Ash_farm__contigs_unmasked_filtered.stat
+```
+
+###Calculate the index for percentage of shared SNP alleles between the individuals
+```bash
+$scripts/similarity_percentage.py Fus2_canu_contigs_unmasked_filtered.vcf
+```
+
+###Visualise the output as heatmap and clustering dendrogram
+Rscript --vanilla $scripts/distance_matrix.R Fus2_canu_contigs_unmasked_filtered_distance.log
+
+###Carry out PCA and plot the results
+Rscript --vanilla $scripts/pca.R Fus2_canu_contigs_unmasked_filtered.vcf
+
+###Calculate an NJ tree based on all the SNPs. Outputs a basic diplay of the tree, plus a Newick file to be used
+
+###for displaying the tree in FigTree and beautifying it.
+$scripts/nj_tree.sh Fus2_canu_contigs_unmasked_filtered.vcf 1
+
+###DAPC and AMOVA analysis
+Rscript --vanilla $popgen/snp/amova_dapc.R
+```
+-->

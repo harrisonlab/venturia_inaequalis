@@ -850,7 +850,7 @@ Annotations with SwissProt
   done
 ```
 
-<!--
+
 ```bash
   for SwissTable in $(ls gene_pred/swissprot/*/*/swissprot_v2015_10_hits.tbl | grep -w "172_pacbio"); do
     # SwissTable=gene_pred/swissprot/v_inaequalis/swissprot_v2015_10_hits.tbl
@@ -909,7 +909,7 @@ the following commands:
   done
 ```
 
-
+<!--
 The batch files of predicted secreted proteins needed to be combined into a
 single file for each strain. This was done with the following commands:
 ```bash

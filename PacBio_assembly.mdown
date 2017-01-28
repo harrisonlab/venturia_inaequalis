@@ -818,7 +818,7 @@ was redirected to a temporary output file named interproscan_submission.log .
     $ProgDir/sub_interproscan.sh $Genes
   done 2>&1 | tee -a interproscan_submisison.log
 ```
-<!--
+
 Following interproscan annotation split files were combined using the following
 commands:
 
@@ -837,7 +837,7 @@ commands:
 
 ## B) SwissProt
 
-
+Annotations with SwissProt
 ```bash
   for Proteome in $(ls gene_pred/codingquary/v.*/*/*/final_genes_combined.pep.fasta | grep -w "172_pacbio"); do
     Strain=$(echo $Proteome | rev | cut -f3 -d '/' | rev)
@@ -850,7 +850,7 @@ commands:
   done
 ```
 
-
+<!--
 ```bash
   for SwissTable in $(ls gene_pred/swissprot/*/*/swissprot_v2015_10_hits.tbl | grep -w "172_pacbio"); do
     # SwissTable=gene_pred/swissprot/v_inaequalis/swissprot_v2015_10_hits.tbl

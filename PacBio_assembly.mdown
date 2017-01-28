@@ -909,7 +909,7 @@ the following commands:
   done
 ```
 
-<!--
+
 The batch files of predicted secreted proteins needed to be combined into a
 single file for each strain. This was done with the following commands:
 ```bash
@@ -949,7 +949,7 @@ Proteins containing a transmembrane domain were identified:
     qsub $ProgDir/submit_TMHMM.sh $Proteome
   done
 ```
-
+<!--
 Those proteins with transmembrane domains were removed from lists of Signal peptide containing proteins
 
 ```bash

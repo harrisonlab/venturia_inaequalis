@@ -359,21 +359,24 @@ mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_filtered_thinned.log SNP_call
 mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.vcf
 ```
 
-<!--
+
 ###General VCF stats (remember that vcftools needs to have the PERL library exported)
 ```bash
+source /home/sobczm/bin/marias_profile
 perl /home/sobczm/bin/vcftools/bin/vcf-stats \
 SNP_calling/172_pacbio_contigs_unmasked.vcf >SNP_calling/172_pacbio_contigs_unmasked.stat
+
 perl /home/sobczm/bin/vcftools/bin/vcf-stats \
-SNP_calling/172_pacbio_contigs_unmasked_filtered.vcf >SNP_calling/_contigs_unmasked_filtered.stat
+SNP_calling/172_pacbio_contigs_unmasked_filtered.vcf >SNP_calling/172_pacbio_contigs_unmasked_filtered.stat
 
 perl /home/sobczm/bin/vcftools/bin/vcf-stats \
 SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.vcf >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.stat
+
 perl /home/sobczm/bin/vcftools/bin/vcf-stats \
 SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.stat
 ```
 
-
+<!--
 ###Calculate the index for percentage of shared SNP alleles between the individuals
 ```bash
 	for vcf in $(ls SNP_calling/*_contigs_unmasked_filtered.vcf)

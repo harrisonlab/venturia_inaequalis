@@ -949,7 +949,7 @@ Proteins containing a transmembrane domain were identified:
     qsub $ProgDir/submit_TMHMM.sh $Proteome
   done
 ```
-<!--
+
 Those proteins with transmembrane domains were removed from lists of Signal peptide containing proteins
 
 ```bash
@@ -967,12 +967,12 @@ Those proteins with transmembrane domains were removed from lists of Signal pept
   done
 ```
 
-v.inaequalis - 007
-1474
+v.inaequalis - 172_pacbio
+1496
 
 
 
-
+<!--
 ### B) From Augustus gene models - Effector identification using EffectorP
 
 Required programs:

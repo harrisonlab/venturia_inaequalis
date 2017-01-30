@@ -988,7 +988,7 @@ Required programs:
   done
 ```
 
-<!--
+
 Those genes that were predicted as secreted and tested positive by effectorP were identified:
 
 ```bash
@@ -1012,8 +1012,8 @@ Those genes that were predicted as secreted and tested positive by effectorP wer
   done
 ```
 
-v.inaequalis - 007
-583
+v.inaequalis - 172_pacbio
+629
 
 
 

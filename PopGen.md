@@ -376,7 +376,6 @@ perl /home/sobczm/bin/vcftools/bin/vcf-stats \
 SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.stat
 ```
 
-<!--
 ###Calculate the index for percentage of shared SNP alleles between the individuals
 ```bash
 	for vcf in $(ls SNP_calling/*_contigs_unmasked_filtered.vcf)
@@ -385,10 +384,25 @@ SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf >SNP_calling/Ash_f
 		$scripts/similarity_percentage.py $vcf
 	done
 ```
+<!--
+Using R version 3.2.2 installed locally: 
+```bash
+export PATH=/home/armita/prog/R/R-3.2.2/bin:${PATH}
+``` 
+And libraries stored in 
+```bash
+export R_LIBS=/home/sobczm/R/x86_64-pc-linux-gnu-library/3.2:$R_LIBS
+```
 
-###Visualise the output as heatmap and clustering dendrogram
-Rscript --vanilla $scripts/distance_matrix.R Fus2_canu_contigs_unmasked_filtered_distance.log
+Visualise the output as heatmap and clustering dendrogram
+```bash 
+scripts=/home/passet/git_repos/scripts/popgen/snp
+Rscript --vanilla $scripts/distance_matrix.R SNP_calling/172_pacbio_contigs_unmasked_filtered_distance.log
 
+Rscript --vanilla $scripts/distance_matrix.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered_distance.log
+```
+
+<!--
 ###Carry out PCA and plot the results
 Rscript --vanilla $scripts/pca.R Fus2_canu_contigs_unmasked_filtered.vcf
 

@@ -421,14 +421,14 @@ Rscript --vanilla $scripts/pca.R SNP_calling/172_pacbio_contigs_unmasked_filtere
 Rscript --vanilla $scripts/pca.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf
 ```
 
-<!--
+
 ###Calculate an NJ tree based on all the SNPs. Outputs a basic diplay of the tree, plus a Newick file to be used for displaying the tree in FigTree and beautifying it.
 
 ```bash
 scripts=/home/passet/git_repos/scripts/popgen/snp
-$scripts/nj_tree.sh 172_pacbio_contigs_unmasked_filtered.vcf
+$scripts/nj_tree.sh SNP_calling/172_pacbio_contigs_unmasked_filtered.vcf
 
-
+$scripts/nj_tree.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf
 ```
 
 <!--

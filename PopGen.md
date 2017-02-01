@@ -310,20 +310,29 @@ qsub $scripts/sub_SNP_calling_multithreaded.sh
 
 ###Removal of Isolates for analysis
 Want to be able to run analysis without: 
-Isolate 172 as the same isolate as genome
 Isolate 036 due to poor quality of sequencing (due to initial low library concentration on to MiSeq)
 Saturn isolate as not from the same orchard (and therefore not currently of interest)
 
 ```bash
+source /home/sobczm/bin/marias_profile
 vcftools=/home/sobczm/bin/vcftools/bin
 vcflib=/home/sobczm/bin/vcflib/bin
 
-$vcflib/vcfremovesamples SNP_calling/172_pacbio_contigs_unmasked.vcf 036 172 saturn >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.vcf
+$vcflib/vcfremovesamples SNP_calling/172_pacbio_contigs_unmasked.vcf 036 saturn >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.vcf
 ```
 
 ###Only retain biallelic high-quality SNPS with no missing data for genetic analyses.
 ```bash
 	for vcf in $(ls SNP_calling/*_contigs_unmasked.vcf) 
+	do
+		echo $vcf
+		script=/home/passet/git_repos/scripts/popgen/snp
+		qsub $script/sub_vcf_parser.sh $vcf
+	done
+```
+Repeated on revised Ash Farm only
+```bash
+	for vcf in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.vcf) 
 	do
 		echo $vcf
 		script=/home/passet/git_repos/scripts/popgen/snp
@@ -413,11 +422,16 @@ Rscript --vanilla $scripts/pca.R SNP_calling/Ash_farm_172_pacbio_contigs_unmaske
 ```
 
 <!--
-###Calculate an NJ tree based on all the SNPs. Outputs a basic diplay of the tree, plus a Newick file to be used
+###Calculate an NJ tree based on all the SNPs. Outputs a basic diplay of the tree, plus a Newick file to be used for displaying the tree in FigTree and beautifying it.
 
-###for displaying the tree in FigTree and beautifying it.
-$scripts/nj_tree.sh Fus2_canu_contigs_unmasked_filtered.vcf 1
+```bash
+scripts=/home/passet/git_repos/scripts/popgen/snp
+$scripts/nj_tree.sh 172_pacbio_contigs_unmasked_filtered.vcf
 
+
+```
+
+<!--
 ###DAPC and AMOVA analysis
 Rscript --vanilla $popgen/snp/amova_dapc.R
 ```

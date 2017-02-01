@@ -384,7 +384,7 @@ SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf >SNP_calling/Ash_f
 		$scripts/similarity_percentage.py $vcf
 	done
 ```
-<!--
+
 Using R version 3.2.2 installed locally: 
 ```bash
 export PATH=/home/armita/prog/R/R-3.2.2/bin:${PATH}

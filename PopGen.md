@@ -431,8 +431,14 @@ $scripts/nj_tree.sh SNP_calling/172_pacbio_contigs_unmasked_filtered.vcf
 $scripts/nj_tree.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf
 ```
 
-<!--
+
 ###DAPC and AMOVA analysis
-Rscript --vanilla $popgen/snp/amova_dapc.R
+```bash
+scripts=/home/passet/git_repos/scripts/venturia_inaequalis
+Rscript --vanilla $scripts/Ash_farm_amova_dapc.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf
+```
+
+<!--
+Rscript --vanilla $scripts/amova_dapc.R SNP_calling/172_pacbio_contigs_unmasked_filtered.vcf
 ```
 -->

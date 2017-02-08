@@ -52,7 +52,7 @@ qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_f
 
 #Analyze STRUCTURE output
 # Generate a folder containing all STRUCTURE output files for all K analyzed
-mkdir structureHarvester
+mkdir /structureHarvester
 for d in $PWD/*
 do
 mv $d/*_f $PWD/structureHarvester

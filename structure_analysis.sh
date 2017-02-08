@@ -37,6 +37,10 @@ java -jar $pgdspid/PGDSpider2-cli.jar -inputfile $input_file \
 -inputformat VCF -outputfile $outfile -outputformat STRUCTURE -spid vcf_to_structure_haploid_pop.spid
 dos2unix $outfile
 
+#Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.struc in project file so had to copy to SNP_calling folder
+cp Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.struc SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.struc
+
+
 #Run replicate STRUCTURE runs, with K from 1 to 11
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.struc 1 1 5
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.struc 1 2 5

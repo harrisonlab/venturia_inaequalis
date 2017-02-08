@@ -442,9 +442,5 @@ Rscript --vanilla $scripts/amova_dapc.R SNP_calling/172_pacbio_contigs_unmasked_
 ```
 -->
 
-Ran structure analysis on Ash Farm only samples
+Ran structure analysis on Ash Farm only samples using the structure_analysis.sh script - ran individual parts of the script rather than submitting running whole script in one
 
-```bash
-scripts=/home/passet/git_repos/scripts/venturia_inaequalis
-$scripts/structure_analysis.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.vcf
-```

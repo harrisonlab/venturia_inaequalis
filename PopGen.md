@@ -432,10 +432,14 @@ $scripts/nj_tree.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vc
 ```
 
 
-###DAPC and AMOVA analysis
+###AMOVA analysis
 ```bash
 scripts=/home/passet/git_repos/scripts/venturia_inaequalis
 Rscript --vanilla $scripts/Ash_farm_amova_dapc.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf
+```
+Move and rename AMOVA file to SNP_calling
+```bash
+mv amova.txt SNP_calling/Ash_farm_amova.txt
 ```
 <!--
 Rscript --vanilla $scripts/amova_dapc.R SNP_calling/172_pacbio_contigs_unmasked_filtered.vcf

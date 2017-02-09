@@ -42,7 +42,7 @@ dos2unix $outfile
 cp Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.struc SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.struc
 
 
-#Run replicate STRUCTURE runs, with K from 1 to 11
+#Run replicate STRUCTURE runs, with K from 1 to 10
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.struc 1 1 5
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.struc 1 2 5
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.struc 1 3 5
@@ -53,7 +53,7 @@ qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_f
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.struc 1 8 5
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.struc 1 9 5
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.struc 1 10 5
-qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.struc 1 11 5
+
 
 #Analyze STRUCTURE output
 # Generate a folder containing all STRUCTURE output files for all K analyzed
@@ -84,8 +84,8 @@ mv paramfile_ind paramfile
 c=23
 r=5
 s=1
-f=11
-for i in {1..11} #input range of K values tested
+f=10
+for i in {1..10} #input range of K values tested
 do
 $clumpp/CLUMPP -i K$i.indfile -p K$i.popfile -o K$i.indivq -k $i -c $c -r $r
 done
@@ -100,7 +100,7 @@ done
 ###!!!! Options to be changed in each analysis manually
 #-M number of populations assigned in the Structure input file
 #-N number of individuals
-m=11
+m=10
 n=23
 #-K K value
 #-p input file (population q's)

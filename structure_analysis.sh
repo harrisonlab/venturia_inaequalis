@@ -62,11 +62,16 @@ for d in $PWD/*
 do
 mv $d/*_f $PWD/structureHarvester
 done
+
+#Tidy working directory
+mv structure_* SNP_calling
+
+
 # structureHarvester - summarise the results
 harvester=/home/sobczm/bin/structureHarvester/structureHarvester.py
 $harvester --dir=$input/structureHarvester --out=$input/structureHarvester --evanno --clumpp
 # CLUMPP - permute the results
-cd structureHarvester
+cd SNP_calling/structureHarvester
 clumpp=/home/sobczm/bin/CLUMPP_Linux64.1.1.2
 cp $clumpp/paramfile_ind ./
 mv paramfile_ind paramfile

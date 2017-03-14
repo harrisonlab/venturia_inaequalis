@@ -90,13 +90,13 @@ c=23
 r=5
 s=1
 f=10
-for i in {1..10} #input range of K values tested
+for i in $(seq $s $f) #input range of K values tested
 do
 $clumpp/CLUMPP -i K$i.indfile -p K$i.popfile -o K$i.indivq -k $i -c $c -r $r
 done
 cp $clumpp/paramfile_pop ./
 mv paramfile_pop paramfile
-for i in {1..10} #input range of K values tested
+for i in $(seq $s $f) #input range of K values tested
 do
 $clumpp/CLUMPP -i K$i.indfile -p K$i.popfile -o K$i.popq -k $i -c $c -r $r
 done
@@ -105,7 +105,7 @@ done
 ###!!!! Options to be changed in each analysis manually
 #-M number of populations assigned in the Structure input file
 #-N number of individuals
-m=10
+m=23
 n=23
 #-K K value
 #-p input file (population q's)
@@ -115,9 +115,9 @@ n=23
 #-o output file
 distruct=/home/sobczm/bin/distruct1.1
 cp $distruct/drawparams ./
-for i in {1..10} #input range of K values tested
+for i in $(seq $s $f) #input range of K values tested
 do
-$distruct/distructLinux1.1 -i K$i.indivq -p K$i.popq -a $input/$names -o K$i.ps -k $i -M $m -N $n -K $i
+$distruct/distructLinux1.1 -i K$i.indivq -p K$i.popq -a $names -o K$i.ps -k $i -M $m -N $n -K $i
 done
 
 #Output is a number of PostScript files showing the average proportion of each

@@ -418,6 +418,8 @@ mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recod
 
 ###General VCF stats (remember that vcftools needs to have the PERL library exported)
 ```bash
+export PERL5LIB=/home/sobczm/bin/vcftools/share/perl/5.14.2
+
 source /home/sobczm/bin/marias_profile
 perl /home/sobczm/bin/vcftools/bin/vcf-stats \
 SNP_calling/172_pacbio_contigs_unmasked.vcf >SNP_calling/172_pacbio_contigs_unmasked.stat
@@ -430,7 +432,14 @@ SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.vcf >SNP_calling/Ash_farm_172_p
 
 perl /home/sobczm/bin/vcftools/bin/vcf-stats \
 SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.stat
+
+perl /home/sobczm/bin/vcftools/bin/vcf-stats \
+SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2.vcf >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2.stat
+
+perl /home/sobczm/bin/vcftools/bin/vcf-stats \
+SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.vcf >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.stat
 ```
+
 
 ###Calculate the index for percentage of shared SNP alleles between the individuals
 ```bash
@@ -440,7 +449,14 @@ SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf >SNP_calling/Ash_f
 		$scripts/similarity_percentage.py $vcf
 	done
 ```
-
+For the 22 isolates
+```bash
+	for vcf in $(ls SNP_calling/*_contigs_unmasked_2_filtered.vcf)
+	do
+		scripts=/home/passet/git_repos/scripts/popgen/snp
+		$scripts/similarity_percentage.py $vcf
+	done
+```
 Using R version 3.2.2 installed locally: 
 ```bash
 export PATH=/home/armita/prog/R/R-3.2.2/bin:${PATH}
@@ -456,6 +472,8 @@ scripts=/home/passet/git_repos/scripts/popgen/snp
 Rscript --vanilla $scripts/distance_matrix.R SNP_calling/172_pacbio_contigs_unmasked_filtered_distance.log
 
 Rscript --vanilla $scripts/distance_matrix.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered_distance.log
+
+Rscript --vanilla $scripts/distance_matrix.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered_distance.log
 ```
 
 
@@ -466,6 +484,8 @@ scripts=/home/passet/git_repos/scripts/popgen/snp
 Rscript --vanilla $scripts/pca.R SNP_calling/172_pacbio_contigs_unmasked_filtered.vcf
 
 Rscript --vanilla $scripts/pca.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf
+
+Rscript --vanilla $scripts/pca.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.vcf
 ```
 
 

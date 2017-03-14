@@ -387,7 +387,7 @@ mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_filtered_thinned.log SNP_call
 mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.vcf
 ```
 
-Re-ran but with less severe thinning to 1000 (as opposed to 10000 above)
+Re-ran but with less severe thinning to 1 SNP per 1000 bp (as opposed to 10000 above)
 
 ```bash
 input=SNP_calling

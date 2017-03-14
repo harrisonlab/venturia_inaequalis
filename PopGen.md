@@ -320,6 +320,15 @@ vcflib=/home/sobczm/bin/vcflib/bin
 
 $vcflib/vcfremovesamples SNP_calling/172_pacbio_contigs_unmasked.vcf 036 saturn >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.vcf
 ```
+Isolate 118 also has poor quality sequencing and therefore also removed
+
+```bash
+source /home/sobczm/bin/marias_profile
+vcftools=/home/sobczm/bin/vcftools/bin
+vcflib=/home/sobczm/bin/vcflib/bin
+
+$vcflib/vcfremovesamples SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.vcf 118 >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2.vcf
+```
 
 ###Only retain biallelic high-quality SNPS with no missing data for genetic analyses.
 ```bash
@@ -339,6 +348,16 @@ Repeated on revised Ash Farm only
 		qsub $script/sub_vcf_parser.sh $vcf
 	done
 ```
+
+```bash
+	for vcf in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2.vcf) 
+	do
+		echo $vcf
+		script=/home/passet/git_repos/scripts/popgen/snp
+		qsub $script/sub_vcf_parser.sh $vcf
+	done
+```
+
 
 ###In some organisms, may want to thin (subsample) SNPs in high linkage diseqilibrium down to
 1 SNP  per e.g. 10 kbp just for the population structure analyses. Files had to be renamed after running
@@ -366,6 +385,34 @@ vcftools=/home/sobczm/bin/vcftools/bin
 $vcftools/vcftools --vcf $input/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf --thin 10000 --recode --out ${input/vcf%.vcf}Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned
 mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_filtered_thinned.log SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.log
 mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered_thinned.recode.vcf
+```
+
+Re-ran but with less severe thinning to 1000 (as opposed to 10000 above)
+
+```bash
+input=SNP_calling
+vcftools=/home/sobczm/bin/vcftools/bin
+$vcftools/vcftools --vcf $input/172_pacbio_contigs_unmasked.vcf --thin 1000 --recode --out ${input/vcf%.vcf}172_pacbio_contigs_unmasked_thinned_1000
+mv SNP_calling172_pacbio_contigs_unmasked_thinned_1000.log SNP_calling/172_pacbio_contigs_unmasked_thinned_1000.log
+mv SNP_calling172_pacbio_contigs_unmasked_thinned_1000.recode.vcf SNP_calling/172_pacbio_contigs_unmasked_thinned_1000.recode.vcf
+
+input=SNP_calling
+vcftools=/home/sobczm/bin/vcftools/bin
+$vcftools/vcftools --vcf $input/172_pacbio_contigs_unmasked_filtered.vcf --thin 1000 --recode --out ${input/vcf%.vcf}172_pacbio_contigs_unmasked_filtered_thinned_1000
+mv SNP_calling172_pacbio_contigs_unmasked_filtered_thinned_1000.log SNP_calling/172_pacbio_contigs_unmasked_filtered_thinned_1000.log
+mv SNP_calling172_pacbio_contigs_unmasked_filtered_thinned_1000.recode.vcf SNP_calling/172_pacbio_contigs_unmasked_filtered_thinned_1000.recode.vcf
+
+input=SNP_calling
+vcftools=/home/sobczm/bin/vcftools/bin
+$vcftools/vcftools --vcf $input/Ash_farm_172_pacbio_contigs_unmasked_2.vcf --thin 1000 --recode --out ${input/vcf%.vcf}Ash_farm_172_pacbio_contigs_unmasked_2_thinned_1000
+mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_2_thinned_1000.log SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_thinned_1000.log
+mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_2_thinned_1000.recode.vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_thinned_2_1000.recode.vcf
+
+input=SNP_calling
+vcftools=/home/sobczm/bin/vcftools/bin
+$vcftools/vcftools --vcf $input/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.vcf --thin 1000 --recode --out ${input/vcf%.vcf}Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000
+mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.log SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.log
+mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf
 ```
 
 

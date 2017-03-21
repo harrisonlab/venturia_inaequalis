@@ -913,13 +913,13 @@ at http://csbl.bmb.uga.edu/dbCAN/download/readme.txt :
     qsub $ProgDir/sub_hmmscan.sh $CazyHmm $Proteome $Prefix $OutDir
   done
 ```
-<!--
+
 The Hmm parser was used to filter hits by an E-value of E1x10-5 or E1x10-e3 if they had a hit over a length of X %.
 
 Those proteins with a signal peptide were extracted from the list and gff files representing these proteins made.
 
 ```bash
-for File in $(ls gene_pred/CAZY/*/*/*CAZY.out.dm | grep -e 'cepae' -e 'proliferatum' -e 'narcissi' | grep -e 'Fus2_canu_new' -e 'ncbi'); do
+for File in $(ls gene_pred/CAZY/*/*/*CAZY.out.dm); do
 Strain=$(echo $File | rev | cut -f2 -d '/' | rev)
 Organism=$(echo $File | rev | cut -f3 -d '/' | rev)
 OutDir=$(dirname $File)
@@ -930,8 +930,7 @@ CazyHeaders=$(echo $File | sed 's/.out.dm/_headers.txt/g')
 cat $OutDir/"$Strain"_CAZY.out.dm.ps | cut -f3 | sort | uniq > $CazyHeaders
 echo "number of CAZY proteins identified:"
 cat $CazyHeaders | wc -l
-# Gff=$(ls gene_pred/codingquary/$Organism/$Strain/final/final_genes_appended.gff3)
-Gff=$(ls gene_pred/final_genes/$Organism/$Strain/final/final_genes_appended.gff3)
+Gff=$(ls gene_pred/codingquary/$Organism/$Strain/final/final_genes_appended.gff3)
 CazyGff=$OutDir/"$Strain"_CAZY.gff
 ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/ORF_finder
 $ProgDir/extract_gff_for_sigP_hits.pl $CazyHeaders $Gff CAZyme ID > $CazyGff
@@ -953,17 +952,17 @@ done > tmp.txt
 ```
 
 ```
-F.oxysporum_fsp_cepae - 125_ncbi
+v.inaequalis - 172_pacbio
 number of CAZY proteins identified:
-925
+578
 number of CAZY genes identified:
-925
+578
 number of Secreted CAZY proteins identified:
-386
+262
 number of Secreted CAZY genes identified:
-386
+262
 ```
-
+<!--
 Note - the CAZY genes identified may need further filtering based on e value and
 cuttoff length - see below:
 

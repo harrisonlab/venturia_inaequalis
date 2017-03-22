@@ -809,7 +809,7 @@ also printing ORFs in .gff format.
     qsub $ProgDir/run_ORF_finder.sh $Genome
   done
 ```
-<!--
+
 The Gff files from the the ORF finder are not in true Gff3 format. These were
 corrected using the following commands:
 
@@ -825,7 +825,6 @@ corrected using the following commands:
     $ProgDir/gff_corrector.pl $ORF_Gff > $ORF_Gff_mod
   done
 ```
--->
 
 
 #Functional annotation
@@ -962,7 +961,7 @@ number of Secreted CAZY proteins identified:
 number of Secreted CAZY genes identified:
 262
 ```
-<!--
+
 Note - the CAZY genes identified may need further filtering based on e value and
 cuttoff length - see below:
 
@@ -983,47 +982,37 @@ Cols in yourfile.out.dm.ps:
 * The best threshold varies for different CAZyme classes (please see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4132414/ for details). Basically to annotate GH proteins, one should use a very relax coverage cutoff or the sensitivity will be low (Supplementary Tables S4 and S9); (ii) to annotate CE families a very stringent E-value cutoff and coverage cutoff should be used; otherwise the precision will be very low due to a very high false positive rate (Supplementary Tables S5 and S10)
 
 
-### Summary of CAZY families by organism
+### Summary of CAZY families
 
 
 ```bash
-for CAZY in $(ls gene_pred/CAZY/*/*/*_CAZY.out.dm.ps | grep -e 'cepae' -e 'proliferatum' -e 'narcissi' | grep -e 'Fus2_canu_new' -e 'ncbi'); do
-  Strain=$(echo $CAZY | rev | cut -f2 -d '/' | rev)
-  Organism=$(echo $CAZY | rev | cut -f3 -d '/' | rev)
-  OutDir=$(dirname $CAZY)
-  echo "$Organism - $Strain"
-  Secreted=$(ls gene_pred/final_genes_signalp-4.1/$Organism/$Strain/*_final_sp_no_trans_mem_headers.txt)
-  Gff=gene_pred/final_genes/$Organism/$Strain/final/final_genes_appended.gff3
-  ProgDir=/home/armita/git_repos/emr_repos/tools/pathogen/CAZY
-  $ProgDir/summarise_CAZY.py --cazy $CAZY --inp_secreted $Secreted --inp_gff $Gff --summarise_family --trim_gene_id 2 --kubicek_2014
+for CAZY in $(ls gene_pred/CAZY/*/*/*_CAZY.out.dm.ps); do
+Strain=$(echo $CAZY | rev | cut -f2 -d '/' | rev)
+Organism=$(echo $CAZY | rev | cut -f3 -d '/' | rev)
+OutDir=$(dirname $CAZY)
+echo "$Organism - $Strain"
+Secreted=$(ls gene_pred/final_genes_signalp-4.1/$Organism/$Strain/*_final_sp_no_trans_mem_headers.txt)
+Gff=gene_pred/codingquary/$Organism/$Strain/final/final_genes_appended.gff3
+ProgDir=/home/armita/git_repos/emr_repos/tools/pathogen/CAZY
+$ProgDir/summarise_CAZY.py --cazy $CAZY --inp_secreted $Secreted --inp_gff $Gff --summarise_family --trim_gene_id 2 --kubicek_2014
 done | less -S
 ```
 
-```
-F.oxysporum_fsp_cepae - 125_ncbi
-AA - 70
-GT - 3
-CE - 64
-CBM - 46
-PL - 25
-GH - 177
 
 ```
-
-```
-F.oxysporum_fsp_cepae - 125_ncbi
-B-Galactosidases - 3
-A-Galactosidases - 4
-Polygalacturonase - 13
-A-Arabinosidases - 26
-Xylanases - 11
-Polygalacturonate lyases - 26
-B-Glucuronidases - 4
-B-Glycosidases - 13
-Cellulases - 20
-Xyloglucanases - 1
+v.inaequalis - 172_pacbio
+B-Galactosidases - 2
+B-Glucuronidases - 1
+Polygalacturonase - 14
+A-Arabinosidases - 11
+Xylanases - 4
+Polygalacturonate lyases - 10
+A-Galactosidases - 3
+B-Glycosidases - 7
+Cellulases - 10
 ```
 
+<!--
 ## D) Secondary Metabolites (AntiSMASH + SMURF)
 
 Antismash was run to identify clusters of secondary metabolite genes within

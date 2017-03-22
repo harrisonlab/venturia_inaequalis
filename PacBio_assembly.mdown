@@ -918,36 +918,36 @@ The Hmm parser was used to filter hits by an E-value of E1x10-5 or E1x10-e3 if t
 Those proteins with a signal peptide were extracted from the list and gff files representing these proteins made.
 
 ```bash
-for File in $(ls gene_pred/CAZY/*/*/*CAZY.out.dm); do
-Strain=$(echo $File | rev | cut -f2 -d '/' | rev)
-Organism=$(echo $File | rev | cut -f3 -d '/' | rev)
-OutDir=$(dirname $File)
-echo "$Organism - $Strain"
-ProgDir=/home/groups/harrisonlab/dbCAN
-$ProgDir/hmmscan-parser.sh $OutDir/"$Strain"_CAZY.out.dm > $OutDir/"$Strain"_CAZY.out.dm.ps
-CazyHeaders=$(echo $File | sed 's/.out.dm/_headers.txt/g')
-cat $OutDir/"$Strain"_CAZY.out.dm.ps | cut -f3 | sort | uniq > $CazyHeaders
-echo "number of CAZY proteins identified:"
-cat $CazyHeaders | wc -l
-Gff=$(ls gene_pred/codingquary/$Organism/$Strain/final/final_genes_appended.gff3)
-CazyGff=$OutDir/"$Strain"_CAZY.gff
-ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/ORF_finder
-$ProgDir/extract_gff_for_sigP_hits.pl $CazyHeaders $Gff CAZyme ID > $CazyGff
-echo "number of CAZY genes identified:"
-cat $CazyGff | grep -w 'gene' | wc -l
+  for File in $(ls gene_pred/CAZY/*/*/*CAZY.out.dm); do
+    Strain=$(echo $File | rev | cut -f2 -d '/' | rev)
+    Organism=$(echo $File | rev | cut -f3 -d '/' | rev)
+    OutDir=$(dirname $File)
+    echo "$Organism - $Strain"
+    ProgDir=/home/groups/harrisonlab/dbCAN
+    $ProgDir/hmmscan-parser.sh $OutDir/"$Strain"_CAZY.out.dm > $OutDir/"$Strain"_CAZY.out.dm.ps
+    CazyHeaders=$(echo $File | sed 's/.out.dm/_headers.txt/g')
+    cat $OutDir/"$Strain"_CAZY.out.dm.ps | cut -f3 | sort | uniq > $CazyHeaders
+    echo "number of CAZY proteins identified:"
+    cat $CazyHeaders | wc -l
+    Gff=$(ls gene_pred/codingquary/$Organism/$Strain/final/final_genes_appended.gff3)
+    CazyGff=$OutDir/"$Strain"_CAZY.gff
+    ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/ORF_finder
+    $ProgDir/extract_gff_for_sigP_hits.pl $CazyHeaders $Gff CAZyme ID > $CazyGff
+    echo "number of CAZY genes identified:"
+    cat $CazyGff | grep -w 'gene' | wc -l
 
-SecretedProts=$(ls gene_pred/final_genes_signalp-4.1/$Organism/$Strain/"$Strain"_final_sp_no_trans_mem.aa)
-SecretedHeaders=$(echo $SecretedProts | sed 's/.aa/_headers.txt/g')
-cat $SecretedProts | grep '>' | tr -d '>' > $SecretedHeaders
-CazyGffSecreted=$OutDir/"$Strain"_CAZY_secreted.gff
-$ProgDir/extract_gff_for_sigP_hits.pl $SecretedHeaders $CazyGff Secreted_CAZyme ID > $CazyGffSecreted
-echo "number of Secreted CAZY proteins identified:"
-cat $CazyGffSecreted | grep -w 'mRNA' | cut -f9 | tr -d 'ID=' | cut -f1 -d ';' > $OutDir/"$Strain"_CAZY_secreted_headers.txt
-cat $OutDir/"$Strain"_CAZY_secreted_headers.txt | wc -l
-echo "number of Secreted CAZY genes identified:"
-cat $CazyGffSecreted | grep -w 'gene' | wc -l
-# cat $OutDir/"$Strain"_CAZY_secreted_headers.txt | cut -f1 -d '.' | sort | uniq | wc -l
-done > tmp.txt
+    SecretedProts=$(ls gene_pred/final_genes_signalp-4.1/$Organism/$Strain/"$Strain"_final_sp_no_trans_mem.aa)
+    SecretedHeaders=$(echo $SecretedProts | sed 's/.aa/_headers.txt/g')
+    cat $SecretedProts | grep '>' | tr -d '>' > $SecretedHeaders
+    CazyGffSecreted=$OutDir/"$Strain"_CAZY_secreted.gff
+    $ProgDir/extract_gff_for_sigP_hits.pl $SecretedHeaders $CazyGff Secreted_CAZyme ID > $CazyGffSecreted
+    echo "number of Secreted CAZY proteins identified:"
+    cat $CazyGffSecreted | grep -w 'mRNA' | cut -f9 | tr -d 'ID=' | cut -f1 -d ';' > $OutDir/"$Strain"_CAZY_secreted_headers.txt
+    cat $OutDir/"$Strain"_CAZY_secreted_headers.txt | wc -l
+    echo "number of Secreted CAZY genes identified:"
+    cat $CazyGffSecreted | grep -w 'gene' | wc -l
+    # cat $OutDir/"$Strain"_CAZY_secreted_headers.txt | cut -f1 -d '.' | sort | uniq | wc -l
+  done > tmp.txt
 ```
 
 ```
@@ -986,16 +986,16 @@ Cols in yourfile.out.dm.ps:
 
 
 ```bash
-for CAZY in $(ls gene_pred/CAZY/*/*/*_CAZY.out.dm.ps); do
-Strain=$(echo $CAZY | rev | cut -f2 -d '/' | rev)
-Organism=$(echo $CAZY | rev | cut -f3 -d '/' | rev)
-OutDir=$(dirname $CAZY)
-echo "$Organism - $Strain"
-Secreted=$(ls gene_pred/final_genes_signalp-4.1/$Organism/$Strain/*_final_sp_no_trans_mem_headers.txt)
-Gff=gene_pred/codingquary/$Organism/$Strain/final/final_genes_appended.gff3
-ProgDir=/home/armita/git_repos/emr_repos/tools/pathogen/CAZY
-$ProgDir/summarise_CAZY.py --cazy $CAZY --inp_secreted $Secreted --inp_gff $Gff --summarise_family --trim_gene_id 2 --kubicek_2014
-done | less -S
+  for CAZY in $(ls gene_pred/CAZY/*/*/*_CAZY.out.dm.ps); do
+    Strain=$(echo $CAZY | rev | cut -f2 -d '/' | rev)
+    Organism=$(echo $CAZY | rev | cut -f3 -d '/' | rev)
+    OutDir=$(dirname $CAZY)
+    echo "$Organism - $Strain"
+    Secreted=$(ls gene_pred/final_genes_signalp-4.1/$Organism/$Strain/*_final_sp_no_trans_mem_headers.txt)
+    Gff=gene_pred/codingquary/$Organism/$Strain/final/final_genes_appended.gff3
+    ProgDir=/home/armita/git_repos/emr_repos/tools/pathogen/CAZY
+    $ProgDir/summarise_CAZY.py --cazy $CAZY --inp_secreted $Secreted --inp_gff $Gff --summarise_family --trim_gene_id 2 --kubicek_2014
+  done | less -S
 ```
 
 
@@ -1012,14 +1012,27 @@ B-Glycosidases - 7
 Cellulases - 10
 ```
 
-<!--
+
 ## D) Secondary Metabolites (AntiSMASH + SMURF)
 
 Antismash was run to identify clusters of secondary metabolite genes within
 the genome. Antismash was run using the weserver at:
-http://antismash.secondarymetabolites.org
+http://fungismash.secondarymetabolites.org/#!/start
 
+Uploaded sequence file: repeat_masked/v.inaequalis/172_pacbio/filtered_contigs_repmask/172_pacbio_contigs_unmasked.fa
+Uploaded feature annotations (optional): gene_pred/codingquary/v.inaequalis/172_pacbio/final/final_genes_appended.gff3
+Options selected (as default except CASSIS):
+```
+Cluster finder - off
+Extra features selected:
+KnownClusterBlast
+smCoG analysis
+Cluster-border prediction based on transcription factor binding sites (CASSIS)
+ActiveSiteFinder
+SubClusterBlast
+```
 
+<!--
 Results of web-annotation of gene clusters within the assembly were downloaded to
 the following directories:
 
@@ -1092,19 +1105,26 @@ F.oxysporum_fsp_cepae - 125_ncbi
       1 t3pks
      10 terpene
 ```
+-->
+
+
 SMURF was also run to identify secondary metabolite gene clusters.
 
 Genes needed to be parsed into a specific tsv format prior to submission on the
 SMURF webserver.
 
 ```bash
-  Gff=gene_pred/final/F.venenatum/strain1/final/final_genes_appended.gff3
-  OutDir=analysis/secondary_metabolites/smurf/F.venenatum/strain1
+  Gff=gene_pred/codingquary/v.inaequalis/172_pacbio/final/final_genes_appended.gff3
+  OutDir=analysis/secondary_metabolites/smurf/v.inaequalis/172_pacbio
   mkdir -p $OutDir
   ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation/secondary_metabolites
-  $ProgDir/gff2smurf.py --gff $Gff > $OutDir/strain1_genes_smurf.tsv
+  $ProgDir/gff2smurf.py --gff $Gff > $OutDir/172_pacbio_genes_smurf.tsv
 ```
+Submitted protein fasta file: gene_pred/codingquary/v.inaequalis/172_pacbio/final/final_genes_combined.pep.fasta
+Submitted above tsv file: analysis/secondary_metabolites/smurf/v.inaequalis/172_pacbio/172_pacbio_genes_smurf.tsv
 
+
+<!--
 SMURF output was received by email and downloaded to the cluster in the output
 directory above.
 

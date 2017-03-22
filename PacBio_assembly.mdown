@@ -1124,20 +1124,20 @@ Submitted protein fasta file: gene_pred/codingquary/v.inaequalis/172_pacbio/fina
 Submitted above tsv file: analysis/secondary_metabolites/smurf/v.inaequalis/172_pacbio/172_pacbio_genes_smurf.tsv
 
 
-<!--
 SMURF output was received by email and downloaded to the cluster in the output
 directory above.
 
 Output files were parsed into gff format:
 
 ```bash
-  OutDir=analysis/secondary_metabolites/smurf/F.venenatum/strain1
-  SmurfClusters=$OutDir/Secondary-Metabolite-Clusters.txt
-  SmurfBackbone=$OutDir/Backbone-genes.txt
-  ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation/secondary_metabolites
-  $ProgDir/smurf2gff.py --smurf_clusters $SmurfClusters --smurf_backbone $SmurfBackbone > $OutDir/Smurf_clusters.gff
+OutDir=analysis/secondary_metabolites/smurf/v.inaequalis/172_pacbio
+SmurfClusters=$OutDir/Secondary-Metabolite-Clusters.txt
+SmurfBackbone=$OutDir/Backbone-genes.txt
+ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation/secondary_metabolites
+$ProgDir/smurf2gff.py --smurf_clusters $SmurfClusters --smurf_backbone $SmurfBackbone > $OutDir/Smurf_clusters.gff
 ```
 
+<!--
 ## E) SSCP
 
 Small secreted cysteine rich proteins were identified within secretomes. These
@@ -1282,10 +1282,10 @@ Those proteins with transmembrane domains were removed from lists of Signal pept
     cat $OutDir/"$Strain"_final_sp_no_trans_mem.aa | grep '>' | wc -l
   done
 ```
-
+```
 v.inaequalis - 172_pacbio
 1496
-
+```
 
 
 ### B) From Augustus gene models - Effector identification using EffectorP
@@ -1327,10 +1327,7 @@ Those genes that were predicted as secreted and tested positive by effectorP wer
     $ProgDir/extract_gff_for_sigP_hits.pl $OutFileHeaders $Gff effectorP ID > $EffectorP_Gff
   done
 ```
-
+```
 v.inaequalis - 172_pacbio
 629
-
-
-
--->
+```

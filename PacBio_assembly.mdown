@@ -1046,7 +1046,7 @@ analysis/secondary_metabolites/antismash/v.inaequalis/172_pacbio
     unzip -d $OutDir $Zip
   done
 ```
-<!--
+
 ```bash
 for AntiSmash in $(ls analysis/secondary_metabolites/antismash/*/*/*/*.final.gbk); do
 Organism=$(echo $AntiSmash | rev | cut -f4 -d '/' | rev)
@@ -1071,34 +1071,31 @@ These clusters represented the following genes. Note that these numbers just
 show the number of intersected genes with gff clusters and are not confirmed by
 function
 ```
-F.oxysporum_fsp_cepae - 125_ncbi
-Number of clusters detected:  46
-Number of predicted proteins in clusters: 568
-Number of predicted genes in clusters:  559
-
+v.inaequalis - 172_pacbio
+Number of clusters detected:    22
+Number of predicted proteins in clusters:       269
+Number of predicted genes in clusters:  264
 ```
 
 ```bash
-for Antismash in $(ls analysis/secondary_metabolites/antismash/v.*/*/*_secondary_metabolite_regions.gff); do
-  Organism=$(echo $Antismash | rev | cut -f3 -d '/' | rev)
-  Strain=$(echo $Antismash | rev | cut -f2 -d '/' | rev)
-  echo "$Organism - $Strain"
-  cat $Antismash | cut -f3 | sort | uniq -c
-done
+  for Antismash in $(ls analysis/secondary_metabolites/antismash/v.*/*/*_secondary_metabolite_regions.gff); do
+    Organism=$(echo $Antismash | rev | cut -f3 -d '/' | rev)
+    Strain=$(echo $Antismash | rev | cut -f2 -d '/' | rev)
+    echo "$Organism - $Strain"
+    cat $Antismash | cut -f3 | sort | uniq -c
+  done
 ```
 
 ```
-F.oxysporum_fsp_cepae - 125_ncbi
-      3 indole
-     11 nrps
-      1 nrps-indole
-      4 nrps-t1pks
-     10 other
-      6 t1pks
-      1 t3pks
-     10 terpene
+v.inaequalis - 172_pacbio
+      2 indole
+      5 nrps
+      6 other
+      1 siderophore
+      5 t1pks
+      3 terpene
 ```
--->
+
 
 
 SMURF was also run to identify secondary metabolite gene clusters.

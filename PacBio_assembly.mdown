@@ -1032,21 +1032,21 @@ ActiveSiteFinder
 SubClusterBlast
 ```
 
-<!--
+
 Results of web-annotation of gene clusters within the assembly were downloaded to
 the following directories:
 
 ```bash
-mkdir analysis/secondary_metabolites/antismash/v.inaequalis/172_pacbio
+analysis/secondary_metabolites/antismash/v.inaequalis/172_pacbio
 ```
 
 ```bash
-for Zip in $(ls analysis/secondary_metabolites/antismash/*/*/*.zip); do
-OutDir=$(dirname $Zip)
-unzip -d $OutDir $Zip
-done
+  for Zip in $(ls analysis/secondary_metabolites/antismash/*/*/*.zip); do
+    OutDir=$(dirname $Zip)
+    unzip -d $OutDir $Zip
+  done
 ```
-
+<!--
 ```bash
 for AntiSmash in $(ls analysis/secondary_metabolites/antismash/*/*/*/*.final.gbk); do
 Organism=$(echo $AntiSmash | rev | cut -f4 -d '/' | rev)
@@ -1284,7 +1284,7 @@ v.inaequalis - 172_pacbio
 629
 ```
 
-###SSCP
+### SSCP
 
 Small secreted cysteine rich proteins were identified within secretomes. These
 proteins may be identified by EffectorP, but this approach allows direct control

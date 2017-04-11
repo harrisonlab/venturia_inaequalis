@@ -566,7 +566,7 @@ Repeated with isolates from Bramley and Worcester as above but removed 049 and 1
 $vcftools/vcftools --vcf Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
 --hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 \
 --indv 007 --indv 024 --indv 025 --indv 030 --indv 044 --indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 202
-mv out.hap.ld ld.Ash_farm_BvW
+mv out.hap.ld ld.Ash_farm_BvW_minus_rogues
 
-qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_BvW
+qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_BvW_minus_rogues
 ```

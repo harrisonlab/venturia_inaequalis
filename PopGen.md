@@ -529,3 +529,25 @@ Rscript --vanilla $scripts/amova_dapc.R SNP_calling/172_pacbio_contigs_unmasked_
 
 Ran structure analysis on Ash Farm only samples using the structure_analysis.sh script - ran individual parts of the script rather than submitting running whole script in one
 
+
+
+#Linkage Disequlibrium
+
+Commands to run analysis of linkage disequilibrium (LD) in Ash Farm V. inaequalis isolates
+
+```bash
+input=/home/groups/harrisonlab/project_files/venturia/SNP_calling
+scripts=/home/passet/git_repos/scripts/popgen
+vcftools=/home/sobczm/bin/vcftools/bin
+```
+
+Calculate D, D' and r^2 for SNPs sparated by 1 and 100kbp in Ash Farm (program calculates the stats using only individuals listed after "--indiv" switch)
+
+```bash
+$vcftools/vcftools --vcf Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
+--hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 \
+--indv 007 --indv 024 --indv 025 --indv 030 --indv 044 --indv 049 --indv 057 --indv 083 --indv 096 --indv 097 --indv 098 --indv 101 --indv 106 --indv 119 --indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 199 --indv 202
+mv out.hap.ld ld.Ash_farm_all
+
+qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_all
+```

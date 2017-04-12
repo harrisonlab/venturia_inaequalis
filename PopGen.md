@@ -570,3 +570,34 @@ mv out.hap.ld ld.Ash_farm_BvW_minus_rogues
 
 qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_BvW_minus_rogues
 ```
+
+Tidy LD work into a sub_directory
+```bash
+mkdir LD_analysis
+mv ld.* LD_analysis/
+```
+<!--
+Using R version 3.2.2 installed locally: 
+```bash
+export PATH=/home/armita/prog/R/R-3.2.2/bin:${PATH}
+``` 
+And libraries stored in 
+```bash
+export R_LIBS=/home/sobczm/R/x86_64-pc-linux-gnu-library/3.2:$R_LIBS
+```
+
+Plot D' and r2 versus SNP physical distance, histogram of D' values
+
+```bash
+scripts=/home/sobczm/bin/popgen/summary_stats
+qsub $scripts/sub_plot_ld.sh ld.Ash_farm_all
+'''
+
+
+LD plot (heatmap) for r2 values per contig
+
+```bash
+scripts=/home/sobczm/bin/popgen/summary_stats
+qsub $scripts/sub_ld_plot.sh ld.Ash_farm_all
+```
+-->

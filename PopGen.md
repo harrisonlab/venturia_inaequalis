@@ -589,8 +589,10 @@ export R_LIBS=/home/sobczm/R/x86_64-pc-linux-gnu-library/3.2:$R_LIBS
 Plot D' and r2 versus SNP physical distance, histogram of D' values
 
 ```bash
+cd LD_analysis
 scripts=/home/sobczm/bin/popgen/summary_stats
-qsub $scripts/sub_plot_ld.sh LD_analysis/ld.Ash_farm_all
+vcftools=/home/sobczm/bin/vcftools/bin
+qsub $scripts/sub_plot_ld.sh ld.Ash_farm_all
 '''
 
 

@@ -529,6 +529,7 @@ Rscript --vanilla $scripts/amova_dapc.R SNP_calling/172_pacbio_contigs_unmasked_
 
 Ran structure analysis on Ash Farm only samples using the structure_analysis.sh script - ran individual parts of the script rather than submitting running whole script in one
 
+Re-ran structure after removing isolate 118 using structure_analysis_2.sh
 
 
 #Linkage Disequlibrium

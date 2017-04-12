@@ -576,7 +576,7 @@ Tidy LD work into a sub_directory
 mkdir LD_analysis
 mv ld.* LD_analysis/
 ```
-<!--
+
 Using R version 3.2.2 installed locally: 
 ```bash
 export PATH=/home/armita/prog/R/R-3.2.2/bin:${PATH}
@@ -590,7 +590,7 @@ Plot D' and r2 versus SNP physical distance, histogram of D' values
 
 ```bash
 scripts=/home/sobczm/bin/popgen/summary_stats
-qsub $scripts/sub_plot_ld.sh ld.Ash_farm_all
+qsub $scripts/sub_plot_ld.sh LD_analysis/ld.Ash_farm_all
 '''
 
 
@@ -598,6 +598,5 @@ LD plot (heatmap) for r2 values per contig
 
 ```bash
 scripts=/home/sobczm/bin/popgen/summary_stats
-qsub $scripts/sub_ld_plot.sh ld.Ash_farm_all
+qsub $scripts/sub_ld_plot.sh LD_analysis/ld.Ash_farm_all
 ```
--->

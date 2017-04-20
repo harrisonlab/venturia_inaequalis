@@ -53,19 +53,20 @@ qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_2
 
 #Analyze STRUCTURE output
 # Generate a folder containing all STRUCTURE output files for all K analyzed
-mkdir structureHarvester
+mkdir structureHarvester_2
 for d in $PWD/*
 do
-mv $d/*_f $PWD/structureHarvester
+mv $d/*_f $PWD/structureHarvester_2
 done
 
 #Tidy working directory
-mv structure_* SNP_calling
+mkdir SNP_calling/Structure_2
+mv structure_* SNP_calling/Structure_2
 
 
 # structureHarvester - summarise the results
 harvester=/home/sobczm/bin/structureHarvester/structureHarvester.py
-$harvester --dir=$input/structureHarvester --out=$input/structureHarvester --evanno --clumpp
+$harvester --dir=$input/Structure_2/structureHarvester --out=$input/Structure_2/structureHarvester --evanno --clumpp
 # CLUMPP - permute the results
 cd SNP_calling/structureHarvester
 clumpp=/home/sobczm/bin/CLUMPP_Linux64.1.1.2

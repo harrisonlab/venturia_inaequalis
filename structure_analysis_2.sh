@@ -68,7 +68,7 @@ mv structure_* SNP_calling/Structure_2
 harvester=/home/sobczm/bin/structureHarvester/structureHarvester.py
 $harvester --dir=$input/Structure_2/structureHarvester --out=$input/Structure_2/structureHarvester --evanno --clumpp
 # CLUMPP - permute the results
-cd SNP_calling/structureHarvester
+cd SNP_calling/Structure_2/structureHarvester
 clumpp=/home/sobczm/bin/CLUMPP_Linux64.1.1.2
 cp $clumpp/paramfile_ind ./
 mv paramfile_ind paramfile

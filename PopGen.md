@@ -597,9 +597,8 @@ Ran structure analysis on Ash Farm only samples using the structure_analysis.sh 
 
 Re-ran structure after removing isolate 118 using structure_analysis_2.sh
 
-<!--
 Re-ran structure with 21 isolate group using structure_analysis_3.sh; Changed iterations to 1M (from 10M) and burin to 100k (from 1M)
--->
+
 
 #Linkage Disequlibrium
 

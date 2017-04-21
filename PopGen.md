@@ -499,16 +499,16 @@ For the 22 isolates
 		$scripts/similarity_percentage.py $vcf
 	done
 ```
-<!--
+
 For the 21 isolate group
 ```bash
-	for vcf in $(ls SNP_calling/*_contigs_unmasked_2_filtered.vcf)
+	for vcf in $(ls SNP_calling/*_contigs_unmasked_3_filtered.vcf)
 	do
 		scripts=/home/passet/git_repos/scripts/popgen/snp
 		$scripts/similarity_percentage.py $vcf
 	done
 ```
--->
+
 
 Using R version 3.2.2 installed locally: 
 ```bash

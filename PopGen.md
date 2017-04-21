@@ -329,7 +329,7 @@ vcflib=/home/sobczm/bin/vcflib/bin
 
 $vcflib/vcfremovesamples SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.vcf 118 >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2.vcf
 ```
-Isolate 057 also noticed as being poorly sequenced after removal of isolate 118 so also removed isolate 057
+Isolate 057 also noticed as being poorly sequenced after removal of isolate 118 so also removed isolate 057 to form a 21 isolate group
 
 ```bash
 source /home/sobczm/bin/marias_profile
@@ -368,6 +368,7 @@ Repeated on revised Ash Farm only
 	done
 ```
 
+Repeated for 21 isolate group
 ```bash
 	for vcf in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3.vcf) 
 	do
@@ -433,7 +434,22 @@ $vcftools/vcftools --vcf $input/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.
 mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.log SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.log
 mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf
 ```
+<!--
+Ran thinning to 1 SNP per 1000 bp on 21 isolate group
+```bash
+input=SNP_calling
+vcftools=/home/sobczm/bin/vcftools/bin
+$vcftools/vcftools --vcf $input/Ash_farm_172_pacbio_contigs_unmasked_3.vcf --thin 1000 --recode --out ${input/vcf%.vcf}Ash_farm_172_pacbio_contigs_unmasked_3_thinned_1000
+mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_3_thinned_1000.log SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_thinned_1000.log
+mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_3_thinned_1000.recode.vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_thinned_3_1000.recode.vcf
 
+input=SNP_calling
+vcftools=/home/sobczm/bin/vcftools/bin
+$vcftools/vcftools --vcf $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf --thin 1000 --recode --out ${input/vcf%.vcf}Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000
+mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.log SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.log
+mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.vcf
+```
+-->
 
 ###General VCF stats (remember that vcftools needs to have the PERL library exported)
 ```bash
@@ -457,8 +473,15 @@ SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2.vcf >SNP_calling/Ash_farm_172
 
 perl /home/sobczm/bin/vcftools/bin/vcf-stats \
 SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.vcf >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.stat
-```
 
+<!--
+perl /home/sobczm/bin/vcftools/bin/vcf-stats \
+SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3.vcf >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3.stat
+
+perl /home/sobczm/bin/vcftools/bin/vcf-stats \
+SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.stat
+```
+-->
 
 ###Calculate the index for percentage of shared SNP alleles between the individuals
 ```bash
@@ -476,6 +499,17 @@ For the 22 isolates
 		$scripts/similarity_percentage.py $vcf
 	done
 ```
+<!--
+For the 21 isolate group
+```bash
+	for vcf in $(ls SNP_calling/*_contigs_unmasked_2_filtered.vcf)
+	do
+		scripts=/home/passet/git_repos/scripts/popgen/snp
+		$scripts/similarity_percentage.py $vcf
+	done
+```
+-->
+
 Using R version 3.2.2 installed locally: 
 ```bash
 export PATH=/home/armita/prog/R/R-3.2.2/bin:${PATH}
@@ -493,6 +527,10 @@ Rscript --vanilla $scripts/distance_matrix.R SNP_calling/172_pacbio_contigs_unma
 Rscript --vanilla $scripts/distance_matrix.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered_distance.log
 
 Rscript --vanilla $scripts/distance_matrix.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered_distance.log
+
+<!--
+Rscript --vanilla $scripts/distance_matrix.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_distance.log
+-->
 ```
 
 
@@ -505,6 +543,10 @@ Rscript --vanilla $scripts/pca.R SNP_calling/172_pacbio_contigs_unmasked_filtere
 Rscript --vanilla $scripts/pca.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf
 
 Rscript --vanilla $scripts/pca.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.vcf
+
+<!--
+Rscript --vanilla $scripts/pca.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf
+-->
 ```
 
 
@@ -525,10 +567,18 @@ scripts=/home/sobczm/bin/popgen/snp
 qsub $scripts/sub_vcf_parser.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.vcf 40 30 10 30 1 Y
 ```
 <!--
+```bash
+scripts=/home/sobczm/bin/popgen/snp
+qsub $scripts/sub_vcf_parser.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf 40 30 10 30 1 Y
+```
+
 Prepare tree
 ```bash
 scripts=/home/passet/git_repos/scripts/popgen/snp
 $scripts/nj_tree.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.vcf 1
+
+scripts=/home/passet/git_repos/scripts/popgen/snp
+$scripts/nj_tree.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf 1
 ```
 -->
 
@@ -550,6 +600,9 @@ Ran structure analysis on Ash Farm only samples using the structure_analysis.sh 
 
 Re-ran structure after removing isolate 118 using structure_analysis_2.sh
 
+<!--
+Re-ran structure with 21 isolate group using structure_analysis_3.sh; Changed iterations to 1M (from 10M) and burin to 100k (from 1M)
+-->
 
 #Linkage Disequlibrium
 

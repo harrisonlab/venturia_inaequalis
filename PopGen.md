@@ -329,6 +329,16 @@ vcflib=/home/sobczm/bin/vcflib/bin
 
 $vcflib/vcfremovesamples SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.vcf 118 >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2.vcf
 ```
+Isolate 057 also noticed as being poorly sequenced after removal of isolate 118 so also removed isolate 057
+
+```bash
+source /home/sobczm/bin/marias_profile
+vcftools=/home/sobczm/bin/vcftools/bin
+vcflib=/home/sobczm/bin/vcflib/bin
+
+$vcflib/vcfremovesamples SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2.vcf 057 >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3.vcf
+```
+
 
 ###Only retain biallelic high-quality SNPS with no missing data for genetic analyses.
 ```bash

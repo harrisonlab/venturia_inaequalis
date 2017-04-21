@@ -528,9 +528,7 @@ Rscript --vanilla $scripts/distance_matrix.R SNP_calling/Ash_farm_172_pacbio_con
 
 Rscript --vanilla $scripts/distance_matrix.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered_distance.log
 
-<!--
 Rscript --vanilla $scripts/distance_matrix.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_distance.log
--->
 ```
 
 
@@ -544,9 +542,8 @@ Rscript --vanilla $scripts/pca.R SNP_calling/Ash_farm_172_pacbio_contigs_unmaske
 
 Rscript --vanilla $scripts/pca.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.vcf
 
-<!--
 Rscript --vanilla $scripts/pca.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf
--->
+
 ```
 
 

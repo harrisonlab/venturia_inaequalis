@@ -434,8 +434,9 @@ $vcftools/vcftools --vcf $input/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.
 mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.log SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.log
 mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf
 ```
-<!--
+
 Ran thinning to 1 SNP per 1000 bp on 21 isolate group
+
 ```bash
 input=SNP_calling
 vcftools=/home/sobczm/bin/vcftools/bin
@@ -445,11 +446,11 @@ mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_3_thinned_1000.recode.vcf SNP
 
 input=SNP_calling
 vcftools=/home/sobczm/bin/vcftools/bin
-$vcftools/vcftools --vcf $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf --thin 1000 --recode --out ${input/vcf%.vcf}Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000
+$vcftools/vcftools --vcf Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf --thin 1000 --recode --out ${input/vcf%.vcf}Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000
 mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.log SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.log
 mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.vcf
 ```
--->
+
 
 ###General VCF stats (remember that vcftools needs to have the PERL library exported)
 ```bash
@@ -474,14 +475,13 @@ SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2.vcf >SNP_calling/Ash_farm_172
 perl /home/sobczm/bin/vcftools/bin/vcf-stats \
 SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.vcf >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.stat
 
-<!--
 perl /home/sobczm/bin/vcftools/bin/vcf-stats \
 SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3.vcf >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3.stat
 
 perl /home/sobczm/bin/vcftools/bin/vcf-stats \
 SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf >SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.stat
 ```
--->
+
 
 ###Calculate the index for percentage of shared SNP alleles between the individuals
 ```bash

@@ -53,15 +53,15 @@ qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3
 
 #Analyze STRUCTURE output
 # Generate a folder containing all STRUCTURE output files for all K analyzed
-mkdir structureHarvester_2
+mkdir structureHarvester_3
 for d in $PWD/*
 do
-mv $d/*_f $PWD/structureHarvester_2
+mv $d/*_f $PWD/structureHarvester_3
 done
 
 #Tidy working directory
-mkdir SNP_calling/Structure_2
-mv structure_* SNP_calling/Structure_2
+mkdir SNP_calling/Structure_3
+mv structure_* SNP_calling/Structure_3
 
 
 # structureHarvester - summarise the results

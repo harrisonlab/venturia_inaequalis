@@ -610,11 +610,11 @@ scripts=/home/passet/git_repos/scripts/popgen
 vcftools=/home/sobczm/bin/vcftools/bin
 ```
 
-Calculate D, D' and r^2 for SNPs sparated by 1 and 100kbp in Ash Farm (program calculates the stats using only individuals listed after "--indiv" switch)
+Calculate D, D' and r^2 for SNPs sparated by 1 and 100kbp in Ash Farm (program calculates the stats using only individuals listed after "--indiv" switch) and plot D' and r2 versus SNP physical distance, histogram of D' values
 
 ```bash
 $vcftools/vcftools --vcf Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
---hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 \
+--hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 --max-missing 1 \
 --indv 007 --indv 024 --indv 025 --indv 030 --indv 044 --indv 049 --indv 057 --indv 083 --indv 096 --indv 097 --indv 098 --indv 101 --indv 106 --indv 119 --indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 199 --indv 202
 mv out.hap.ld ld.Ash_farm_all
 
@@ -624,21 +624,58 @@ qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_all
 Repeated with isolates from Bramley and Worcester only
 ```bash
 $vcftools/vcftools --vcf Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
---hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 \
+--hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 --max-missing 1 \
 --indv 007 --indv 024 --indv 025 --indv 030 --indv 044 --indv 049 --indv 057 --indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 199 --indv 202
 mv out.hap.ld ld.Ash_farm_BvW
 
 qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_BvW
 ```
-Repeated with isolates from Bramley and Worcester as above but removed 049 and 199 as they group to the opposite population and 057 due to poor sequencing of isolate (Therefore only 5 Bramley isolates remain and 7 Worcester)
+
+
+Repeated with isolates from Bramley and Worcester as above but removed 049 and 199 as they group to the opposite population and 057 due to poor sequencing of isolate (Therefore only 5 Bramley isolates remain and 7 Worcester) 
+
 ```bash
 $vcftools/vcftools --vcf Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
---hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 \
+--hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 --max-missing 1 \
 --indv 007 --indv 024 --indv 025 --indv 030 --indv 044 --indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 202
 mv out.hap.ld ld.Ash_farm_BvW_minus_rogues
 
 qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_BvW_minus_rogues
 ```
+
+Repeated with (5) Bramley isolates only
+
+```bash
+$vcftools/vcftools --vcf Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
+--hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 --max-missing 1 \
+--indv 007 --indv 024 --indv 025 --indv 030 --indv 044
+mv out.hap.ld ld.Ash_farm_Bramley
+
+qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_Bramley
+```
+
+Repeated with (7) Cox isolates only
+
+```bash
+$vcftools/vcftools --vcf Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
+--hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 --max-missing 1 \
+--indv 083 --indv 096 --indv 097 --indv 098 --indv 101 --indv 106 --indv 119
+mv out.hap.ld ld.Ash_farm_Cox
+
+qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_Cox
+```
+
+Repeated with (7) Worcsester isolates only
+
+```bash
+$vcftools/vcftools --vcf Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
+--hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 --max-missing 1 \
+--indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 202
+mv out.hap.ld ld.Ash_farm_Worcester
+
+qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_Worcester
+```
+
 
 Tidy LD work into a sub_directory
 ```bash
@@ -662,33 +699,21 @@ R
 .libPaths( c( .libPaths(), "/home/armita/prog/R/R-3.2.2/library") )
 ```
 
-Plot D' and r2 versus SNP physical distance, histogram of D' values
-
-```bash
-cd LD_analysis
-scripts=/home/sobczm/bin/popgen/summary_stats
-vcftools=/home/sobczm/bin/vcftools/bin
-qsub $scripts/sub_plot_ld.sh ld.Ash_farm_all
-
-scripts=/home/sobczm/bin/popgen/summary_stats
-vcftools=/home/sobczm/bin/vcftools/bin
-qsub $scripts/sub_plot_ld.sh ld.Ash_farm_BvW
-
-scripts=/home/sobczm/bin/popgen/summary_stats
-vcftools=/home/sobczm/bin/vcftools/bin
-qsub $scripts/sub_plot_ld.sh ld.Ash_farm_BvW_minus_rogues
-```
-
-
 LD plot (heatmap) for r2 values per contig
 
 ```bash
+cd /SNP_calling/LD_analysis
 scripts=/home/sobczm/bin/popgen/summary_stats
+
 qsub $scripts/sub_ld_plot.sh ld.Ash_farm_all
 
-scripts=/home/sobczm/bin/popgen/summary_stats
 qsub $scripts/sub_ld_plot.sh ld.Ash_farm_BvW
 
-scripts=/home/sobczm/bin/popgen/summary_stats
 qsub $scripts/sub_ld_plot.sh ld.Ash_farm_BvW_minus_rogues
+
+qsub $scripts/sub_ld_plot.sh ld.Bramley
+
+qsub $scripts/sub_ld_plot.sh ld.Cox
+
+qsub $scripts/sub_ld_plot.sh ld.Worcester
 ```

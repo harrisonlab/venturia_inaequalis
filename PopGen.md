@@ -662,6 +662,14 @@ cd LD_analysis
 scripts=/home/sobczm/bin/popgen/summary_stats
 vcftools=/home/sobczm/bin/vcftools/bin
 qsub $scripts/sub_plot_ld.sh ld.Ash_farm_all
+
+scripts=/home/sobczm/bin/popgen/summary_stats
+vcftools=/home/sobczm/bin/vcftools/bin
+qsub $scripts/sub_plot_ld.sh ld.Ash_farm_BvW
+
+scripts=/home/sobczm/bin/popgen/summary_stats
+vcftools=/home/sobczm/bin/vcftools/bin
+qsub $scripts/sub_plot_ld.sh ld.Ash_farm_BvW_minus_rogues
 ```
 
 
@@ -670,4 +678,10 @@ LD plot (heatmap) for r2 values per contig
 ```bash
 scripts=/home/sobczm/bin/popgen/summary_stats
 qsub $scripts/sub_ld_plot.sh ld.Ash_farm_all
+
+scripts=/home/sobczm/bin/popgen/summary_stats
+qsub $scripts/sub_ld_plot.sh ld.Ash_farm_BvW
+
+scripts=/home/sobczm/bin/popgen/summary_stats
+qsub $scripts/sub_ld_plot.sh ld.Ash_farm_BvW_minus_rogues
 ```

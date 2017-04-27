@@ -717,3 +717,10 @@ qsub $scripts/sub_ld_plot.sh ld.Cox
 
 qsub $scripts/sub_ld_plot.sh ld.Worcester
 ```
+
+Could not get R libraries to work so Maria ran from her profile. Moved files into Venturia project file
+
+```bash
+mkdir SNP_calling/LD_analysis/maria
+cp -r /home/sobczm/other/LD_analysis/ SNP_calling/LD_analysis/maria/
+```

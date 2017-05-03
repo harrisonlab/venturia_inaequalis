@@ -50,25 +50,27 @@ qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 5 5
 
 
+#Tidy working directory
+mkdir SNP_calling/Structure_3
+mv structure* SNP_calling/Structure_3
+mv execute_structure.sh.*755624* SNP_calling/Structure_3
+
 
 #Analyze STRUCTURE output
 # Generate a folder containing all STRUCTURE output files for all K analyzed
+cd SNP_calling/Structure_3
 mkdir structureHarvester_3
 for d in $PWD/*
 do
 mv $d/*_f $PWD/structureHarvester_3
 done
 
-#Tidy working directory
-mkdir SNP_calling/Structure_3
-mv structure_* SNP_calling/Structure_3
-
 
 # structureHarvester - summarise the results
 harvester=/home/sobczm/bin/structureHarvester/structureHarvester.py
-$harvester --dir=$input/Structure_3/structureHarvester --out=$input/Structure_3/structureHarvester --evanno --clumpp
+$harvester --dir=$input/Structure_3/structureHarvester_3 --out=$input/Structure_3/structureHarvester_3 --evanno --clumpp
 # CLUMPP - permute the results
-cd SNP_calling/Structure_3/structureHarvester
+cd SNP_calling/Structure_3/structureHarvester_3
 clumpp=/home/sobczm/bin/CLUMPP_Linux64.1.1.2
 cp $clumpp/paramfile_ind ./
 mv paramfile_ind paramfile

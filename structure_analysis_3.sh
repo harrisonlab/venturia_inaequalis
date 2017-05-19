@@ -104,8 +104,8 @@ done
 ###!!!! Options to be changed in each analysis manually
 #-M number of populations assigned in the Structure input file
 #-N number of individuals
-m=22
-n=22
+m=21
+n=21
 #-K K value
 #-p input file (population q's)
 #-i input file (individual q's)

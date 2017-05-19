@@ -85,7 +85,7 @@ mv paramfile_ind paramfile
 #r: number of replicate runs
 #s: minimum number of population clusters (K) tested
 #f: maximum number of population clusters (K) tested
-c=22
+c=21
 r=5
 s=1
 f=5

@@ -53,7 +53,7 @@ qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3
 #Tidy working directory
 mkdir SNP_calling/Structure_3
 mv structure* SNP_calling/Structure_3
-mv execute_structure.sh.*755624* SNP_calling/Structure_3
+mv execute_structure.sh.* SNP_calling/Structure_3
 
 
 #Analyze STRUCTURE output
@@ -64,7 +64,7 @@ for d in $PWD/*
 do
 mv $d/*_f $PWD/structureHarvester_3
 done
-
+cd ../..
 
 # structureHarvester - summarise the results
 harvester=/home/sobczm/bin/structureHarvester/structureHarvester.py
@@ -85,7 +85,7 @@ mv paramfile_ind paramfile
 #r: number of replicate runs
 #s: minimum number of population clusters (K) tested
 #f: maximum number of population clusters (K) tested
-c=22
+c=21
 r=5
 s=1
 f=5
@@ -93,8 +93,10 @@ for i in $(seq $s $f) #input range of K values tested
 do
 $clumpp/CLUMPP -i K$i.indfile -p K$i.popfile -o K$i.indivq -k $i -c $c -r $r
 done
+
 cp $clumpp/paramfile_pop ./
 mv paramfile_pop paramfile
+
 for i in $(seq $s $f) #input range of K values tested
 do
 $clumpp/CLUMPP -i K$i.indfile -p K$i.popfile -o K$i.popq -k $i -c $c -r $r

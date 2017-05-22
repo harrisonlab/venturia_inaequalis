@@ -25,7 +25,7 @@ config=vcf_to_structure_haploid_pop.spid
 cp $pgdspid/$config ./
 dir=$PWD
 list_file=$(echo "${input_file%.vcf}.lst")
-sed -i 's,^\(VCF_PARSER_POP_FILE_QUESTION=\).*,\1'"$dir/$list_file"',' vcf_to_structure_haploid_pop.spid
+sed -i 's,^\(VCF_PARSER_POP_FILE_QUESTION=\).*,\1'"$list_file"',' vcf_to_structure_haploid_pop.spid
 
 #Also, create a label reference file to be used in the final step by distruct to label indidviduals in the output
 names="${input_file%.vcf}.label"
@@ -106,8 +106,8 @@ done
 ###!!!! Options to be changed in each analysis manually
 #-M number of populations assigned in the Structure input file
 #-N number of individuals
-m=22
-n=22
+m=21
+n=21
 #-K K value
 #-p input file (population q's)
 #-i input file (individual q's)

@@ -601,7 +601,7 @@ Re-ran structure with 21 isolate group using structure_analysis_3.sh; Changed it
 
 ```bash
 input=/home/sobczm/popgen/other/passey/Structure_4
-scripts=/home/sobczm/bin/popgen/snp
+scripts=/home/passet/git_repos/scripts/popgen/snp
 
 #Run replicate STRUCTURE runs, with K from 1 to 5
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 1 5
@@ -611,6 +611,20 @@ qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 5 5
 ```
 
+<!--
+Re-ran with 10M and 1M iterations and burnin respec. as genetics journals might request
+```bash
+input=/home/sobczm/popgen/other/passey/Structure_4
+scripts=/home/sobczm/bin/popgen/snp
+
+#Run replicate STRUCTURE runs, with K from 1 to 5
+qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 1 5
+qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 2 5
+qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 3 5
+qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 4 5
+qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 5 5
+```
+-->
 
 #Linkage Disequlibrium
 

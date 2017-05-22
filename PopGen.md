@@ -597,7 +597,19 @@ Ran structure analysis on Ash Farm only samples using the structure_analysis.sh 
 
 Re-ran structure after removing isolate 118 using structure_analysis_2.sh
 
-Re-ran structure with 21 isolate group using structure_analysis_3.sh; Changed iterations to 1M (from 10M) and burin to 100k (from 1M)
+Re-ran structure with 21 isolate group using structure_analysis_3.sh; Changed iterations to 1M (from 10M) and burin to 100k (from 1M) - Errors in script so wouldn't work. Submitted jobs again, as below, after Matia created initial input file:
+
+```bash
+input=/home/sobczm/popgen/other/passey/Structure_4
+scripts=/home/sobczm/bin/popgen/snp
+
+#Run replicate STRUCTURE runs, with K from 1 to 5
+qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 1 5
+qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 2 5
+qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 3 5
+qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 4 5
+qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 5 5
+```
 
 
 #Linkage Disequlibrium

@@ -663,6 +663,31 @@ for i in $(seq $s $f) #input range of K values tested
 do
 $clumpp/CLUMPP -i K$i.indfile -p K$i.popfile -o K$i.popq -k $i -c $c -r $r
 done
+
+#Key options in the paramfile
+# DISTRUCT to visualise the results
+###!!!! Options to be changed in each analysis manually
+#-M number of populations assigned in the Structure input file
+#-N number of individuals
+m=21
+n=21
+#-K K value
+#-p input file (population q's)
+#-i input file (individual q's)
+#-a input file (labels atop figure)
+#-b input file (labels below figure)
+#-o output file
+distruct=/home/sobczm/bin/distruct1.1
+cp $distruct/drawparams ./
+for i in $(seq $s $f) #input range of K values tested
+do
+$distruct/distructLinux1.1 -i K$i.indivq -p K$i.popq -a $names -o K$i.ps -k $i -M $m -N $n -K $i
+done
+
+#Output is a number of PostScript files showing the average proportion of each
+#individual's genome belonging to a given cluster and allowing some ancestry inference based on
+#the most likely true number of population clusters as summarised by StructureHarvester.
+
 ```
 
 

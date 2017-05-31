@@ -609,9 +609,14 @@ qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 3 5
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 4 5
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 5 5
+
+#Tidy working directory
+mkdir SNP_calling/Structure_3
+mv structure* SNP_calling/Structure_3
+mv execute_structure.sh.* SNP_calling/Structure_3
 ```
 
-<!--
+
 Re-ran with 10M and 1M iterations and burnin respec. as genetics journals might request
 ```bash
 input=/home/sobczm/popgen/other/passey/Structure_4
@@ -624,7 +629,7 @@ qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 4 5
 qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.struc 1 5 5
 ```
--->
+
 
 #Linkage Disequlibrium
 

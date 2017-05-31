@@ -635,6 +635,34 @@ cd SNP_calling/Structure_3/structureHarvester_3
 clumpp=/home/sobczm/bin/CLUMPP_Linux64.1.1.2
 cp $clumpp/paramfile_ind ./
 mv paramfile_ind paramfile
+
+#Options fed to CLUMPP
+#-i: indfile from StructureHarvester output
+#-p: popfile from StructureHarvester output
+#-o: output Q matrix for distruct input
+#-k: K value (number of clusters tested)
+
+###!!! Options to be changed in each analysis manually
+#c: number of individuals (change according to STRUCTURE mainparam file)
+#r: number of replicate runs
+#s: minimum number of population clusters (K) tested
+#f: maximum number of population clusters (K) tested
+c=21
+r=5
+s=1
+f=5
+for i in $(seq $s $f) #input range of K values tested
+do
+$clumpp/CLUMPP -i K$i.indfile -p K$i.popfile -o K$i.indivq -k $i -c $c -r $r
+done
+
+cp $clumpp/paramfile_pop ./
+mv paramfile_pop paramfile
+
+for i in $(seq $s $f) #input range of K values tested
+do
+$clumpp/CLUMPP -i K$i.indfile -p K$i.popfile -o K$i.popq -k $i -c $c -r $r
+done
 ```
 
 

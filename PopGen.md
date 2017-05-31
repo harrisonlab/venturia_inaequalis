@@ -624,6 +624,17 @@ do
 mv $d/*_f $PWD/structureHarvester_3
 done
 cd ../..
+
+
+# structureHarvester - summarise the results
+input=/home/groups/harrisonlab/project_files/venturia/SNP_calling
+harvester=/home/sobczm/bin/structureHarvester/structureHarvester.py
+$harvester --dir=$input/Structure_3/structureHarvester_3 --out=$input/Structure_3/structureHarvester_3 --evanno --clumpp
+# CLUMPP - permute the results
+cd SNP_calling/Structure_3/structureHarvester_3
+clumpp=/home/sobczm/bin/CLUMPP_Linux64.1.1.2
+cp $clumpp/paramfile_ind ./
+mv paramfile_ind paramfile
 ```
 
 

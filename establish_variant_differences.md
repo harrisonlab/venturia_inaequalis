@@ -22,6 +22,41 @@ mv Ash_farm_172_pacbio_contigs_unmasked_3_bw.vcf SNP_calling/
 vcftools=/home/sobczm/bin/vcftools/bin
 $vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw.vcf  --max-missing 0.95 --recode --out SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered
 ```
+
+Create custom SnpEff genome database
+```bash
+SnpEff=/home/sobczm/bin/snpEff
+nano $SnpEff/snpEff.config
+```
+
+Add the following lines to the section with databases:
+```bash
+#---
+# EMR Databases
+#----
+# Fus2 genome
+Fus2v1.0.genome : Fus2
+# Bc16 genome
+Bc16v1.0.genome: BC-16
+# P414 genome
+P414v1.0.genome: 414
+# 172_pacbio genome
+172_pacbiov1.0.genome: 172_pacbio
+```
+<!--
+Collect input files
+
+```bash
+Reference=$(ls repeat_masked/P.cactorum/414_v2/filtered_contigs_repmask/414_v2_contigs_unmasked.fa)
+Gff=$(ls gene_pred/final_ncbi/P.cactorum/414_v2/final_ncbi/414_v2_genes_incl_ORFeffectors_renamed.gff3)
+SnpEff=/home/sobczm/bin/snpEff
+mkdir $SnpEff/data/P414v1.0
+cp $Reference $SnpEff/data/P414v1.0/sequences.fa
+cp $Gff $SnpEff/data/P414v1.0/genes.gff
+```
+
+#Build database using GFF3 annotation
+java -jar $SnpEff/snpEff.jar build -gff3 -v P414v1.0
 <!--
 Groups of isolates from different cultivars described, 8 isolates for Worcester (pop1 below) and 6 isolates for Bramley (pop2 below); two Bramley isolates lost due to poor sequencing (036 and 057)
 

@@ -23,7 +23,8 @@ vcftools=/home/sobczm/bin/vcftools/bin
 $vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw.vcf  --max-missing 0.95 --recode --out SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered
 ```
 
-Create custom SnpEff genome database
+##Create custom SnpEff genome database
+
 ```bash
 SnpEff=/home/sobczm/bin/snpEff
 nano $SnpEff/snpEff.config
@@ -44,7 +45,7 @@ P414v1.0.genome: 414
 172_pacbiov1.0.genome: 172_pacbio
 ```
 
-Collect input files
+#Collect input files
 
 ```bash
 Reference=$(ls repeat_masked/v.inaequalis/172_pacbio/filtered_contigs_repmask/172_pacbio_contigs_unmasked.fa)
@@ -56,8 +57,23 @@ cp $Gff $SnpEff/data/172_pacbiov1.0/genes.gff
 ```
 
 #Build database using GFF3 annotation
+```bash
 java -jar $SnpEff/snpEff.jar build -gff3 -v 172_pacbiov1.0
+```
 
+##Annotate VCF files
+
+```bash
+for a in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered.recode.vcf); do
+    echo $a
+    filename=$(basename "$a")
+    SnpEff=/home/sobczm/bin/snpEff
+    java -Xmx4g -jar $SnpEff/snpEff.jar -v -ud 0 172_pacbiov1.0 $a > ${filename%.vcf}_annotated.vcf
+    mv snpEff_genes.txt SNP_calling/snpEff_genes_${filename%.vcf}.txt
+    mv snpEff_summary.html SNP_calling/snpEff_summary_${filename%.vcf}.html
+    mv *_filtered* SNP_calling/.
+done
+```
 
 <!--
 Groups of isolates from different cultivars described, 8 isolates for Worcester (pop1 below) and 6 isolates for Bramley (pop2 below); two Bramley isolates lost due to poor sequencing (036 and 057)

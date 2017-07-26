@@ -43,20 +43,22 @@ P414v1.0.genome: 414
 # 172_pacbio genome
 172_pacbiov1.0.genome: 172_pacbio
 ```
-<!--
+
 Collect input files
 
 ```bash
-Reference=$(ls repeat_masked/P.cactorum/414_v2/filtered_contigs_repmask/414_v2_contigs_unmasked.fa)
-Gff=$(ls gene_pred/final_ncbi/P.cactorum/414_v2/final_ncbi/414_v2_genes_incl_ORFeffectors_renamed.gff3)
+Reference=$(ls repeat_masked/v.inaequalis/172_pacbio/filtered_contigs_repmask/172_pacbio_contigs_unmasked.fa)
+Gff=$(ls gene_pred/codingquary/v.inaequalis/172_pacbio/final/final_genes_appended.gff3)
 SnpEff=/home/sobczm/bin/snpEff
-mkdir $SnpEff/data/P414v1.0
-cp $Reference $SnpEff/data/P414v1.0/sequences.fa
-cp $Gff $SnpEff/data/P414v1.0/genes.gff
+mkdir $SnpEff/data/172_pacbiov1.0
+cp $Reference $SnpEff/data/172_pacbiov1.0/sequences.fa
+cp $Gff $SnpEff/data/172_pacbiov1.0/genes.gff
 ```
 
 #Build database using GFF3 annotation
-java -jar $SnpEff/snpEff.jar build -gff3 -v P414v1.0
+java -jar $SnpEff/snpEff.jar build -gff3 -v 172_pacbiov1.0
+
+
 <!--
 Groups of isolates from different cultivars described, 8 isolates for Worcester (pop1 below) and 6 isolates for Bramley (pop2 below); two Bramley isolates lost due to poor sequencing (036 and 057)
 

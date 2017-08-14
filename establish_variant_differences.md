@@ -107,10 +107,9 @@ a given analysis (e.g. "ply" argument for ploidy).
 scripts=/home/sobczm/bin/popgen/summary_stats
 python $scripts/vcf_find_difference_pop.py --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered.recode.vcf --out SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed.vcf --ply 1 --pop1 202,,182,,173,,190,,172,,197,,196,,049 --pop2 024,,030,,007,,025,,044,,199 --thr 0.95
 ```
-<!--
+
 # V. inequalis structural variants
 ```bash
 scripts=/home/sobczm/bin/popgen/summary_stats
 input=/home/sobczm/popgen/snp/sv_calling
-python $scripts/vcf_find_difference_pop.py --vcf $input/vinequalis/vinequalis_struc_variants.vcf --out $input/vinequalis/vinequalis_struc_variants_fixed.vcf --ply 1 --pop1 202,,182,,173,,190,,172,,197,,196,,049 --pop2 024,,030,,007,,025,,044,,199 --thr 0.95
-```
+python $scripts/vcf_find_difference_pop.py --vcf $input/vinequalis/vinequalis_struc_variants.vcf --out SNP_calling/Ash_farm_struc_variants_fixed.vcf --ply 1 --pop1 202,,182,,173,,190,,172,,197,,196,,049 --pop2 024,,030,,007,,025,,044,,199 --thr 0.95

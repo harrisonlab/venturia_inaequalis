@@ -96,7 +96,7 @@ java -jar $snpeff/SnpSift.jar filter "(ANN[0].EFFECT has 'synonymous_variant')" 
 #Four-fold degenrate sites (output file suffix: 4fd)
 python $scripts/summary_stats/parse_snpeff_synonymous.py ${vcf%.vcf}_syn.vcf
 ```
-
+-->
 
 Groups of isolates from different cultivars described, 8 isolates for Worcester (pop1 below) and 6 isolates for Bramley (pop2 below); two Bramley isolates lost due to poor sequencing (036 and 057)
 
@@ -107,7 +107,7 @@ a given analysis (e.g. "ply" argument for ploidy).
 scripts=/home/sobczm/bin/popgen/summary_stats
 python $scripts/vcf_find_difference_pop.py --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered.recode.vcf --out SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed.vcf --ply 1 --pop1 202,,182,,173,,190,,172,,197,,196,,049 --pop2 024,,030,,007,,025,,044,,199 --thr 0.95
 ```
-
+<!--
 # V. inequalis structural variants
 ```bash
 scripts=/home/sobczm/bin/popgen/summary_stats

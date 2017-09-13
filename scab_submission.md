@@ -14,7 +14,7 @@ bioproject. The file was downloaded in excel format and edited manually. A copy
 of the edited file and the final .tsv file is present at:
 
 ```bash
-  ls genome_submission/SRA_metadata_acc.txt genome_submission/SRA_metadata_acc.xlsx
+  ls genome_submission/PRJNA354841_SRA_metadata_acc.txt genome_submission/PRJNA354841_SRA_metadata_acc.xlsx
   ```
 
 As these files included a file > 500 Mb, a presubmission folder was requested.
@@ -102,7 +102,7 @@ NCBI responded that the file looked good so no edits required
 
 # Final Submission
 
-These commands were used in the final submission of the FoN genome:
+These commands were used in the final submission of the 172_pacbio genome:
 
 
 ```bash
@@ -110,8 +110,6 @@ for Assembly in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unma
 # tbl2asn options:
 Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)
 Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
-OrganismOfficial=$(echo $Organism | sed 's/F./Fusarium /g' | sed 's/_fsp_/ f.sp. /g')
-StrainOfficial=$(echo $Strain | sed 's/_ncbi//g')
 #
 ProjDir=/home/groups/harrisonlab/project_files/venturia
 cd $ProjDir
@@ -129,14 +127,14 @@ SwissProtFasta=$(ls /home/groups/harrisonlab/uniprot/swissprot/uniprot_sprot.fas
 GffFile=$(ls gene_pred/codingquary/v.inaequalis/172_pacbio/final/final_genes_appended.gff3)
 SbtFile=genome_submission/v.inaequalis/172_pacbio/template.sbt
 
-SRA_metadata=$(ls genome_submission/PRJNA354841_SRA_metadata_acc.txt)
-BioProject=$(cat $SRA_metadata | sed 's/PRJNA/\nPRJNA/g' | grep "$StrainOfficial" | cut -f1 | head -n1)
-BioSample=$(cat $SRA_metadata | sed 's/PRJNA/\nPRJNA/g' | grep "$StrainOfficial" | cut -f2 | head -n1)
+#SRA_metadata=$(ls genome_submission/PRJNA354841_SRA_metadata_acc.txt)
+#BioProject=$(cat $SRA_metadata | sed 's/PRJNA/\nPRJNA/g' | grep "$StrainOfficial" | cut -f1 | head -n1)
+#BioSample=$(cat $SRA_metadata | sed 's/PRJNA/\nPRJNA/g' | grep "$StrainOfficial" | cut -f2 | head -n1)
 
 
 # ncbi_tbl_corrector script options:
 SubmissionID="SUB2310658"
-LabID="ArmitageEMR"
+LabID="harrisonlab"
 # Final submisison file name:
 FinalName="$Organism"_"$Strain"_Passey_2017
 
@@ -153,7 +151,7 @@ mkdir -p $OutDir/tbl2asn/round1
 tbl2asn -p $OutDir/gag/round1/. -t $OutDir/gag/round1/genome.sbt -r $OutDir/tbl2asn/round1 -M n -X E -Z $OutDir/gag/round1/discrep.txt -j "[organism=$OrganismOfficial] [strain=$StrainOfficial]"
 
 mkdir -p $OutDir/gag/edited
-$ProgDir/edit_tbl_file/ncbi_tbl_corrector.py --inp_tbl $OutDir/gag/round1/genome.tbl --inp_val $OutDir/tbl2asn/round1/genome.val --locus_tag $SubmissionID --lab_id $LabID --gene_id "remove" --edits stop pseudo unknown_UTR correct_partial --rename_genes "vAg" --remove_product_locus_tags "True" --out_tbl $OutDir/gag/edited/genome.tbl
+$ProgDir/edit_tbl_file/ncbi_tbl_corrector.py --inp_tbl $OutDir/gag/round1/genome.tbl --inp_val $OutDir/tbl2asn/round1/genome.val --locus_tag $SubmissionID --lab_id $LabID --gene_id "remove" --edits stop pseudo unknown_UTR correct_partial --rename_genes "g" --remove_product_locus_tags "True" --out_tbl $OutDir/gag/edited/genome.tbl
 
 printf "StructuredCommentPrefix\t##Genome-Annotation-Data-START##
 Annotation Provider\tHarrison Lab NIAB-EMR

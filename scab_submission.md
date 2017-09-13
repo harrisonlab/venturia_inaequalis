@@ -98,3 +98,125 @@ home/groups/harrisonlab/project_files/venturia/assembly/merged_canu_spades/v.ina
 #NCBI response
 
 NCBI responded that the file looked good so no edits required
+
+
+# Final Submission
+
+These commands were used in the final submission of the FoN genome:
+
+
+```bash
+for Assembly in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
+# tbl2asn options:
+Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)
+Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+OrganismOfficial=$(echo $Organism | sed 's/F./Fusarium /g' | sed 's/_fsp_/ f.sp. /g')
+StrainOfficial=$(echo $Strain | sed 's/_ncbi//g')
+#
+ProjDir=/home/groups/harrisonlab/project_files/venturia
+cd $ProjDir
+OutDir="genome_submission/$Organism/$Strain"
+mkdir -p $OutDir
+
+# Program locations:
+AnnieDir="/home/armita/prog/annie/genomeannotation-annie-c1e848b"
+ProgDir="/home/passet/git_repos/tools/genbank_submission"
+# File locations:
+# Assembly=$(ls repeat_masked/$Organism/$Strain/filtered_contigs_repmask/*_contigs_unmasked.fa)
+InterProTab=$(ls gene_pred/interproscan/$Organism/$Strain/"$Strain"_interproscan.tsv)
+SwissProtBlast=$(ls gene_pred/swissprot/$Organism/$Strain/swissprot_v2015_tophit_parsed.tbl)
+SwissProtFasta=$(ls /home/groups/harrisonlab/uniprot/swissprot/uniprot_sprot.fasta)
+GffFile=$(ls gene_pred/codingquary/v.inaequalis/172_pacbio/final/final_genes_appended.gff3)
+SbtFile=genome_submission/v.inaequalis/172_pacbio/template.sbt
+
+SRA_metadata=$(ls genome_submission/PRJNA354841_SRA_metadata_acc.txt)
+BioProject=$(cat $SRA_metadata | sed 's/PRJNA/\nPRJNA/g' | grep "$StrainOfficial" | cut -f1 | head -n1)
+BioSample=$(cat $SRA_metadata | sed 's/PRJNA/\nPRJNA/g' | grep "$StrainOfficial" | cut -f2 | head -n1)
+
+
+# ncbi_tbl_corrector script options:
+SubmissionID="SUB2310658"
+LabID="ArmitageEMR"
+# Final submisison file name:
+FinalName="$Organism"_"$Strain"_Passey_2017
+
+python3 $AnnieDir/annie.py -ipr $InterProTab -g $GffFile -b $SwissProtBlast -db $SwissProtFasta -o $OutDir/annie_output.csv --fix_bad_products
+$ProgDir/edit_tbl_file/annie_corrector.py --inp_csv $OutDir/annie_output.csv --out_csv $OutDir/annie_corrected_output.csv
+
+mkdir -p $OutDir/gag/round1
+gag.py -f $Assembly -g $GffFile -a $OutDir/annie_corrected_output.csv --fix_start_stop -o $OutDir/gag/round1 2>&1 | tee $OutDir/gag_log1.txt
+sed -i 's/Dbxref/db_xref/g' $OutDir/gag/round1/genome.tbl
+
+cp $Assembly $OutDir/gag/round1/genome.fsa  
+cp $SbtFile $OutDir/gag/round1/genome.sbt
+mkdir -p $OutDir/tbl2asn/round1
+tbl2asn -p $OutDir/gag/round1/. -t $OutDir/gag/round1/genome.sbt -r $OutDir/tbl2asn/round1 -M n -X E -Z $OutDir/gag/round1/discrep.txt -j "[organism=$OrganismOfficial] [strain=$StrainOfficial]"
+
+mkdir -p $OutDir/gag/edited
+$ProgDir/edit_tbl_file/ncbi_tbl_corrector.py --inp_tbl $OutDir/gag/round1/genome.tbl --inp_val $OutDir/tbl2asn/round1/genome.val --locus_tag $SubmissionID --lab_id $LabID --gene_id "remove" --edits stop pseudo unknown_UTR correct_partial --rename_genes "vAg" --remove_product_locus_tags "True" --out_tbl $OutDir/gag/edited/genome.tbl
+
+printf "StructuredCommentPrefix\t##Genome-Annotation-Data-START##
+Annotation Provider\tHarrison Lab NIAB-EMR
+Annotation Date\tSEP-2016
+Annotation Version\tRelease 1.01
+Annotation Method\tAb initio gene prediction: Braker 1.9 and CodingQuary 2.0; Functional annotation: Swissprot (2015 release) and Interproscan 5.18-57.0" \
+> $OutDir/gag/edited/annotation_methods.strcmt.txt
+
+sed -i 's/_pilon//g' $OutDir/gag/edited/genome.tbl
+sed -i 's/\. subunit/kDa subunit/g' $OutDir/gag/edited/genome.tbl
+sed -i 's/, mitochondrial//g' $OutDir/gag/edited/genome.tbl
+
+cp $Assembly $OutDir/gag/edited/genome.fsa
+cp $SbtFile $OutDir/gag/edited/genome.sbt
+mkdir $OutDir/tbl2asn/final
+tbl2asn -p $OutDir/gag/edited/. -t $OutDir/gag/edited/genome.sbt -r $OutDir/tbl2asn/final -M n -X E -Z $OutDir/tbl2asn/final/discrep.txt -j "[organism=$OrganismOfficial] [strain=$StrainOfficial]" -l paired-ends -a r10k -w $OutDir/gag/edited/annotation_methods.strcmt.txt
+cat $OutDir/tbl2asn/final/genome.sqn > $OutDir/tbl2asn/final/$FinalName.sqn
+done
+```
+<!--
+```bash
+for File in $(ls genome_submission/v.*/*_ncbi/tbl2asn/final/errorsummary.val); do
+Organism=$(echo $File | rev | cut -f5 -d '/' | rev);
+Strain=$(echo $File | rev | cut -f4 -d '/' | rev);
+echo "$Organism - $Strain";
+cat $File;
+echo "Duplicated genes:"
+cat genome_submission/$Organism/$Strain/tbl2asn/round1/genome.val | grep 'DuplicateFeat' | cut -f4 -d ':' | cut -f2 -d' '
+echo "";
+done > genome_submission/172_pacbio_isolate_errors.txt
+```
+
+
+The final error report contained the following warnings. These were judged to be
+legitimate concerns but biologically explainable.
+```
+67 WARNING: SEQ_FEAT.PartialProblem
+ 5 WARNING: SEQ_FEAT.ProteinNameEndsInBracket
+211 WARNING: SEQ_FEAT.ShortExon
+18 WARNING: SEQ_FEAT.SuspiciousFrame
+ 5 INFO:    SEQ_FEAT.PartialProblem
+
+ Note -
+ *SEQ_FEAT.partial problem. In this case, upon investigation these genes were hannging
+ off the end of a contig but did not have an mRNA feature that went off of the
+ end of the contig. This was occuring due to an intron being predicted hanging
+ off the contig. An example on the ncbi guidelines here shows this to be
+ acceptable:
+ http://www.ncbi.nlm.nih.gov/genbank/eukaryotic_genome_submission_annotation#Partialcodingregionsinincompletegenomes
+ *SEQ_FEAT.ProteinNameEndsInBracket. These gene names include brackets for good
+ reason
+ ```
+```bash
+ for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa | grep 'N139_ncbi' | grep -v 'old'); do
+ Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)
+ Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+ mkdir -p tmp_assembly/$Organism/$Strain
+ cp $Assembly tmp_assembly/$Organism/$Strain/.
+ GffFile=$(ls gene_pred/final_genes/$Organism/$Strain/final/final_genes_appended.gff3)
+ cp $GffFile tmp_assembly/$Organism/$Strain/.
+ GeneConversions=$(ls genome_submission/$Organism/$Strain/gag/edited/genome_gene_conversions.tsv)
+ cp $GeneConversions tmp_assembly/$Organism/$Strain/.
+ done
+ ```
+
+ -->

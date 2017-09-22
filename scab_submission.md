@@ -99,6 +99,9 @@ home/groups/harrisonlab/project_files/venturia/assembly/merged_canu_spades/v.ina
 
 NCBI responded that the file looked good so no edits required
 
+# SbtFile
+
+The genbank submission template tool was used at: http://www.ncbi.nlm.nih.gov/WebSub/template.cgi This produce a template file detailing the submission.
 
 # Final Submission
 

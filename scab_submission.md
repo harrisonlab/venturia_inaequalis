@@ -174,6 +174,28 @@ tbl2asn -p $OutDir/gag/edited/. -t $OutDir/gag/edited/genome.sbt -r $OutDir/tbl2
 cat $OutDir/tbl2asn/final/genome.sqn > $OutDir/tbl2asn/final/$FinalName.sqn
 done
 ```
+
+```bash
+	# Bioproject="PRJNA354841"
+	SubFolder="Vi_annotated_PRJNA354841"
+	mkdir $SubFolder
+	for Read in $(ls genome_submission/v.inaequalis/172_pacbio/tbl2asn/final/v.inaequalis_172_pacbio_Passey_2017.sqn); do
+		echo $Read;
+		cp $Read $SubFolder/.
+	done
+	cp genome_submission/v.inaequalis/172_pacbio/tbl2asn/final/v.inaequalis_172_pacbio_Passey_2017.sqn $SubFolder/.
+	cd $SubFolder
+	gzip v.inaequalis_172_pacbio_Passey_2017.sqn
+	ftp ftp-private.ncbi.nlm.nih.gov
+	cd uploads/tom.passey@emr.ac.uk_GHO2Umdl
+	mkdir Vi_annotated_PRJNA354841
+	cd Vi_annotated_PRJNA354841
+	put v.inaequalis_172_pacbio_Passey_2017.sqn.gz
+	mput *
+	bye
+	cd ../
+	#rm -r $SubFolder
+```
 <!--
 ```bash
 for File in $(ls genome_submission/v.*/*_ncbi/tbl2asn/final/errorsummary.val); do

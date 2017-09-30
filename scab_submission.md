@@ -137,6 +137,7 @@ SbtFile=genome_submission/v.inaequalis/172_pacbio/template.sbt
 
 # ncbi_tbl_corrector script options:
 SubmissionID="SUB2310658"
+LocusTag="Vi05172"
 LabID="harrisonlab"
 # Final submisison file name:
 FinalName="$Organism"_"$Strain"_Passey_2017
@@ -154,7 +155,7 @@ mkdir -p $OutDir/tbl2asn/round1
 tbl2asn -p $OutDir/gag/round1/. -t $OutDir/gag/round1/genome.sbt -r $OutDir/tbl2asn/round1 -M n -X E -Z $OutDir/gag/round1/discrep.txt -j "[organism=$OrganismOfficial] [strain=$StrainOfficial]"
 
 mkdir -p $OutDir/gag/edited
-$ProgDir/edit_tbl_file/ncbi_tbl_corrector.py --inp_tbl $OutDir/gag/round1/genome.tbl --inp_val $OutDir/tbl2asn/round1/genome.val --locus_tag $SubmissionID --lab_id $LabID --gene_id "remove" --edits stop pseudo unknown_UTR correct_partial --rename_genes "g" --remove_product_locus_tags "True" --out_tbl $OutDir/gag/edited/genome.tbl
+$ProgDir/edit_tbl_file/ncbi_tbl_corrector.py --inp_tbl $OutDir/gag/round1/genome.tbl --inp_val $OutDir/tbl2asn/round1/genome.val --locus_tag $LocusTag --lab_id $LabID --gene_id "remove" --edits stop pseudo unknown_UTR correct_partial --rename_genes "g" --remove_product_locus_tags "True" --out_tbl $OutDir/gag/edited/genome.tbl
 
 printf "StructuredCommentPrefix\t##Genome-Annotation-Data-START##
 Annotation Provider\tHarrison Lab NIAB-EMR

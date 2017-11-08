@@ -802,8 +802,8 @@ Braker gene models:
     $ProgDir/gene_list_to_gff.pl $AddGenesList $CodingQuaryGff CodingQuarry_v2.0 ID CodingQuary > $AddGenesGff
     $ProgDir/gene_list_to_gff.pl $AddGenesList $PGNGff PGNCodingQuarry_v2.0 ID CodingQuary >> $AddGenesGff
     ProgDir=/home/passet/git_repos/tools/gene_prediction/codingquary
-# -
-# This section is edited
+    # -
+    # This section is edited
     $ProgDir/add_CodingQuary_features.pl $AddGenesGff $Assembly > $AddDir/add_genes_CodingQuary_unspliced.gff3
     $ProgDir/correct_CodingQuary_splicing.py --inp_gff $AddDir/add_genes_CodingQuary_unspliced.gff3 > $FinalDir/final_genes_CodingQuary.gff3
     # -
@@ -820,20 +820,19 @@ Braker gene models:
     GffQuary=$FinalDir/final_genes_CodingQuary.gff3
     GffAppended=$FinalDir/final_genes_appended.gff3
     cat $GffBraker $GffQuary > $GffAppended
-
-    # cat $BrakerGff $AddDir/additional_gene_parsed.gff3 | bedtools sort > $FinalGff
   done
-```
+ ``` 
+
 
 The final number of genes per isolate was observed using:
 ```bash
-  for DirPath in $(ls -d gene_pred/codingquary/v.*/*/final | grep -w "172_pacbio"); do
-    echo $DirPath;
-    cat $DirPath/final_genes_Braker.pep.fasta | grep '>' | wc -l;
-    cat $DirPath/final_genes_CodingQuary.pep.fasta | grep '>' | wc -l;
-    cat $DirPath/final_genes_combined.pep.fasta | grep '>' | wc -l;
-    echo "";
-  done
+for DirPath in $(ls -d gene_pred/codingquary/v.*/*/final | grep -w "172_pacbio"); do
+echo $DirPath;
+cat $DirPath/final_genes_Braker.pep.fasta | grep '>' | wc -l;
+cat $DirPath/final_genes_CodingQuary.pep.fasta | grep '>' | wc -l;
+cat $DirPath/final_genes_combined.pep.fasta | grep '>' | wc -l;
+echo "";
+done
 ```
 Output:
 
@@ -848,30 +847,35 @@ gene_pred/codingquary/v.inaequalis/172_pacbio/final
 After submission to ncbi and identification of duplicate genes, gene models were renamed and duplicate gene features were identified and removed.
 
 ```bash
-  for GffAppended in $(ls gene_pred/final/*/*/final/final_genes_appended.gff3); do
-    Strain=$(echo $GffAppended | rev | cut -d '/' -f3 | rev)
-    Organism=$(echo $GffAppended | rev | cut -d '/' -f4 | rev)
-    echo "$Organism - $Strain"
-    FinalDir=gene_pred/final/$Organism/$Strain/final
-    ProgDir=/home/passet/git_repos/tools/gene_prediction/codingquary
-    $ProgDir/remove_dup_features.py --inp_gff $GffAppended
-    $ProgDir/remove_dup_features.py --inp_gff $GffAppended | grep -A2 'Duplicate gene found' | tail -n1 | cut -f2 -d'=' > $FinalDir/filter_list.tmp
-    GffFiltered=$FinalDir/filtered_duplicates.gff
-    cat $GffAppended | grep -v -w -f $FinalDir/filter_list.tmp > $GffFiltered
-    rm $FinalDir/filter_list.tmp
-    GffRenamed=$FinalDir/final_genes_appended_renamed.gff3
-    LogFile=$FinalDir/final_genes_appended_renamed.log
-    ProgDir=/home/passet/git_repos/tools/gene_prediction/codingquary
-    $ProgDir/gff_rename_genes.py --inp_gff $GffFiltered --conversion_log $LogFile > $GffRenamed
-    rm $GffFiltered
+for GffAppended in $(ls gene_pred/final/*/*/final/final_genes_appended.gff3); do
+Strain=$(echo $GffAppended | rev | cut -d '/' -f3 | rev)
+Organism=$(echo $GffAppended | rev | cut -d '/' -f4 | rev)
+echo "$Organism - $Strain"
+FinalDir=gene_pred/final/$Organism/$Strain/final
+GffFiltered=$FinalDir/filtered_duplicates.gff
+ProgDir=/home/passet/git_repos/tools/gene_prediction/codingquary
+$ProgDir/remove_dup_features.py --inp_gff $GffAppended --out_gff $GffFiltered
+GffRenamed=$FinalDir/final_genes_appended_renamed.gff3
+LogFile=$FinalDir/final_genes_appended_renamed.log
+ProgDir=/home/passet/git_repos/tools/gene_prediction/codingquary
+$ProgDir/gff_rename_genes.py --inp_gff $GffFiltered --conversion_log $LogFile > $GffRenamed
+rm $GffFiltered
+Assembly=$(ls repeat_masked/$Organism/$Strain/filtered_*/"$Strain"_contigs_softmasked.fa)
+$ProgDir/gff2fasta.pl $Assembly $GffRenamed gene_pred/final/$Organism/$Strain/final/final_genes_appended_renamed
+# The proteins fasta file contains * instead of Xs for stop codons, these should
+# be changed
+sed -i 's/\*/X/g' gene_pred/final/$Organism/$Strain/final/final_genes_appended_renamed.pep.fasta
+done
+```
 
-    Assembly=$(ls repeat_masked/$Organism/$Strain/filtered_*/"$Strain"_contigs_softmasked.fa)
-    $ProgDir/gff2fasta.pl $Assembly $GffRenamed $FinalDir/final_genes_appended_renamed
+Output:
+```bash
+v.inaequalis - 172_pacbio
+Identifiied the following duplicated transcripts:
 
-    # The proteins fasta file contains * instead of Xs for stop codons, these should
-    # be changed
-    sed -i 's/\*/X/g' $FinalDir/final_genes_appended_renamed.pep.fasta
-  done
+NOTE - if any of these represent the first transcript of a gene (.t1) then an entire gene may be duplicated
+if so the gene feature will need to be stripped out of the gff file seperately.
+Genome fasta parsed
 ```
 
 

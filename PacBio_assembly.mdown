@@ -930,7 +930,7 @@ was redirected to a temporary output file named interproscan_submission.log .
   screen -a
   cd /home/groups/harrisonlab/project_files/venturia
   ProgDir=/home/passet/git_repos/tools/seq_tools/feature_annotation/interproscan
-  for Genes in $(ls gene_pred/codingquary/v.*/*/*/final_genes_combined.pep.fasta | grep -w "172_pacbio"); do
+  for Genes in $(ls gene_pred/final/v.inaequalis/172_pacbio/final/final_genes_appended_renamed.pep.fasta | grep -w "172_pacbio"); do
     echo $Genes
     $ProgDir/sub_interproscan.sh $Genes
   done 2>&1 | tee -a interproscan_submisison.log
@@ -941,7 +941,7 @@ commands:
 
 ```bash
   ProgDir=/home/passet/git_repos/tools/seq_tools/feature_annotation/interproscan
-  for Proteins in $(ls gene_pred/codingquary/v.*/*/*/final_genes_combined.pep.fasta | grep -w "172_pacbio"); do
+  for Proteins in $(ls gene_pred/final/v.inaequalis/172_pacbio/final/final_genes_appended_renamed.pep.fasta | grep -w "172_pacbio"); do
     Strain=$(echo $Proteins | rev | cut -d '/' -f3 | rev)
     Organism=$(echo $Proteins | rev | cut -d '/' -f4 | rev)
     echo "$Organism - $Strain"

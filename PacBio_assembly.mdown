@@ -956,7 +956,7 @@ commands:
 
 Annotations with SwissProt
 ```bash
-  for Proteome in $(ls gene_pred/codingquary/v.*/*/*/final_genes_combined.pep.fasta | grep -w "172_pacbio"); do
+  for Proteome in $(ls gene_pred/final/v.inaequalis/172_pacbio/final/final_genes_appended_renamed.pep.fasta | grep -w "172_pacbio"); do
     Strain=$(echo $Proteome | rev | cut -f3 -d '/' | rev)
     Organism=$(echo $Proteome | rev | cut -f4 -d '/' | rev)
     OutDir=gene_pred/swissprot/$Organism/$Strain

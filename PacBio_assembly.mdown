@@ -982,7 +982,7 @@ Annotations with SwissProt
 
 ## C) CAZY proteins
 
-Carbohydrte active enzymes were idnetified using CAZYfollowing recomendations
+Carbohydrte active enzymes were identified using CAZYfollowing recomendations
 at http://csbl.bmb.uga.edu/dbCAN/download/readme.txt :
 
 ```bash

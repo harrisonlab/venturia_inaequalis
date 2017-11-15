@@ -197,6 +197,124 @@ done
 	cd ../
 	#rm -r $SubFolder
 ```
+
+NCBI reponse:
+```
+>
+>[1] 2 genes completely overlapped by other genes. The corresponding CDS 
+>spans overlap another CDS span which is very unusual. Looks like these 
+>features should be annotated as alternatively spliced genes as 
+>described at 
+>https://www.ncbi.nlm.nih.gov/genbank/eukaryotic_genome_submission_annot
+>ati
+>on/#Alternativelysplicedgenes
+>If not, some of these features should be deleted.
+>
+>Gene   Vi05172_g2590   lcl|contig_4:c>169213-<168934   Vi05172_g2590
+>Gene   Vi05172_g12556  lcl|contig_60:c>210937-<210550  Vi05172_g12556
+>
+>
+>[2] Some product names should be improved (see file posted on the portal).
+>Some product names contain database identifier more appropriate in note.
+>Remove them from the product names. Here are some examples:
+>C584.13, C417.12, YGL114W, YPL109C, UM03490, AO090003000058, ...
+>Please remove any identifiers with similar format. Note that this list 
+>is not exhaustive. There might be additional identifiers formats in 
+>your product names
+```
+
+These commands were used to re-submit 172_pacbio genome after removal of duplicates:
+
+
+```bash
+for Assembly in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
+# tbl2asn options:
+Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)
+Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
+#
+ProjDir=/home/groups/harrisonlab/project_files/venturia
+cd $ProjDir
+OutDir="genome_submission/$Organism/$Strain"
+mkdir -p $OutDir
+
+# Program locations:
+AnnieDir="/home/armita/prog/annie/genomeannotation-annie-c1e848b"
+ProgDir="/home/passet/git_repos/tools/genbank_submission"
+# File locations:
+# Assembly=$(ls repeat_masked/$Organism/$Strain/filtered_contigs_repmask/*_contigs_unmasked.fa)
+InterProTab=$(ls gene_pred/interproscan/$Organism/$Strain/"$Strain"_interproscan.tsv)
+SwissProtBlast=$(ls gene_pred/swissprot/$Organism/$Strain/swissprot_vJul2016_tophit_parsed.tbl)
+SwissProtFasta=$(ls /home/groups/harrisonlab/uniprot/swissprot/uniprot_sprot.fasta)
+GffFile=$(ls gene_pred/final/v.inaequalis/172_pacbio/final/final_genes_appended_renamed.gff3)
+SbtFile=genome_submission/v.inaequalis/172_pacbio/template.sbt
+
+#SRA_metadata=$(ls genome_submission/PRJNA354841_SRA_metadata_acc.txt)
+#BioProject=$(cat $SRA_metadata | sed 's/PRJNA/\nPRJNA/g' | grep "$StrainOfficial" | cut -f1 | head -n1)
+#BioSample=$(cat $SRA_metadata | sed 's/PRJNA/\nPRJNA/g' | grep "$StrainOfficial" | cut -f2 | head -n1)
+
+
+# ncbi_tbl_corrector script options:
+SubmissionID="SUB2310658"
+LocusTag="Vi05172"
+LabID="harrisonlab"
+# Final submisison file name:
+FinalName="$Organism"_"$Strain"_Passey_Nov_2017
+
+python3 $AnnieDir/annie.py -ipr $InterProTab -g $GffFile -b $SwissProtBlast -db $SwissProtFasta -o $OutDir/annie_output.csv --fix_bad_products
+$ProgDir/edit_tbl_file/annie_corrector.py --inp_csv $OutDir/annie_output.csv --out_csv $OutDir/annie_corrected_output.csv
+
+mkdir -p $OutDir/gag/round1
+gag.py -f $Assembly -g $GffFile -a $OutDir/annie_corrected_output.csv --fix_start_stop -o $OutDir/gag/round1 2>&1 | tee $OutDir/gag_log1.txt
+sed -i 's/Dbxref/db_xref/g' $OutDir/gag/round1/genome.tbl
+
+cp $Assembly $OutDir/gag/round1/genome.fsa  
+cp $SbtFile $OutDir/gag/round1/genome.sbt
+mkdir -p $OutDir/tbl2asn/round1
+tbl2asn -p $OutDir/gag/round1/. -t $OutDir/gag/round1/genome.sbt -r $OutDir/tbl2asn/round1 -M n -X E -Z $OutDir/gag/round1/discrep.txt -j "[organism=$OrganismOfficial] [strain=$StrainOfficial]"
+
+mkdir -p $OutDir/gag/edited
+$ProgDir/edit_tbl_file/ncbi_tbl_corrector.py --inp_tbl $OutDir/gag/round1/genome.tbl --inp_val $OutDir/tbl2asn/round1/genome.val --locus_tag $LocusTag --lab_id $LabID --gene_id "remove" --edits stop pseudo unknown_UTR correct_partial --rename_genes "g" --remove_product_locus_tags "True" --out_tbl $OutDir/gag/edited/genome.tbl
+
+printf "StructuredCommentPrefix\t##Genome-Annotation-Data-START##
+Annotation Provider\tHarrison Lab NIAB-EMR
+Annotation Date\tSEP-2016
+Annotation Version\tRelease 1.01
+Annotation Method\tAb initio gene prediction: Braker 1.9 and CodingQuary 2.0; Functional annotation: Swissprot (July 2016 release) and Interproscan 5.18-57.0" \
+> $OutDir/gag/edited/annotation_methods.strcmt.txt
+
+sed -i 's/_pilon//g' $OutDir/gag/edited/genome.tbl
+sed -i 's/\. subunit/kDa subunit/g' $OutDir/gag/edited/genome.tbl
+sed -i 's/, mitochondrial//g' $OutDir/gag/edited/genome.tbl
+
+cp $Assembly $OutDir/gag/edited/genome.fsa
+cp $SbtFile $OutDir/gag/edited/genome.sbt
+mkdir $OutDir/tbl2asn/final
+tbl2asn -p $OutDir/gag/edited/. -t $OutDir/gag/edited/genome.sbt -r $OutDir/tbl2asn/final -M n -X E -Z $OutDir/tbl2asn/final/discrep.txt -j "[organism=$OrganismOfficial] [strain=$StrainOfficial]" -l paired-ends -a r10k -w $OutDir/gag/edited/annotation_methods.strcmt.txt
+cat $OutDir/tbl2asn/final/genome.sqn > $OutDir/tbl2asn/final/$FinalName.sqn
+done
+```
+
+```bash
+	# Bioproject="PRJNA354841"
+	SubFolder="Vi_annotated_PRJNA354841"
+	mkdir $SubFolder
+		for Read in $(ls genome_submission/v.inaequalis/172_pacbio/tbl2asn/final/v.inaequalis_172_pacbio_Passey_Nov_2017.sqn); do
+		echo $Read;
+		cp $Read $SubFolder/.
+		done
+	cp genome_submission/v.inaequalis/172_pacbio/tbl2asn/final/v.inaequalis_172_pacbio_Passey_Nov_2017.sqn $SubFolder/.
+	cd $SubFolder
+	gzip v.inaequalis_172_pacbio_Passey_Nov_2017.sqn
+	ftp ftp-private.ncbi.nlm.nih.gov
+	cd uploads/tom.passey@emr.ac.uk_GHO2Umdl
+	mkdir Vi_annotated_PRJNA354841
+	cd Vi_annotated_PRJNA354841
+	put v.inaequalis_172_pacbio_Passey_Nov_2017.sqn.gz
+	mput v.inaequalis_172_pacbio_Passey_Nov_2017.sqn.gz
+	bye
+	cd ../
+	#rm -r $SubFolder
+```
 <!--
 ```bash
 for File in $(ls genome_submission/v.*/*_ncbi/tbl2asn/final/errorsummary.val); do

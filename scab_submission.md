@@ -310,20 +310,20 @@ Note - all input files for tbl2asn need to be in the same directory and have the
 same basename.
 
 ```bash
-for Assembly in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
-Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-echo "$Organism - $Strain"
-OutDir="genome_submission/$Organism/$Strain"
+	for Assembly in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
+		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+		echo "$Organism - $Strain"
+		OutDir="genome_submission/$Organism/$Strain"
 
-cp $Assembly $OutDir/gag/round1/genome.fsa
-SbtFile=$(ls genome_submission/v.*/*/template.sbt)
-cp $SbtFile $OutDir/gag/round1/genome.sbt
-mkdir -p $OutDir/tbl2asn/round1
-tbl2asn -p $OutDir/gag/round1/. -t $OutDir/gag/round1/genome.sbt -r $OutDir/tbl2asn/round1 -M n -X E -Z $OutDir/gag/round1/discrep.txt -j "[organism=$Organism] [strain=$Strain]"
-done
+		cp $Assembly $OutDir/gag/round1/genome.fsa
+		SbtFile=$(ls genome_submission/v.*/*/template.sbt)
+		cp $SbtFile $OutDir/gag/round1/genome.sbt
+		mkdir -p $OutDir/tbl2asn/round1
+		tbl2asn -p $OutDir/gag/round1/. -t $OutDir/gag/round1/genome.sbt -r $OutDir/tbl2asn/round1 -M n -X E -Z $OutDir/gag/round1/discrep.txt -j "[organism=$Organism] [strain=$Strain]"
+	done
 ```
-<!--
+
 ## Editing .tbl file
 
 The tbl2asn .val output files were observed and errors corrected. This was done
@@ -342,31 +342,33 @@ annotation then genes, mRNA and exon features need to reflect this by marking
 them as incomplete ('unknown_UTR').
 
 ```bash
-  for Assembly in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
-    Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-    Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-    echo "$Organism - $Strain"
-    OutDir="genome_submission/$Organism/$Strain"
-    SubmissionID=$(cat genome_submission/Aalt_PRJNA360212_locus_tags.txt | grep "$Strain" | cut -f1 -d ' ')
-    echo $SubmissionID
-    mkdir -p $OutDir/gag/edited
-    ProgDir=/home/armita/git_repos/emr_repos/tools/genbank_submission
-    $ProgDir/edit_tbl_file/ncbi_tbl_corrector.py --inp_tbl $OutDir/gag/round1/genome.tbl --inp_val $OutDir/tbl2asn/round1/genome.val --locus_tag $SubmissionID --lab_id $LabID --gene_id "remove" --edits stop pseudo unknown_UTR correct_partial --remove_product_locus_tags "True" --del_name_from_prod "True" --out_tbl $OutDir/gag/edited/genome.tbl
-  done
+	for Assembly in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
+		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+		echo "$Organism - $Strain"
+		OutDir="genome_submission/$Organism/$Strain"
+		SubmissionID="SUB2310658"
+		LocusTag="Vi05172"
+		LabID="harrisonlab"
+		echo $SubmissionID
+		mkdir -p $OutDir/gag/edited
+		ProgDir=/home/passet/git_repos/tools/genbank_submission
+		$ProgDir/edit_tbl_file/ncbi_tbl_corrector.py --inp_tbl $OutDir/gag/round1/genome.tbl --inp_val $OutDir/tbl2asn/round1/genome.val --locus_tag $SubmissionID --lab_id $LabID --gene_id "remove" --edits stop pseudo unknown_UTR correct_partial --remove_product_locus_tags "True" --del_name_from_prod "True" --out_tbl $OutDir/gag/edited/genome.tbl
+	done
 ```
 
 
 ## Generating a structured comment detailing annotation methods
 
 ```bash
-  for Assembly in $(ls repeat_masked/*/*/ncbi_edits_repmask/*_contigs_unmasked.fa); do
+  for Assembly in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
     Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
     Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
     echo "$Organism - $Strain"
     OutDir="genome_submission/$Organism/$Strain"
     printf "StructuredCommentPrefix\t##Genome-Annotation-Data-START##
     Annotation Provider\tHarrison Lab NIAB-EMR
-    Annotation Date\tAUG-2017
+    Annotation Date\tNOV-2017
     Annotation Version\tRelease 1.01
     Annotation Method\tAb initio gene prediction: Braker 1.9 and CodingQuary 2.0; Functional annotation: Swissprot (July 2016 release) and Interproscan 5.18-57.0" \
     > $OutDir/gag/edited/annotation_methods.strcmt.txt
@@ -383,40 +385,40 @@ sequence, these options show that paired-ends have been used to estimate gaps
 and that runs of N's longer than 10 bp should be labelled as gaps.
 
 ```bash
-for Assembly in $(ls repeat_masked/*/*/ncbi_edits_repmask/*_contigs_unmasked.fa | grep '1177'); do
-  Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-  Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-  echo "$Organism - $Strain"
-  OutDir="genome_submission/$Organism/$Strain"
-  FinalName="$Organism"_"$Strain"_Armitage_2017
-  cp $Assembly $OutDir/gag/edited/genome.fsa
-  cp $SbtFile $OutDir/gag/edited/genome.sbt
-  mkdir $OutDir/tbl2asn/final
-  tbl2asn -p $OutDir/gag/edited/. -t $OutDir/gag/edited/genome.sbt -r $OutDir/tbl2asn/final -M n -X E -Z $OutDir/tbl2asn/final/discrep.txt -j "[organism=$Organism] [strain=$Strain]" -l paired-ends -a r10k -w $OutDir/gag/edited/annotation_methods.strcmt.txt
-  cat $OutDir/tbl2asn/final/genome.sqn | sed 's/_pilon//g' | sed 's/title "Saccharopine dehydrogenase.*/title "Saccharopine dehydrogenase/g' | sed 's/"Saccharopine dehydrogenase.*"/"Saccharopine dehydrogenase"/g' > $OutDir/tbl2asn/final/$FinalName.sqn
-done
+	for Assembly in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
+		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+		echo "$Organism - $Strain"
+		OutDir="genome_submission/$Organism/$Strain"
+		FinalName="$Organism"_"$Strain"_Nov_2017_Passey
+		cp $Assembly $OutDir/gag/edited/genome.fsa
+		cp $SbtFile $OutDir/gag/edited/genome.sbt
+		mkdir $OutDir/tbl2asn/final
+		tbl2asn -p $OutDir/gag/edited/. -t $OutDir/gag/edited/genome.sbt -r $OutDir/tbl2asn/final -M n -X E -Z $OutDir/tbl2asn/final/discrep.txt -j "[organism=$Organism] [strain=$Strain]" -l paired-ends -a r10k -w $OutDir/gag/edited/annotation_methods.strcmt.txt
+		cat $OutDir/tbl2asn/final/genome.sqn | sed 's/_pilon//g' | sed 's/title "Saccharopine dehydrogenase.*/title "Saccharopine dehydrogenase/g' | sed 's/"Saccharopine dehydrogenase.*"/"Saccharopine dehydrogenase"/g' > $OutDir/tbl2asn/final/$FinalName.sqn
+	done
 ```
 
 ```bash
-	# Bioproject="PRJNA354841"
-	SubFolder="Vi_annotated_PRJNA354841"
-	mkdir $SubFolder
-		for Read in $(ls genome_submission/v.inaequalis/172_pacbio/tbl2asn/final/v.inaequalis_172_pacbio_Passey_Nov_2017.sqn); do
+# Bioproject="PRJNA354841"
+SubFolder="Vi_annotated_PRJNA354841"
+mkdir $SubFolder
+	for Read in $(ls genome_submission/v.inaequalis/172_pacbio/tbl2asn/final/v.inaequalis_172_pacbio_Nov_2017_Passey.sqn); do
 		echo $Read;
 		cp $Read $SubFolder/.
-		done
-	cp genome_submission/v.inaequalis/172_pacbio/tbl2asn/final/v.inaequalis_172_pacbio_Passey_Nov_2017.sqn $SubFolder/.
-	cd $SubFolder
-	gzip v.inaequalis_172_pacbio_Passey_Nov_2017.sqn
-	ftp ftp-private.ncbi.nlm.nih.gov
-	cd uploads/tom.passey@emr.ac.uk_GHO2Umdl
-	mkdir Vi_annotated_PRJNA354841
-	cd Vi_annotated_PRJNA354841
-	put v.inaequalis_172_pacbio_Passey_Nov_2017.sqn.gz
-	mput v.inaequalis_172_pacbio_Passey_Nov_2017.sqn.gz
-	bye
-	cd ../
-	#rm -r $SubFolder
+	done
+cp genome_submission/v.inaequalis/172_pacbio/tbl2asn/final/v.inaequalis_172_pacbio_Nov_2017_Passey.sqn $SubFolder/.
+cd $SubFolder
+gzip v.inaequalis_172_pacbio_Nov_2017_Passey.sqn
+ftp ftp-private.ncbi.nlm.nih.gov
+cd uploads/tom.passey@emr.ac.uk_GHO2Umdl
+mkdir Vi_annotated_PRJNA354841
+cd Vi_annotated_PRJNA354841
+put v.inaequalis_172_pacbio_Nov_2017_Passey.sqn.gz
+mput v.inaequalis_172_pacbio_Nov_2017_Passey.sqn.gz
+bye
+cd ../
+#rm -r $SubFolder
 ```
 <!--
 ```bash

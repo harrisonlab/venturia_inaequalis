@@ -105,7 +105,7 @@ The genbank submission template tool was used at: http://www.ncbi.nlm.nih.gov/We
 
 # Final Submission
 
-These commands were used in the final submission of the 172_pacbio genome:
+These commands were used for the resubmiision of the final submission of the 172_pacbio genome after initial NCBI rejection (see below):
 
 
 ```bash
@@ -125,9 +125,9 @@ ProgDir="/home/passet/git_repos/tools/genbank_submission"
 # File locations:
 # Assembly=$(ls repeat_masked/$Organism/$Strain/filtered_contigs_repmask/*_contigs_unmasked.fa)
 InterProTab=$(ls gene_pred/interproscan/$Organism/$Strain/"$Strain"_interproscan.tsv)
-SwissProtBlast=$(ls gene_pred/swissprot/$Organism/$Strain/swissprot_v2015_tophit_parsed.tbl)
+SwissProtBlast=$(ls gene_pred/swissprot/$Organism/$Strain/swissprot_vJul2016_tophit_parsed.tbl)
 SwissProtFasta=$(ls /home/groups/harrisonlab/uniprot/swissprot/uniprot_sprot.fasta)
-GffFile=$(ls gene_pred/codingquary/v.inaequalis/172_pacbio/final/final_genes_appended.gff3)
+GffFile=$(ls gene_pred/final/$Organism/"$Strain"*/final/final_genes_appended_renamed.gff3)
 SbtFile=genome_submission/v.inaequalis/172_pacbio/template.sbt
 
 #SRA_metadata=$(ls genome_submission/PRJNA354841_SRA_metadata_acc.txt)
@@ -140,7 +140,7 @@ SubmissionID="SUB2310658"
 LocusTag="Vi05172"
 LabID="harrisonlab"
 # Final submisison file name:
-FinalName="$Organism"_"$Strain"_Passey_2017
+FinalName="$Organism"_"$Strain"_Passey_NOV_2017
 
 python3 $AnnieDir/annie.py -ipr $InterProTab -g $GffFile -b $SwissProtBlast -db $SwissProtFasta -o $OutDir/annie_output.csv --fix_bad_products
 $ProgDir/edit_tbl_file/annie_corrector.py --inp_csv $OutDir/annie_output.csv --out_csv $OutDir/annie_corrected_output.csv
@@ -155,13 +155,16 @@ mkdir -p $OutDir/tbl2asn/round1
 tbl2asn -p $OutDir/gag/round1/. -t $OutDir/gag/round1/genome.sbt -r $OutDir/tbl2asn/round1 -M n -X E -Z $OutDir/gag/round1/discrep.txt -j "[organism=$OrganismOfficial] [strain=$StrainOfficial]"
 
 mkdir -p $OutDir/gag/edited
-$ProgDir/edit_tbl_file/ncbi_tbl_corrector.py --inp_tbl $OutDir/gag/round1/genome.tbl --inp_val $OutDir/tbl2asn/round1/genome.val --locus_tag $LocusTag --lab_id $LabID --gene_id "remove" --edits stop pseudo unknown_UTR correct_partial --rename_genes "g" --remove_product_locus_tags "True" --out_tbl $OutDir/gag/edited/genome.tbl
+
+<!-- $ProgDir/edit_tbl_file/ncbi_tbl_corrector.py --inp_tbl $OutDir/gag/round1/genome.tbl --inp_val $OutDir/tbl2asn/round1/genome.val --locus_tag $LocusTag --lab_id $LabID --gene_id "remove" --edits stop pseudo unknown_UTR correct_partial --rename_genes "g" --remove_product_locus_tags "True" --out_tbl $OutDir/gag/edited/genome.tbl -->
+
+$ProgDir/edit_tbl_file/ncbi_tbl_corrector.py --inp_tbl $OutDir/gag/round1/genome.tbl --inp_val $OutDir/tbl2asn/round1/genome.val --locus_tag $LocusTag --lab_id $LabID --gene_id "remove" --edits stop pseudo unknown_UTR correct_partial --remove_product_locus_tags "True" --del_name_from_prod "True" --out_tbl $OutDir/gag/edited/genome.tbl
 
 printf "StructuredCommentPrefix\t##Genome-Annotation-Data-START##
 Annotation Provider\tHarrison Lab NIAB-EMR
-Annotation Date\tSEP-2016
+Annotation Date\tNOV-2017
 Annotation Version\tRelease 1.01
-Annotation Method\tAb initio gene prediction: Braker 1.9 and CodingQuary 2.0; Functional annotation: Swissprot (2015 release) and Interproscan 5.18-57.0" \
+Annotation Method\tAb initio gene prediction: Braker 1.9 and CodingQuary 2.0; Functional annotation: Swissprot (July 2016 release) and Interproscan 5.18-57.0" \
 > $OutDir/gag/edited/annotation_methods.strcmt.txt
 
 sed -i 's/_pilon//g' $OutDir/gag/edited/genome.tbl
@@ -172,10 +175,10 @@ cp $Assembly $OutDir/gag/edited/genome.fsa
 cp $SbtFile $OutDir/gag/edited/genome.sbt
 mkdir $OutDir/tbl2asn/final
 tbl2asn -p $OutDir/gag/edited/. -t $OutDir/gag/edited/genome.sbt -r $OutDir/tbl2asn/final -M n -X E -Z $OutDir/tbl2asn/final/discrep.txt -j "[organism=$OrganismOfficial] [strain=$StrainOfficial]" -l paired-ends -a r10k -w $OutDir/gag/edited/annotation_methods.strcmt.txt
-cat $OutDir/tbl2asn/final/genome.sqn > $OutDir/tbl2asn/final/$FinalName.sqn
-done
+cat $OutDir/tbl2asn/final/genome.sqn | sed 's/_pilon//g' | sed 's/title "Saccharopine dehydrogenase.*/title "Saccharopine dehydrogenase/g' | sed 's/"Saccharopine dehydrogenase.*"/"Saccharopine dehydrogenase"/g' > $OutDir/tbl2asn/final/$FinalName.sqn
+	done
 ```
-
+<!-- 
 ```bash
 	# Bioproject="PRJNA354841"
 	SubFolder="Vi_annotated_PRJNA354841"
@@ -196,7 +199,7 @@ done
 	bye
 	cd ../
 	#rm -r $SubFolder
-```
+``` -->
 
 NCBI reponse:
 ```
@@ -223,7 +226,7 @@ NCBI reponse:
 >your product names
 ```
 
-# Final sumission
+<!-- # Final sumission
 
 The following script, based on that used to submit Alternaria genome, was used to re-submit 172_pacbio genome after removal of duplicates:
 
@@ -256,20 +259,20 @@ Note - It is important that transcripts have been re-labelled as mRNA by this
 point.
 
 ```bash
-for Assembly in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
-  Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-  Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-  echo "$Organism - $Strain"
-  OutDir="genome_submission/$Organism/$Strain"
-  GffFile=$(ls gene_pred/final/$Organism/"$Strain"*/final/final_genes_appended_renamed.gff3)
+	for Assembly in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
+		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+		echo "$Organism - $Strain"
+		OutDir="genome_submission/$Organism/$Strain"
+		GffFile=$(ls gene_pred/final/$Organism/"$Strain"*/final/final_genes_appended_renamed.gff3)
 
-  InterProTab=$(ls gene_pred/interproscan/$Organism/"$Strain"*/"$Strain"*_interproscan.tsv)
-  SwissProtBlast=$(ls gene_pred/swissprot/$Organism/"$Strain"*/swissprot_vJul2016_tophit_parsed.tbl)
-  SwissProtFasta=$(ls /home/groups/harrisonlab/uniprot/swissprot/uniprot_sprot.fasta)
-  python3 $AnnieDir/annie.py -ipr $InterProTab -g $GffFile -b $SwissProtBlast -db $SwissProtFasta -o $OutDir/annie_output.csv --fix_bad_products
-  ProgDir=/home/passet/git_repos/tools/genbank_submission
-  $ProgDir/edit_tbl_file/annie_corrector.py --inp_csv $OutDir/annie_output.csv --out_csv $OutDir/annie_corrected_output.csv
-done
+		InterProTab=$(ls gene_pred/interproscan/$Organism/"$Strain"*/"$Strain"*_interproscan.tsv)
+		SwissProtBlast=$(ls gene_pred/swissprot/$Organism/"$Strain"*/swissprot_vJul2016_tophit_parsed.tbl)
+		SwissProtFasta=$(ls /home/groups/harrisonlab/uniprot/swissprot/uniprot_sprot.fasta)
+		python3 $AnnieDir/annie.py -ipr $InterProTab -g $GffFile -b $SwissProtBlast -db $SwissProtFasta -o $OutDir/annie_output.csv --fix_bad_products
+		ProgDir=/home/passet/git_repos/tools/genbank_submission
+		$ProgDir/edit_tbl_file/annie_corrector.py --inp_csv $OutDir/annie_output.csv --out_csv $OutDir/annie_corrected_output.csv
+	done
 ```
 
 ### Running GAG
@@ -278,16 +281,16 @@ Gag was run using the modified gff file as well as the annie annotation file.
 Gag was noted to output database references incorrectly, so these were modified.
 
 ```bash
-for Assembly in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
-Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-echo "$Organism - $Strain"
-OutDir="genome_submission/$Organism/$Strain"
-GffFile=$(ls gene_pred/final/$Organism/"$Strain"*/final/final_genes_appended_renamed.gff3)
-mkdir -p $OutDir/gag/round1
-gag.py -f $Assembly -g $GffFile -a $OutDir/annie_corrected_output.csv --fix_start_stop -o $OutDir/gag/round1 2>&1 | tee $OutDir/gag_log1.txt
-sed -i 's/Dbxref/db_xref/g' $OutDir/gag/round1/genome.tbl
-done
+	for Assembly in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
+		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+		echo "$Organism - $Strain"
+		OutDir="genome_submission/$Organism/$Strain"
+		GffFile=$(ls gene_pred/final/$Organism/"$Strain"*/final/final_genes_appended_renamed.gff3)
+		mkdir -p $OutDir/gag/round1
+		gag.py -f $Assembly -g $GffFile -a $OutDir/annie_corrected_output.csv --fix_start_stop -o $OutDir/gag/round1 2>&1 | tee $OutDir/gag_log1.txt
+		sed -i 's/Dbxref/db_xref/g' $OutDir/gag/round1/genome.tbl
+	done
 ```
 
 <!-- ## manual edits
@@ -301,7 +304,7 @@ CUFF_11065_1_82 and as a result CUFF_11067_2_85 was removed.
 ```bash
   nano $OutDir/gag/round1/genome.tbl
 ``` -->
-
+<!-- 
 ## tbl2asn round 1
 
 tbl2asn was run an initial time to collect error reports on the current
@@ -347,13 +350,13 @@ them as incomplete ('unknown_UTR').
 		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
 		echo "$Organism - $Strain"
 		OutDir="genome_submission/$Organism/$Strain"
-		SubmissionID="SUB2310658"
+		#SubmissionID="SUB2310658"
 		LocusTag="Vi05172"
 		LabID="harrisonlab"
-		echo $SubmissionID
+		echo $LocusTag
 		mkdir -p $OutDir/gag/edited
 		ProgDir=/home/passet/git_repos/tools/genbank_submission
-		$ProgDir/edit_tbl_file/ncbi_tbl_corrector.py --inp_tbl $OutDir/gag/round1/genome.tbl --inp_val $OutDir/tbl2asn/round1/genome.val --locus_tag $SubmissionID --lab_id $LabID --gene_id "remove" --edits stop pseudo unknown_UTR correct_partial --remove_product_locus_tags "True" --del_name_from_prod "True" --out_tbl $OutDir/gag/edited/genome.tbl
+-		$ProgDir/edit_tbl_file/ncbi_tbl_corrector.py --inp_tbl $OutDir/gag/round1/genome.tbl --inp_val $OutDir/tbl2asn/round1/genome.val --locus_tag $LocusTag --lab_id $LabID --gene_id "remove" --edits stop pseudo unknown_UTR correct_partial --remove_product_locus_tags "True" --del_name_from_prod "True" --out_tbl $OutDir/gag/edited/genome.tbl
 	done
 ```
 
@@ -390,12 +393,12 @@ and that runs of N's longer than 10 bp should be labelled as gaps.
 		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
 		echo "$Organism - $Strain"
 		OutDir="genome_submission/$Organism/$Strain"
-		FinalName="$Organism"_"$Strain"_Nov_2017_Passey
+		FinalName="$Organism"_"$Strain"_Passey_Nov2017
 		cp $Assembly $OutDir/gag/edited/genome.fsa
 		cp $SbtFile $OutDir/gag/edited/genome.sbt
 		mkdir $OutDir/tbl2asn/final
 		tbl2asn -p $OutDir/gag/edited/. -t $OutDir/gag/edited/genome.sbt -r $OutDir/tbl2asn/final -M n -X E -Z $OutDir/tbl2asn/final/discrep.txt -j "[organism=$Organism] [strain=$Strain]" -l paired-ends -a r10k -w $OutDir/gag/edited/annotation_methods.strcmt.txt
-		cat $OutDir/tbl2asn/final/genome.sqn | sed 's/_pilon//g' | sed 's/title "Saccharopine dehydrogenase.*/title "Saccharopine dehydrogenase/g' | sed 's/"Saccharopine dehydrogenase.*"/"Saccharopine dehydrogenase"/g' > $OutDir/tbl2asn/final/$FinalName.sqn
+	-	cat $OutDir/tbl2asn/final/genome.sqn | sed 's/_pilon//g' | sed 's/title "Saccharopine dehydrogenase.*/title "Saccharopine dehydrogenase/g' | sed 's/"Saccharopine dehydrogenase.*"/"Saccharopine dehydrogenase"/g' > $OutDir/tbl2asn/final/$FinalName.sqn
 	done
 ```
 
@@ -403,23 +406,24 @@ and that runs of N's longer than 10 bp should be labelled as gaps.
 # Bioproject="PRJNA354841"
 SubFolder="Vi_annotated_PRJNA354841"
 mkdir $SubFolder
-	for Read in $(ls genome_submission/v.inaequalis/172_pacbio/tbl2asn/final/v.inaequalis_172_pacbio_Nov_2017_Passey.sqn); do
+	for Read in $(ls genome_submission/v.inaequalis/172_pacbio/tbl2asn/final/v.inaequalis_172_pacbio_Passey_Nov2017.sqn); do
 		echo $Read;
 		cp $Read $SubFolder/.
 	done
-cp genome_submission/v.inaequalis/172_pacbio/tbl2asn/final/v.inaequalis_172_pacbio_Nov_2017_Passey.sqn $SubFolder/.
+cp genome_submission/v.inaequalis/172_pacbio/tbl2asn/final/v.inaequalis_172_pacbio_Passey_Nov2017.sqn $SubFolder/.
 cd $SubFolder
-gzip v.inaequalis_172_pacbio_Nov_2017_Passey.sqn
+gzip v.inaequalis_172_pacbio_Passey_Nov2017.sqn
 ftp ftp-private.ncbi.nlm.nih.gov
 cd uploads/tom.passey@emr.ac.uk_GHO2Umdl
-mkdir Vi_annotated_PRJNA354841
-cd Vi_annotated_PRJNA354841
-put v.inaequalis_172_pacbio_Nov_2017_Passey.sqn.gz
-mput v.inaequalis_172_pacbio_Nov_2017_Passey.sqn.gz
+mkdir Vi_annotated_edit_PRJNA354841
+cd Vi_annotated_edit_PRJNA354841
+put v.inaequalis_172_pacbio_Passey_Nov2017.sqn.gz
+mput v.inaequalis_172_pacbio_Passey_Nov2017.sqn.gz
 bye
 cd ../
 #rm -r $SubFolder
 ```
+ -->
 <!--
 ```bash
 for File in $(ls genome_submission/v.*/*_ncbi/tbl2asn/final/errorsummary.val); do
@@ -466,4 +470,4 @@ legitimate concerns but biologically explainable.
  done
  ```
 
- -->
+ --> -->

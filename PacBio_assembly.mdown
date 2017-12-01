@@ -658,7 +658,7 @@ cp /home/armita/prog/genemark/gm_key_64 ~/.gm_key
 
 Ran braker prediction on PacBio genome
 ```bash
-  for Assembly in $(ls repeat_masked/*/*/filtered_contigs_repmask/*_contigs_softmasked.fa | grep "172_pacbio"); 
+  for Assembly in $(ls repeat_masked/*/*/filtered_contigs_repmask/*_contigs_softmasked.fa | grep "172_pacbio"); do
     Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
     Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
     echo "$Organism - $Strain"
@@ -734,7 +734,7 @@ Then, additional transcripts were added to Braker gene models, when
 CodingQuary genes were predicted in regions of the genome, not containing
 Braker gene models:
 
-
+<!-- 
 ```bash
   for BrakerGff in $(ls gene_pred/braker/v.*/172_pacbio_braker_new/*/augustus.gff3); do
     Strain=$(echo $BrakerGff| rev | cut -d '/' -f3 | rev | sed 's/_braker_new//g')
@@ -776,7 +776,7 @@ Braker gene models:
 
   done
 ```
-
+ -->
 
 #The following is edited after NCBI found duplicated genes
 
@@ -967,7 +967,7 @@ Annotations with SwissProt
   done
 ```
 
-
+<!-- 
 ```bash
   for SwissTable in $(ls gene_pred/swissprot/*/*/swissprot_vJul2016_10_hits.tbl | grep -w "172_pacbio"); do
     # SwissTable=gene_pred/swissprot/v_inaequalis/swissprot_vJul2016_10_hits.tbl
@@ -978,7 +978,7 @@ Annotations with SwissProt
     ProgDir=/home/passet/git_repos/tools/seq_tools/feature_annotation/swissprot
     $ProgDir/swissprot_parser.py --blast_tbl $SwissTable --blast_db_fasta ../../uniprot/swissprot/uniprot_sprot.fasta > $OutTable
   done
-```
+``` -->
 
 ## C) CAZY proteins
 

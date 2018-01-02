@@ -140,7 +140,7 @@ SubmissionID="SUB2310658"
 LocusTag="Vi05172"
 LabID="harrisonlab"
 # Final submisison file name:
-FinalName="$Organism"_"$Strain"_Passey_NOV_2017
+FinalName="$Organism"_"$Strain"_Passey_Jan_2018
 
 python3 $AnnieDir/annie.py -ipr $InterProTab -g $GffFile -b $SwissProtBlast -db $SwissProtFasta -o $OutDir/annie_output.csv --fix_bad_products
 $ProgDir/edit_tbl_file/annie_corrector.py --inp_csv $OutDir/annie_output.csv --out_csv $OutDir/annie_corrected_output.csv
@@ -162,7 +162,7 @@ $ProgDir/edit_tbl_file/ncbi_tbl_corrector.py --inp_tbl $OutDir/gag/round1/genome
 
 printf "StructuredCommentPrefix\t##Genome-Annotation-Data-START##
 Annotation Provider\tHarrison Lab NIAB-EMR
-Annotation Date\tNOV-2017
+Annotation Date\tJan-2018
 Annotation Version\tRelease 1.01
 Annotation Method\tAb initio gene prediction: Braker 1.9 and CodingQuary 2.0; Functional annotation: Swissprot (July 2016 release) and Interproscan 5.18-57.0" \
 > $OutDir/gag/edited/annotation_methods.strcmt.txt

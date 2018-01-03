@@ -563,6 +563,18 @@ Need to filter SNPs to retain those with no missing data in any individual
 scripts=/home/sobczm/bin/popgen/snp
 qsub $scripts/sub_vcf_parser.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.vcf 40 30 10 30 1 Y
 ```
+
+And for final 21 isolates:
+```bash
+scripts=/home/passet/git_repos/scripts/popgen/snp
+qsub $scripts/sub_vcf_parser.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf 40 30 10 30 1 Y
+```
+
+```bash
+scripts=/home/passet/git_repos/scripts/popgen/snp
+$scripts/nj_tree.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf 1
+```
+
 <!--
 ```bash
 scripts=/home/sobczm/bin/popgen/snp
@@ -829,3 +841,52 @@ Could not get R libraries to work so Maria ran from her profile. Moved files int
 mkdir SNP_calling/LD_analysis/maria
 cp -r /home/sobczm/other/LD_analysis/ SNP_calling/LD_analysis/maria/
 ```
+
+#Need the numbers of total number of SNPs within the whole orchard population on each contig
+
+First removed unwanted lines from filtered vcf file
+
+```bash
+sed '1,269d' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf > SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_onlysnps.vcf
+```
+
+And from unfiltered vcf file
+
+```bash
+sed '1,267d' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3.vcf > SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_onlysnps.vcf
+```
+
+From filtered bw population
+
+```bash
+sed '1,267d' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered.recode.vcf > SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_onlysnps.vcf
+```
+
+And unfiltered bw population
+
+```bash
+sed '1,267d' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw.vcf > SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_onlysnps.vcf
+```
+
+<!--
+```bash
+sed '1,267d' /home/sobczm/popgen/other/passey/Maria/vcf_files/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed.vcf > SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_onlysnps.vcf
+```
+
+
+<!--
+
+grep -w 'contig_1' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_onlysnps.vcf | wc -l
+grep -w 'contig_1' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_onlysnps.vcf | wc -l
+grep -w 'contig_1' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_onlysnps.vcf | wc -l
+grep -w 'contig_1' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_onlysnps.vcf | wc -l
+grep -w 'contig_1' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_onlysnps.vcf | wc -l
+
+
+```bash
+for contigs in SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_onlysnps.vcf; do
+grep 'contig_91' $contigs | wc -l > SNP_calling/SNPs_per_contig.txt
+grep 'contig_102' $contigs | wc -l > SNP_calling/SNPs_per_contig.txt
+done
+``` 
+<!--

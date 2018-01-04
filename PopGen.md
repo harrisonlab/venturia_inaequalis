@@ -5,7 +5,7 @@ Work performed in directory:
 /home/groups/harrisonlab/project_files/venturia
 ```
 
-##Alignment of trimmed MiSeq reads of isolates to Assembled PacBio genome
+## Alignment of trimmed MiSeq reads of isolates to Assembled PacBio genome
 
 ```bash
 Assembly=$(ls repeat_masked/v.inaequalis/172_pacbio/filtered_contigs_repmask/172_pacbio_contigs_unmasked.fa)
@@ -28,7 +28,7 @@ Assembly=$(ls repeat_masked/v.inaequalis/172_pacbio/filtered_contigs_repmask/172
 	qsub $ProgDir/sub_bowtie.sh $Assembly $Read_F $Read_R $OutDir
 	done
 ```
-##Pre SNP calling cleanup
+## Pre SNP calling cleanup
 
 Setting up correct formatting for SNP analysis
 
@@ -37,7 +37,7 @@ input=alignment/bowtie/
 scripts=home/passet/git_repos/scripts/popgen/snp
 ```
 
-###Rename input mapping files in each folder by prefixing with the strain ID
+### Rename input mapping files in each folder by prefixing with the strain ID
 
 ```bash
 	cd $input/*/007/*
@@ -256,7 +256,7 @@ Copy cleanup outputs into alignment folders
 		mv $Txt $Directory
 	done
 ```
-##SNP calling
+## SNP calling
 Run a SNP calling script developed by Maria
 
 To change in each analysis:
@@ -268,7 +268,7 @@ reference=/home/groups/harrisonlab/project_files/venturia/repeat_masked/v.inaequ
 filename=$(basename "$reference")
 output="${filename%.*}.dict"
 
-###Prepare genome reference indexes required by GATK
+### Prepare genome reference indexes required by GATK
 ```bash
 java -jar /home/sobczm/bin/picard-tools-2.5.0/picard.jar CreateSequenceDictionary R=$reference O=$input/$output
 samtools faidx $reference
@@ -296,7 +296,7 @@ mkdir -p /home/groups/harrisonlab/project_files/venturia/SNP_calling
 cd /home/groups/harrisonlab/project_files/venturia/SNP_calling
 ```
 
-###Start SNP calling with GATK
+### Start SNP calling with GATK
 The submission script required needs to be custom-prepared for each analysis, depending on what samples are being analysed.
 See inside the submission script below.
 
@@ -305,10 +305,10 @@ scripts=/home/passet/git_repos/scripts/venturia_inaequalis
 qsub $scripts/sub_SNP_calling_multithreaded.sh
 ```
 
-##Determining genentic structure
+## Determining genentic structure
 
 
-###Removal of Isolates for analysis
+### Removal of Isolates for analysis
 Want to be able to run analysis without: 
 Isolate 036 due to poor quality of sequencing (due to initial low library concentration on to MiSeq)
 Saturn isolate as not from the same orchard (and therefore not currently of interest)
@@ -340,7 +340,7 @@ $vcflib/vcfremovesamples SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2.vcf 
 ```
 
 
-###Only retain biallelic high-quality SNPS with no missing data for genetic analyses.
+### Only retain biallelic high-quality SNPS with no missing data for genetic analyses.
 ```bash
 	for vcf in $(ls SNP_calling/*_contigs_unmasked.vcf) 
 	do
@@ -379,7 +379,7 @@ Repeated for 21 isolate group
 ```
 
 
-###In some organisms, may want to thin (subsample) SNPs in high linkage diseqilibrium down to
+### In some organisms, may want to thin (subsample) SNPs in high linkage diseqilibrium down to
 1 SNP  per e.g. 10 kbp just for the population structure analyses. Files had to be renamed after running
 ```bash
 input=SNP_calling
@@ -452,7 +452,7 @@ mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recod
 ```
 
 
-###General VCF stats (remember that vcftools needs to have the PERL library exported)
+### General VCF stats (remember that vcftools needs to have the PERL library exported)
 ```bash
 export PERL5LIB=/home/sobczm/bin/vcftools/share/perl/5.14.2
 
@@ -483,7 +483,7 @@ SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf >SNP_calling/Ash
 ```
 
 
-###Calculate the index for percentage of shared SNP alleles between the individuals
+### Calculate the index for percentage of shared SNP alleles between the individuals
 ```bash
 	for vcf in $(ls SNP_calling/*_contigs_unmasked_filtered.vcf)
 	do
@@ -532,7 +532,7 @@ Rscript --vanilla $scripts/distance_matrix.R SNP_calling/Ash_farm_172_pacbio_con
 ```
 
 
-###Carry out PCA and plot the results
+### Carry out PCA and plot the results
 ```bash
 scripts=/home/passet/git_repos/scripts/popgen/snp
 
@@ -547,7 +547,7 @@ Rscript --vanilla $scripts/pca.R SNP_calling/Ash_farm_172_pacbio_contigs_unmaske
 ```
 
 
-###Calculate an NJ tree based on all the SNPs. Outputs a basic diplay of the tree, plus a Newick file to be used for displaying the tree in FigTree and beautifying it.
+### Calculate an NJ tree based on all the SNPs. Outputs a basic diplay of the tree, plus a Newick file to be used for displaying the tree in FigTree and beautifying it.
 
 ```bash
 scripts=/home/passet/git_repos/scripts/popgen/snp
@@ -591,7 +591,7 @@ $scripts/nj_tree.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.
 ```
 -->
 
-###AMOVA analysis
+### AMOVA analysis
 ```bash
 scripts=/home/passet/git_repos/scripts/venturia_inaequalis
 Rscript --vanilla $scripts/Ash_farm_amova_dapc.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_filtered.vcf
@@ -717,7 +717,7 @@ qsub $scripts/execute_structure.sh $input/Ash_farm_172_pacbio_contigs_unmasked_3
 ```
 
 
-#Linkage Disequlibrium
+# Linkage Disequlibrium
 
 Commands to run analysis of linkage disequilibrium (LD) in Ash Farm V. inaequalis isolates
 
@@ -842,7 +842,7 @@ mkdir SNP_calling/LD_analysis/maria
 cp -r /home/sobczm/other/LD_analysis/ SNP_calling/LD_analysis/maria/
 ```
 
-#Need the numbers of total number of SNPs within the whole orchard population on each contig
+## Need the numbers of total number of SNPs within the whole orchard population on each contig
 
 First removed unwanted lines from filtered vcf file
 
@@ -868,7 +868,7 @@ And unfiltered bw population
 sed '1,267d' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw.vcf > SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_onlysnps.vcf
 ```
 
-<!--
+And fixed SNPs between b/w
 ```bash
 sed '1,267d' /home/sobczm/popgen/other/passey/Maria/vcf_files/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed.vcf > SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_onlysnps.vcf
 ```

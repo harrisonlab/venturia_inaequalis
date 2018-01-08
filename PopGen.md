@@ -729,26 +729,27 @@ vcftools=/home/sobczm/bin/vcftools/bin
 
 Calculate D, D' and r^2 for SNPs sparated by 1 and 100kbp in Ash Farm (program calculates the stats using only individuals listed after "--indiv" switch) and plot D' and r2 versus SNP physical distance, histogram of D' values
 
+
 ```bash
-$vcftools/vcftools --vcf Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
+$vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.vcf \
 --hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 --max-missing 1 \
---indv 007 --indv 024 --indv 025 --indv 030 --indv 044 --indv 049 --indv 057 --indv 083 --indv 096 --indv 097 --indv 098 --indv 101 --indv 106 --indv 119 --indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 199 --indv 202
+--indv 007 --indv 024 --indv 025 --indv 030 --indv 044 --indv 049 --indv 083 --indv 096 --indv 097 --indv 098 --indv 101 --indv 106 --indv 119 --indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 199 --indv 202
 mv out.hap.ld ld.Ash_farm_all
 
 qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_all
 ```
 
-Repeated with isolates from Bramley and Worcester only
+Repeated with the 14 isolates from Bramley or Worcester only
 ```bash
-$vcftools/vcftools --vcf Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
+$vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.vcf \
 --hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 --max-missing 1 \
---indv 007 --indv 024 --indv 025 --indv 030 --indv 044 --indv 049 --indv 057 --indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 199 --indv 202
+--indv 007 --indv 024 --indv 025 --indv 030 --indv 044 --indv 049 --indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 199 --indv 202
 mv out.hap.ld ld.Ash_farm_BvW
 
 qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_BvW
 ```
 
-
+<!--
 Repeated with isolates from Bramley and Worcester as above but removed 049 and 199 as they group to the opposite population and 057 due to poor sequencing of isolate (Therefore only 5 Bramley isolates remain and 7 Worcester) 
 
 ```bash
@@ -759,13 +760,14 @@ mv out.hap.ld ld.Ash_farm_BvW_minus_rogues
 
 qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_BvW_minus_rogues
 ```
+-->
 
-Repeated with (5) Bramley isolates only
+Repeated with (6) Bramley isolates only
 
 ```bash
-$vcftools/vcftools --vcf Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
+$vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_thinned_1000.recode.vcf \
 --hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 --max-missing 1 \
---indv 007 --indv 024 --indv 025 --indv 030 --indv 044
+--indv 007 --indv 024 --indv 025 --indv 030 --indv 044 --indv 199
 mv out.hap.ld ld.Ash_farm_Bramley
 
 qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_Bramley
@@ -774,7 +776,7 @@ qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_Bramley
 Repeated with (7) Cox isolates only
 
 ```bash
-$vcftools/vcftools --vcf Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
+$vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
 --hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 --max-missing 1 \
 --indv 083 --indv 096 --indv 097 --indv 098 --indv 101 --indv 106 --indv 119
 mv out.hap.ld ld.Ash_farm_Cox
@@ -782,12 +784,12 @@ mv out.hap.ld ld.Ash_farm_Cox
 qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_Cox
 ```
 
-Repeated with (7) Worcsester isolates only
+Repeated with (8) Worcsester isolates only
 
 ```bash
-$vcftools/vcftools --vcf Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
+$vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
 --hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 --max-missing 1 \
---indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 202
+-- indv 049 --indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 202
 mv out.hap.ld ld.Ash_farm_Worcester
 
 qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_Worcester
@@ -841,6 +843,7 @@ Could not get R libraries to work so Maria ran from her profile. Moved files int
 mkdir SNP_calling/LD_analysis/maria
 cp -r /home/sobczm/other/LD_analysis/ SNP_calling/LD_analysis/maria/
 ```
+-->
 
 ## Need the numbers of total number of SNPs within the whole orchard population on each contig
 

@@ -723,7 +723,7 @@ Commands to run analysis of linkage disequilibrium (LD) in Ash Farm V. inaequali
 
 ```bash
 input=/home/groups/harrisonlab/project_files/venturia/SNP_calling
-scripts=/home/passet/git_repos/scripts/popgen
+scripts=/home/passet/git_repos/scripts/popgen/summary_stats/
 vcftools=/home/sobczm/bin/vcftools/bin
 ```
 
@@ -736,7 +736,7 @@ $vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filt
 --indv 007 --indv 024 --indv 025 --indv 030 --indv 044 --indv 049 --indv 083 --indv 096 --indv 097 --indv 098 --indv 101 --indv 106 --indv 119 --indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 199 --indv 202
 mv out.hap.ld ld.Ash_farm_all
 
-qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_all
+qsub $scripts/sub_plot_ld.sh ld.Ash_farm_all
 ```
 
 Repeated with the 14 isolates from Bramley or Worcester only
@@ -746,7 +746,7 @@ $vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filt
 --indv 007 --indv 024 --indv 025 --indv 030 --indv 044 --indv 049 --indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 199 --indv 202
 mv out.hap.ld ld.Ash_farm_BvW
 
-qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_BvW
+qsub $scripts/sub_plot_ld.sh ld.Ash_farm_BvW
 ```
 
 <!--
@@ -770,7 +770,7 @@ $vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filt
 --indv 007 --indv 024 --indv 025 --indv 030 --indv 044 --indv 199
 mv out.hap.ld ld.Ash_farm_Bramley
 
-qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_Bramley
+qsub $scripts/sub_plot_ld.sh ld.Ash_farm_Bramley
 ```
 
 Repeated with (7) Cox isolates only
@@ -781,7 +781,7 @@ $vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filt
 --indv 083 --indv 096 --indv 097 --indv 098 --indv 101 --indv 106 --indv 119
 mv out.hap.ld ld.Ash_farm_Cox
 
-qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_Cox
+qsub $scripts/sub_plot_ld.sh ld.Ash_farm_Cox
 ```
 
 Repeated with (8) Worcsester isolates only
@@ -789,10 +789,10 @@ Repeated with (8) Worcsester isolates only
 ```bash
 $vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
 --hap-r2 --ld-window-bp-min 1000 --ld-window-bp 100000 --max-missing 1 \
--- indv 049 --indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 202
+--indv 049 --indv 172 --indv 173 --indv 182 --indv 190 --indv 196 --indv 197 --indv 202
 mv out.hap.ld ld.Ash_farm_Worcester
 
-qsub $scripts/summary_stats/sub_plot_ld.sh ld.Ash_farm_Worcester
+qsub $scripts/sub_plot_ld.sh ld.Ash_farm_Worcester
 ```
 
 
@@ -845,6 +845,8 @@ cp -r /home/sobczm/other/LD_analysis/ SNP_calling/LD_analysis/maria/
 ```
 -->
 
+# Randomness of fixed SNPs
+
 ## Need the numbers of total number of SNPs within the whole orchard population on each contig
 
 First removed unwanted lines from filtered vcf file
@@ -877,19 +879,49 @@ sed '1,267d' /home/sobczm/popgen/other/passey/Maria/vcf_files/Ash_farm_172_pacbi
 ```
 
 
-<!--
-
+```bash
 grep -w 'contig_1' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_onlysnps.vcf | wc -l
 grep -w 'contig_1' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_onlysnps.vcf | wc -l
 grep -w 'contig_1' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_onlysnps.vcf | wc -l
 grep -w 'contig_1' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_onlysnps.vcf | wc -l
 grep -w 'contig_1' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_onlysnps.vcf | wc -l
+```
 
 
-```bash
-for contigs in SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_onlysnps.vcf; do
-grep 'contig_91' $contigs | wc -l > SNP_calling/SNPs_per_contig.txt
-grep 'contig_102' $contigs | wc -l > SNP_calling/SNPs_per_contig.txt
-done
-``` 
-<!--
+## Code into binary where a SNP is present compared to another file, i.e. when a fixed SNP occurs at a position code 1 at all other positions code 0, for use in Run test
+
+For all fixed SNPs in all SNPs in Bramley and Worcester isolates
+```Bash
+ProgDir=/home/armita/git_repos/emr_repos/scripts/venturia_inaequalis
+$ProgDir/vcf2randomness_test.py --fixed_SNPs /home/groups/harrisonlab/project_files/venturia/SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed.vcf --all_SNPs /home/groups/harrisonlab/project_files/venturia/SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered.recode.vcf > SNP_calling/Vi_all_fixed_snps_input.txt
+```
+
+For fixed SNPs in genes in all SNPs in Bramley and Worcester isolates
+```Bash
+ProgDir=/home/armita/git_repos/emr_repos/scripts/venturia_inaequalis
+$ProgDir/vcf2randomness_test.py --fixed_SNPs /home/groups/harrisonlab/project_files/venturia/SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_gene.vcf --all_SNPs /home/groups/harrisonlab/project_files/venturia/SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered.recode.vcf > SNP_calling/Vi_genes_in_all_snps_input.txt
+```
+
+For fixed SNPs in genes in all fixed SNPs in Bramley and Worcester isolates
+```Bash
+ProgDir=/home/armita/git_repos/emr_repos/scripts/venturia_inaequalis
+$ProgDir/vcf2randomness_test.py --fixed_SNPs /home/groups/harrisonlab/project_files/venturia/SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_gene.vcf --all_SNPs /home/groups/harrisonlab/project_files/venturia/SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed.vcf > SNP_calling/Vi_genes_in_fixed_snps_input.txt
+```
+
+For fixed nonsynonymous SNPs in all SNPs in Bramley and Worcester isolates
+```Bash
+ProgDir=/home/armita/git_repos/emr_repos/scripts/venturia_inaequalis
+$ProgDir/vcf2randomness_test.py --fixed_SNPs /home/groups/harrisonlab/project_files/venturia/SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_nonsyn.vcf --all_SNPs /home/groups/harrisonlab/project_files/venturia/SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered.recode.vcf > SNP_calling/Vi_nonsyn_in_all_snps_input.txt
+```
+
+For fixed nonsynonymous SNPs in all fixed SNPs in Bramley and Worcester isolates
+```Bash
+ProgDir=/home/armita/git_repos/emr_repos/scripts/venturia_inaequalis
+$ProgDir/vcf2randomness_test.py --fixed_SNPs /home/groups/harrisonlab/project_files/venturia/SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_nonsyn.vcf --all_SNPs /home/groups/harrisonlab/project_files/venturia/SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed.vcf > SNP_calling/Vi_nonsyn_in_fixed_snps_input.txt
+```
+
+For fixed nonsynonymous SNPs in fixed SNPs in genes in Bramley and Worcester isolates
+```Bash
+ProgDir=/home/armita/git_repos/emr_repos/scripts/venturia_inaequalis
+$ProgDir/vcf2randomness_test.py --fixed_SNPs /home/groups/harrisonlab/project_files/venturia/SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_nonsyn.vcf --all_SNPs /home/groups/harrisonlab/project_files/venturia/SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_gene.vcf > SNP_calling/Vi_nonsyn_in_fixed_snps_gene_input.txt
+```

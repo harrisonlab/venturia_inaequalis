@@ -861,22 +861,42 @@ And from unfiltered vcf file
 sed '1,267d' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3.vcf > SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_onlysnps.vcf
 ```
 
-From filtered bw population
+From filtered bw population = 625550
 
 ```bash
 sed '1,267d' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered.recode.vcf > SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_onlysnps.vcf
 ```
 
-And unfiltered bw population
+From filtered bc population = 584854
+
+```bash
+sed '1,267d' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bc_filtered.recode.vcf > SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bc_filtered_onlysnps.vcf
+```
+
+From filtered cw population = 605764
+
+```bash
+sed '1,267d' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_cw_filtered.recode.vcf > SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_cw_filtered_onlysnps.vcf
+```
+
+unfiltered bw population
 
 ```bash
 sed '1,267d' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw.vcf > SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_onlysnps.vcf
 ```
 
-And fixed SNPs between b/w
+And fixed SNPs between b/w = 7435
 ```bash
 sed '1,267d' /home/sobczm/popgen/other/passey/Maria/vcf_files/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed.vcf > SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_onlysnps.vcf
 ```
+
+And fixed SNPs between b/c = 160
+```bash
+sed '1,267d' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bc_filtered_fixed.vcf > SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bc_filtered_fixed_onlysnps.vcf
+```
+
+No fixed SNPs between c/w
+
 
 
 ```bash

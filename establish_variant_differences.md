@@ -72,7 +72,7 @@ java -jar $SnpEff/snpEff.jar build -gff3 -v 172_pacbiov1.0
 ## Annotate VCF files
 
 ```bash
-for a in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered.recode.vcf); do
+for a in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_*_filtered.recode.vcf); do
     echo $a
     filename=$(basename "$a")
     SnpEff=/home/sobczm/bin/snpEff

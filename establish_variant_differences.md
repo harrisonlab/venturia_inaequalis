@@ -15,12 +15,20 @@ First, create a cut-down VCF file containing only individuals of interest
 source /home/sobczm/bin/marias_profile
 
 vcflib=/home/sobczm/bin/vcflib/bin
+
 $vcflib/vcfremovesamples SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3.vcf 083 096 097 098 101 106 119 >Ash_farm_172_pacbio_contigs_unmasked_3_bw.vcf 
+$vcflib/vcfremovesamples SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3.vcf 049 172 173 182 190 196 197 202 >Ash_farm_172_pacbio_contigs_unmasked_3_bc.vcf
+$vcflib/vcfremovesamples SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3.vcf 007 024 025 030 044 199 >Ash_farm_172_pacbio_contigs_unmasked_3_cw.vcf
 
 mv Ash_farm_172_pacbio_contigs_unmasked_3_bw.vcf SNP_calling/
+mv Ash_farm_172_pacbio_contigs_unmasked_3_bc.vcf SNP_calling/
+mv Ash_farm_172_pacbio_contigs_unmasked_3_cw.vcf SNP_calling/
 
 vcftools=/home/sobczm/bin/vcftools/bin
+
 $vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw.vcf  --max-missing 0.95 --recode --out SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered
+$vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bc.vcf  --max-missing 0.95 --recode --out SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bc_filtered
+$vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_cw.vcf  --max-missing 0.95 --recode --out SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_cw_filtered
 ```
 
 ## Create custom SnpEff genome database

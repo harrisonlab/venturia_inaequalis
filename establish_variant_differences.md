@@ -83,6 +83,18 @@ for a in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_*_filtered.reco
 done
 ```
 
+```bash
+for a in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_*_filtered.recode.vcf | grep -v -e 'bw'); do
+    echo $a
+    filename=$(basename "$a")
+    SnpEff=/home/sobczm/bin/snpEff
+    java -Xmx4g -jar $SnpEff/snpEff.jar -v -ud 0 172_pacbiov1.0 $a > ${filename%.vcf}_annotated.vcf
+    mv snpEff_genes.txt SNP_calling/snpEff_genes_${filename%.vcf}.txt
+    mv snpEff_summary.html SNP_calling/snpEff_summary_${filename%.vcf}.html
+    mv *_filtered* SNP_calling/.
+done
+```
+
 <!--
 ```bash
 vcf=SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered.recode.vcf

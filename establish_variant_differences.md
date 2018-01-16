@@ -128,8 +128,24 @@ scripts=/home/sobczm/bin/popgen/summary_stats
 python $scripts/vcf_find_difference_pop.py --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered.recode.vcf --out SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed.vcf --ply 1 --pop1 202,,182,,173,,190,,172,,197,,196,,049 --pop2 024,,030,,007,,025,,044,,199 --thr 0.95
 ```
 
+Groups of isolates from different cultivars described, 7 isolates for Cox (pop1 below) and 6 isolates for Bramley (pop2 below); one Cox (118) and two Bramley (036 and 057) isolates lost due to poor sequencing 
+
+```bash
+scripts=/home/sobczm/bin/popgen/summary_stats
+python $scripts/vcf_find_difference_pop.py --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bc_filtered.recode.vcf --out SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bc_filtered_fixed.vcf --ply 1 --pop1 083,,096,,097,,098,,101,,106,,119 --pop2 024,,030,,007,,025,,044,,199 --thr 0.95
+```
+
+Groups of isolates from different cultivars described, 7 isolates for Cox (pop1 below) and 8 isolates for Worcester (pop2 below); one Cox (118) isolate lost due to poor sequencing 
+
+```bash
+scripts=/home/sobczm/bin/popgen/summary_stats
+python $scripts/vcf_find_difference_pop.py --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_cw_filtered.recode.vcf --out SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_cw_filtered_fixed.vcf --ply 1 --pop1 083,,096,,097,,098,,101,,106,,119 --pop2 202,,182,,173,,190,,172,,197,,196,,049 --thr 0.95
+```
+
+<!--
 # V. inequalis structural variants
 ```bash
 scripts=/home/sobczm/bin/popgen/summary_stats
 input=/home/sobczm/popgen/snp/sv_calling
 python $scripts/vcf_find_difference_pop.py --vcf $input/vinequalis/vinequalis_struc_variants.vcf --out SNP_calling/Ash_farm_struc_variants_fixed.vcf --ply 1 --pop1 202,,182,,173,,190,,172,,197,,196,,049 --pop2 024,,030,,007,,025,,044,,199 --thr 0.95
+-->

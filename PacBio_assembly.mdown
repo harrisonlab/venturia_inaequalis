@@ -536,6 +536,28 @@ v.inaequalis    172_pacbio
    Group 4       65      100.00      -    69     1.06      6.15
 
 
+Busco has replaced CEGMA and was run to check gene space in assemblies
+
+```bash
+  for Assembly in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
+    Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+    Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+    echo "$Organism - $Strain"
+    ProgDir=/home/passet/git_repos/tools/gene_prediction/busco
+    # BuscoDB="Fungal"
+    BuscoDB=$(ls -d /home/groups/harrisonlab/dbBusco/ascomycota_odb9)
+    OutDir=gene_pred/busco/$Organism/$Strain/assembly
+    qsub $ProgDir/sub_busco3.sh $Assembly $BuscoDB $OutDir
+  done
+```
+
+```bash
+  for File in $(ls gene_pred/busco/v*/*/assembly/*/short_summary_*.txt); do  
+    echo $File;
+    cat $File | grep -e '(C)' -e 'Total';
+  done
+```
+
 #Gene prediction
 
 Gene prediction was performed for V. inaequalis PacBio genome.

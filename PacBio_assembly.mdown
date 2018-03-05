@@ -551,12 +551,37 @@ Busco has replaced CEGMA and was run to check gene space in assemblies
   done
 ```
 
+Output:
+
+```
+ BUSCO version is: 3.0.2
+# The lineage dataset is: ascomycota_odb9 (Creation date: 2016-02-13, number of
+# To reproduce this run: python /home/armita/prog/busco/busco/scripts/run_BUSCO.
+#
+# Summarized benchmarking in BUSCO notation for file 172_pacbio_contigs_unmasked
+# BUSCO was run in mode: genome
+
+        C:97.8%[S:97.7%,D:0.1%],F:0.5%,M:1.7%,n:1315
+
+        1286    Complete BUSCOs (C)
+        1285    Complete and single-copy BUSCOs (S)
+        1       Complete and duplicated BUSCOs (D)
+        7       Fragmented BUSCOs (F)
+        22      Missing BUSCOs (M)
+        1315    Total BUSCO groups searched
+```
+
 ```bash
   for File in $(ls gene_pred/busco/v*/*/assembly/*/short_summary_*.txt); do  
     echo $File;
     cat $File | grep -e '(C)' -e 'Total';
   done
 ```
+
+Output:
+
+1286    Complete BUSCOs (C)
+1315    Total BUSCO groups searched
 
 #Gene prediction
 

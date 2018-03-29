@@ -8,22 +8,22 @@ This document sets out the reannotation and gene prediction for the V. inaequali
 
 
 ```bash
-for Assembly in $(ls repeat_masked/*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w '172_pacbio'); do
-Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-echo "$Organism - $Strain"
-for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'paired'); do
-Timepoint=$(echo $rna_file | rev | cut -f3 -d '/' | rev)
-echo "$Timepoint"
-OutDir=alignment/star/$Organism/$Strain/$Timepoint/$Prefix
-mkdir -p $OutDir
-ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
-qsub $ProgDir/sub_star.sh $Assembly $rna_file $OutDir
-done
-done
+  for Assembly in $(ls repeat_masked/*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w '172_pacbio'); do
+    Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+    Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+    echo "$Organism - $Strain"
+    for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'paired'); do
+      Timepoint=$(echo $rna_file | rev | cut -f3 -d '/' | rev)
+      echo "$Timepoint"
+      OutDir=alignment/star/$Organism/$Strain/$Timepoint/$Prefix
+      mkdir -p $OutDir
+      ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
+      qsub $ProgDir/sub_star.sh $Assembly $rna_file $OutDir
+    done
+  done
 ```
 
-<!--
+
 Accepted hits .bam file were concatenated and indexed for use for gene model training:
 
 ```bash
@@ -32,13 +32,13 @@ Accepted hits .bam file were concatenated and indexed for use for gene model tra
     Organism=$(echo $OutDir | rev | cut -d '/' -f2 | rev)
     echo "$Organism - $Strain"
     # For all alignments
-    BamFiles=$(ls $OutDir/treatment/*/*.sortedByCoord.out.bam | tr -d '\n' | sed 's/.bam/.bam /g')
+    BamFiles=$(ls $OutDir/*/*.sortedByCoord.out.bam | tr -d '\n' | sed 's/.bam/.bam /g')
     mkdir -p $OutDir/concatenated
     samtools merge -@ 12 -f $OutDir/concatenated/concatenated.bam $BamFiles
   done
 ```
 
-
+<!--
 #### Braker prediction
 
 Before braker predictiction was performed, I double checked that I had the
@@ -55,11 +55,11 @@ directory:
     Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
     Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
     echo "$Organism - $Strain"
-    OutDir=gene_pred/braker/$Organism/"$Strain"_braker
+    OutDir=gene_pred/braker/$Organism/"$Strain"_braker/2018
     AcceptedHits=$(ls alignment/star/$Organism/$Strain/concatenated/concatenated.bam)
     GeneModelName="$Organism"_"$Strain"_braker
     rm -r /home/armita/prog/augustus-3.1/config/species/"$Organism"_"$Strain"_braker
-    ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/braker1
+    ProgDir=/home/passet/git_repos/tools/gene_prediction/braker1
     qsub $ProgDir/sub_braker_fungi.sh $Assembly $OutDir $AcceptedHits $GeneModelName
   done
 ```
@@ -80,10 +80,10 @@ for Assembly in $(ls repeat_masked/*/*/filtered_contigs/*_contigs_softmasked_rep
 Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
 Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
 echo "$Organism - $Strain"
-OutDir=gene_pred/cufflinks/$Organism/$Strain/concatenated
+OutDir=gene_pred/cufflinks/$Organism/$Strain/concatenated/2018
 mkdir -p $OutDir
 AcceptedHits=$(ls alignment/star/$Organism/$Strain/concatenated/concatenated.bam)
-ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/RNAseq
+ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
 qsub $ProgDir/sub_cufflinks.sh $AcceptedHits $OutDir
 done
 ```
@@ -95,9 +95,9 @@ for Assembly in $(ls repeat_masked/*/*/filtered_contigs/*_contigs_softmasked_rep
 Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
 Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
 echo "$Organism - $Strain"
-OutDir=gene_pred/codingquary/$Organism/$Strain
-CufflinksGTF=$(ls gene_pred/cufflinks/$Organism/$Strain/concatenated/transcripts.gtf)
-ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/codingquary
+OutDir=gene_pred/codingquary/$Organism/$Strain/2018
+CufflinksGTF=$(ls gene_pred/cufflinks/$Organism/$Strain/concatenated/2018/transcripts.gtf)
+ProgDir=/home/passet/git_repos/tools/gene_prediction/codingquary
 qsub $ProgDir/sub_CodingQuary.sh $Assembly $CufflinksGTF $OutDir
 done
 ```
@@ -107,15 +107,15 @@ genes were predicted in regions of the genome, not containing Braker gene
 models:
 
 ```bash
-for BrakerGff in $(ls gene_pred/braker/*/*_braker/*/augustus.gff3); do
+for BrakerGff in $(ls gene_pred/braker/*/*_braker/2018/*/augustus.gff3); do
 Strain=$(echo $BrakerGff| rev | cut -d '/' -f3 | rev | sed 's/_braker_new//g' | sed 's/_braker_pacbio//g' | sed 's/_braker//g')
 Organism=$(echo $BrakerGff | rev | cut -d '/' -f4 | rev)
 echo "$Organism - $Strain"
 Assembly=$(ls repeat_masked/$Organism/$Strain/filtered_contigs/*_contigs_softmasked_repeatmasker_TPSI_appended.fa)
-CodingQuaryGff=$(ls gene_pred/codingquary/$Organism/$Strain/out/PredictedPass.gff3)
-PGNGff=$(ls gene_pred/codingquary/$Organism/$Strain/out/PGN_predictedPass.gff3)
-AddDir=gene_pred/codingquary/$Organism/$Strain/additional
-FinalDir=gene_pred/final/$Organism/$Strain/final
+CodingQuaryGff=$(ls gene_pred/codingquary/$Organism/$Strain/2018/out/PredictedPass.gff3)
+PGNGff=$(ls gene_pred/codingquary/$Organism/$Strain/2018/out/PGN_predictedPass.gff3)
+AddDir=gene_pred/codingquary/$Organism/$Strain/2018/additional
+FinalDir=gene_pred/final/$Organism/$Strain/final_2018
 AddGenesList=$AddDir/additional_genes.txt
 AddGenesGff=$AddDir/additional_genes.gff
 FinalGff=$AddDir/combined_genes.gff
@@ -153,7 +153,7 @@ done
 
 The final number of genes per isolate was observed using:
 ```bash
-  for DirPath in $(ls -d gene_pred/final/*/*/final); do
+  for DirPath in $(ls -d gene_pred/final/*/*/final_2018); do
     Strain=$(echo $DirPath| rev | cut -d '/' -f2 | rev)
     Organism=$(echo $DirPath | rev | cut -d '/' -f3 | rev)
     echo "$Organism - $Strain"
@@ -173,11 +173,11 @@ In preperation for submission to ncbi, gene models were renamed and duplicate ge
 
 
 ```bash
-for GffAppended in $(ls gene_pred/final/*/*/final/final_genes_appended_renamed.gff3); do
+for GffAppended in $(ls gene_pred/final/*/*/final_2018/final_genes_appended_renamed.gff3); do
 Strain=$(echo $GffAppended | rev | cut -d '/' -f3 | rev)
 Organism=$(echo $GffAppended | rev | cut -d '/' -f4 | rev)
 echo "$Organism - $Strain"
-FinalDir=gene_pred/final/$Organism/$Strain/final
+FinalDir=gene_pred/final/$Organism/$Strain/final_2018
 GffFiltered=$FinalDir/filtered_duplicates.gff
 ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/codingquary
 $ProgDir/remove_dup_features.py --inp_gff $GffAppended --out_gff $GffFiltered
@@ -187,10 +187,10 @@ ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/codingquary
 $ProgDir/gff_rename_genes.py --inp_gff $GffFiltered --conversion_log $LogFile > $GffRenamed
 rm $GffFiltered
 Assembly=$(ls repeat_masked/$Organism/$Strain/*/*_softmasked_repeatmasker_TPSI_appended.fa)
-$ProgDir/gff2fasta.pl $Assembly $GffRenamed gene_pred/final/$Organism/$Strain/final/final_genes_appended_renamed
+$ProgDir/gff2fasta.pl $Assembly $GffRenamed gene_pred/final/$Organism/$Strain/final_2018/final_genes_appended_renamed
 # The proteins fasta file contains * instead of Xs for stop codons, these should
 # be changed
-sed -i 's/\*/X/g' gene_pred/final/$Organism/$Strain/final/final_genes_appended_renamed.pep.fasta
+sed -i 's/\*/X/g' gene_pred/final/$Organism/$Strain/final_2018/final_genes_appended_renamed.pep.fasta
 done
 ```
 -->

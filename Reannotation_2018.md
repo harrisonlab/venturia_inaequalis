@@ -8,18 +8,19 @@ This document sets out the reannotation and gene prediction for the V. inaequali
 
 
 ```bash
-	for Assembly in $(ls repeat_masked/*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w '172_pacbio'); do
-		Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-		Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-		echo "$Organism - $Strain"
-		for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'paired'); do
-			Timepoint=$(echo $rna_file | rev | cut -f3 -d '/' | rev)
-			echo "$Timepoint"
-			OutDir=alignment/star/$Organism/$Strain/$Timepoint/$Prefix
-			ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
-			qsub $ProgDir/sub_star.sh $Assembly $rna_file $OutDir
-		done
-	done
+for Assembly in $(ls repeat_masked/*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w '172_pacbio'); do
+Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+echo "$Organism - $Strain"
+for rna_file in $(ls qc_rna/*/*/*/*/*.gz | grep -w 'paired'); do
+Timepoint=$(echo $rna_file | rev | cut -f3 -d '/' | rev)
+echo "$Timepoint"
+OutDir=alignment/star/$Organism/$Strain/$Timepoint/$Prefix
+mkdir -p $OutDir
+ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
+qsub $ProgDir/sub_star.sh $Assembly $rna_file $OutDir
+done
+done
 ```
 
 <!--

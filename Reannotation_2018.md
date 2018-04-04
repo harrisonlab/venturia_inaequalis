@@ -91,21 +91,23 @@ therefore features can not be restricted by strand when they are intersected.
   done
 ```
 
-<!--
+
 Secondly, genes were predicted using CodingQuary:
 
 ```bash
-for Assembly in $(ls repeat_masked/*/*/filtered_contigs_*/*_contigs_softmasked.fa | grep "172_pacbio"); do
-Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-echo "$Organism - $Strain"
-OutDir=gene_pred/codingquary/$Organism/$Strain/2018
-CufflinksGTF=$(ls gene_pred/cufflinks/$Organism/$Strain/concatenated/2018/transcripts.gtf)
-ProgDir=/home/passet/git_repos/tools/gene_prediction/codingquary
-qsub $ProgDir/sub_CodingQuary.sh $Assembly $CufflinksGTF $OutDir
-done
+  for Assembly in $(ls repeat_masked/*/*/filtered_contigs_*/*_contigs_softmasked.fa | grep "172_pacbio"); do
+    Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+    Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+    echo "$Organism - $Strain"
+    OutDir=gene_pred/codingquary/$Organism/$Strain/2018
+    mkdir -p $OutDir
+    CufflinksGTF=$(ls gene_pred/cufflinks/$Organism/$Strain/concatenated/2018/transcripts.gtf)
+    ProgDir=/home/passet/git_repos/tools/gene_prediction/codingquary
+    qsub $ProgDir/sub_CodingQuary.sh $Assembly $CufflinksGTF $OutDir
+  done
 ```
 
+<!--
 Then, additional transcripts were added to Braker gene models, when CodingQuary
 genes were predicted in regions of the genome, not containing Braker gene
 models:

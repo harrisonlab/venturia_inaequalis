@@ -4,7 +4,9 @@ This document sets out the reannotation and gene prediction for the V. inaequali
 
 ## Gene Prediction
 
+
 #### Aligning
+
 
 
 ```bash
@@ -38,7 +40,6 @@ Accepted hits .bam file were concatenated and indexed for use for gene model tra
   done
 ```
 
-<!--
 #### Braker prediction
 
 Before braker predictiction was performed, I double checked that I had the
@@ -47,18 +48,20 @@ directory:
 
 ```bash
 	ls ~/.gm_key
-	cp /home/armita/prog/genemark/gm_key_64 ~/.gm_key
+	cp /home/armita/prog/genemark/2017/gm_key_64 ~/.gm_key
 ```
 
+
 ```bash
-  for Assembly in $(ls repeat_masked/*/*/filtered_contigs/*_contigs_softmasked_repeatmasker_TPSI_appended.fa); do
+  for Assembly in $(ls repeat_masked/*/*/filtered_contigs_*/*_contigs_softmasked.fa | grep '172_pacbio'); do
     Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
     Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
     echo "$Organism - $Strain"
     OutDir=gene_pred/braker/$Organism/"$Strain"_braker/2018
+    mkdir -p $OutDir
     AcceptedHits=$(ls alignment/star/$Organism/$Strain/concatenated/concatenated.bam)
-    GeneModelName="$Organism"_"$Strain"_braker
-    rm -r /home/armita/prog/augustus-3.1/config/species/"$Organism"_"$Strain"_braker
+    GeneModelName="$Organism"_"$Strain"_braker_2018
+    rm -r /home/armita/prog/augustus-3.1/config/species/"$Organism"_"$Strain"_braker_2018
     ProgDir=/home/passet/git_repos/tools/gene_prediction/braker1
     qsub $ProgDir/sub_braker_fungi.sh $Assembly $OutDir $AcceptedHits $GeneModelName
   done
@@ -76,22 +79,23 @@ Note - cufflinks doesn't always predict direction of a transcript and
 therefore features can not be restricted by strand when they are intersected.
 
 ```bash
-for Assembly in $(ls repeat_masked/*/*/filtered_contigs/*_contigs_softmasked_repeatmasker_TPSI_appended.fa); do
-Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
-Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
-echo "$Organism - $Strain"
-OutDir=gene_pred/cufflinks/$Organism/$Strain/concatenated/2018
-mkdir -p $OutDir
-AcceptedHits=$(ls alignment/star/$Organism/$Strain/concatenated/concatenated.bam)
-ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
-qsub $ProgDir/sub_cufflinks.sh $AcceptedHits $OutDir
-done
+  for Assembly in $(ls repeat_masked/*/*/filtered_contigs_*/*_contigs_softmasked.fa | grep "172_pacbio"); do
+    Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
+    Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
+    echo "$Organism - $Strain"
+    OutDir=gene_pred/cufflinks/$Organism/$Strain/concatenated/2018
+    mkdir -p $OutDir
+    AcceptedHits=$(ls alignment/star/$Organism/$Strain/concatenated/concatenated.bam)
+    ProgDir=/home/passet/git_repos/tools/seq_tools/RNAseq
+    qsub $ProgDir/sub_cufflinks.sh $AcceptedHits $OutDir
+  done
 ```
 
+<!--
 Secondly, genes were predicted using CodingQuary:
 
 ```bash
-for Assembly in $(ls repeat_masked/*/*/filtered_contigs/*_contigs_softmasked_repeatmasker_TPSI_appended.fa); do
+for Assembly in $(ls repeat_masked/*/*/filtered_contigs_*/*_contigs_softmasked.fa | grep "172_pacbio"); do
 Strain=$(echo $Assembly| rev | cut -d '/' -f3 | rev)
 Organism=$(echo $Assembly | rev | cut -d '/' -f4 | rev)
 echo "$Organism - $Strain"

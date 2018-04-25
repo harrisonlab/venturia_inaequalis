@@ -208,5 +208,59 @@ In preperation for submission to ncbi, gene models were renamed and duplicate ge
   done
 ```
 
+#Functional annotation
 
+## A) Interproscan
+
+Interproscan was used to give gene models functional annotations.
+Annotation was run using the commands below:
+
+Note: This is a long-running script. As such, these commands were run using
+'screen' to allow jobs to be submitted and monitored in the background.
+This allows the session to be disconnected and reconnected over time.
+
+Screen ouput detailing the progress of submission of interproscan jobs
+was redirected to a temporary output file named interproscan_submission.log .
+
+```bash
+  screen -a
+    cd /home/groups/harrisonlab/project_files/venturia
+    ProgDir=/home/passet/git_repos/tools/seq_tools/feature_annotation/interproscan
+    for Genes in $(ls gene_pred/final/*/*/final_2018/final_genes_appended_renamed.pep.fasta | grep -w "172_pacbio"); do
+    echo $Genes
+    $ProgDir/sub_interproscan.sh $Genes
+  done 2>&1 | tee -a interproscan_submisison.log
+```
+
+<!--
+Following interproscan annotation split files were combined using the following
+commands:
+
+```bash
+  ProgDir=/home/passet/git_repos/tools/seq_tools/feature_annotation/interproscan
+  for Proteins in $(ls gene_pred/final/v.inaequalis/172_pacbio/final/final_genes_appended_renamed.pep.fasta | grep -w "172_pacbio"); do
+    Strain=$(echo $Proteins | rev | cut -d '/' -f3 | rev)
+    Organism=$(echo $Proteins | rev | cut -d '/' -f4 | rev)
+    echo "$Organism - $Strain"
+    echo $Strain
+    InterProRaw=gene_pred/interproscan/$Organism/$Strain/raw
+    $ProgDir/append_interpro.sh $Proteins $InterProRaw
+  done
+```
+-->
+
+## B) SwissProt
+
+Annotations with SwissProt
+```bash
+  for Proteome in $(ls gene_pred/final/*/*/final_2018/final_genes_appended_renamed.pep.fasta | grep -w "172_pacbio"); do
+    Strain=$(echo $Proteome | rev | cut -f3 -d '/' | rev)
+    Organism=$(echo $Proteome | rev | cut -f4 -d '/' | rev)
+    OutDir=gene_pred/swissprot/$Organism/$Strain
+    SwissDbDir=../../uniprot/swissprot
+    SwissDbName=uniprot_sprot
+    ProgDir=/home/passet/git_repos/tools/seq_tools/feature_annotation/swissprot
+    qsub $ProgDir/sub_swissprot.sh $Proteome $OutDir $SwissDbDir $SwissDbName
+  done
+```
 

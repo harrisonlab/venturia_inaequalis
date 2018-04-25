@@ -107,56 +107,57 @@ Secondly, genes were predicted using CodingQuary:
   done
 ```
 
-<!--
+
 Then, additional transcripts were added to Braker gene models, when CodingQuary
 genes were predicted in regions of the genome, not containing Braker gene
 models:
 
 ```bash
 for BrakerGff in $(ls gene_pred/braker/*/*_braker/2018/*/augustus.gff3); do
-Strain=$(echo $BrakerGff| rev | cut -d '/' -f3 | rev | sed 's/_braker_new//g' | sed 's/_braker_pacbio//g' | sed 's/_braker//g')
-Organism=$(echo $BrakerGff | rev | cut -d '/' -f4 | rev)
-echo "$Organism - $Strain"
-Assembly=$(ls repeat_masked/$Organism/$Strain/filtered_contigs/*_contigs_softmasked_repeatmasker_TPSI_appended.fa)
-CodingQuaryGff=$(ls gene_pred/codingquary/$Organism/$Strain/2018/out/PredictedPass.gff3)
-PGNGff=$(ls gene_pred/codingquary/$Organism/$Strain/2018/out/PGN_predictedPass.gff3)
-AddDir=gene_pred/codingquary/$Organism/$Strain/2018/additional
-FinalDir=gene_pred/final/$Organism/$Strain/final_2018
-AddGenesList=$AddDir/additional_genes.txt
-AddGenesGff=$AddDir/additional_genes.gff
-FinalGff=$AddDir/combined_genes.gff
-mkdir -p $AddDir
-mkdir -p $FinalDir
+  Strain=$(echo $BrakerGff| rev | cut -d '/' -f4 | rev | sed 's/_braker_new//g' | sed 's/_braker_pacbio//g' | sed 's/_braker//g')
+  Organism=$(echo $BrakerGff | rev | cut -d '/' -f5 | rev)
+  echo "$Organism - $Strain"
+  Assembly=$(ls repeat_masked/*/*/filtered_contigs_*/*_contigs_softmasked.fa | grep "172_pacbio")
+  CodingQuaryGff=$(ls gene_pred/codingquary/$Organism/$Strain/2018/out/PredictedPass.gff3)
+  PGNGff=$(ls gene_pred/codingquary/$Organism/$Strain/2018/out/PGN_predictedPass.gff3)
+  AddDir=gene_pred/codingquary/$Organism/$Strain/2018/additional
+  FinalDir=gene_pred/final/$Organism/$Strain/final_2018
+  AddGenesList=$AddDir/additional_genes.txt
+  AddGenesGff=$AddDir/additional_genes.gff
+  FinalGff=$AddDir/combined_genes.gff
+  mkdir -p $AddDir
+  mkdir -p $FinalDir
 
-for x in $CodingQuaryGff $PGNGff; do
-  bedtools intersect -v -a $x -b $BrakerGff | grep 'gene'| cut -f2 -d'=' | cut -f1 -d';'
-done > $AddGenesList
+    for x in $CodingQuaryGff $PGNGff; do
+      bedtools intersect -v -a $x -b $BrakerGff | grep 'gene'| cut -f2 -d'=' | cut -f1 -d';'
+    done > $AddGenesList
 
-for y in $CodingQuaryGff $PGNGff; do
-  ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/feature_annotation
-  $ProgDir/gene_list_to_gff.pl $AddGenesList $y CodingQuarry_v2.0 ID CodingQuary
-done > $AddGenesGff
-ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/codingquary
-# -
-# This section is edited
-$ProgDir/add_CodingQuary_features.pl $AddGenesGff $Assembly > $AddDir/add_genes_CodingQuary_unspliced.gff3
-$ProgDir/correct_CodingQuary_splicing.py --inp_gff $AddDir/add_genes_CodingQuary_unspliced.gff3 > $FinalDir/final_genes_CodingQuary.gff3
-# -
-$ProgDir/gff2fasta.pl $Assembly $FinalDir/final_genes_CodingQuary.gff3 $FinalDir/final_genes_CodingQuary
-cp $BrakerGff $FinalDir/final_genes_Braker.gff3
-$ProgDir/gff2fasta.pl $Assembly $FinalDir/final_genes_Braker.gff3 $FinalDir/final_genes_Braker
-cat $FinalDir/final_genes_Braker.pep.fasta $FinalDir/final_genes_CodingQuary.pep.fasta | sed -r 's/\*/X/g' > $FinalDir/final_genes_combined.pep.fasta
-cat $FinalDir/final_genes_Braker.cdna.fasta $FinalDir/final_genes_CodingQuary.cdna.fasta > $FinalDir/final_genes_combined.cdna.fasta
-cat $FinalDir/final_genes_Braker.gene.fasta $FinalDir/final_genes_CodingQuary.gene.fasta > $FinalDir/final_genes_combined.gene.fasta
-cat $FinalDir/final_genes_Braker.upstream3000.fasta $FinalDir/final_genes_CodingQuary.upstream3000.fasta > $FinalDir/final_genes_combined.upstream3000.fasta
+    for y in $CodingQuaryGff $PGNGff; do
+      ProgDir=/home/passet/git_repos/tools/seq_tools/feature_annotation
+      $ProgDir/gene_list_to_gff.pl $AddGenesList $y CodingQuarry_v2.0 ID CodingQuary
+    done > $AddGenesGff
+  ProgDir=/home/passet/git_repos/tools/gene_prediction/codingquary
+  # -
+  # This section is edited
+  $ProgDir/add_CodingQuary_features.pl $AddGenesGff $Assembly > $AddDir/add_genes_CodingQuary_unspliced.gff3
+  $ProgDir/correct_CodingQuary_splicing.py --inp_gff $AddDir/add_genes_CodingQuary_unspliced.gff3 > $FinalDir/final_genes_CodingQuary.gff3
+  # -
+  $ProgDir/gff2fasta.pl $Assembly $FinalDir/final_genes_CodingQuary.gff3 $FinalDir/final_genes_CodingQuary
+  cp $BrakerGff $FinalDir/final_genes_Braker.gff3
+  $ProgDir/gff2fasta.pl $Assembly $FinalDir/final_genes_Braker.gff3 $FinalDir/final_genes_Braker
+  cat $FinalDir/final_genes_Braker.pep.fasta $FinalDir/final_genes_CodingQuary.pep.fasta | sed -r 's/\*/X/g' > $FinalDir/final_genes_combined.pep.fasta
+  cat $FinalDir/final_genes_Braker.cdna.fasta $FinalDir/final_genes_CodingQuary.cdna.fasta > $FinalDir/final_genes_combined.cdna.fasta
+  cat $FinalDir/final_genes_Braker.gene.fasta $FinalDir/final_genes_CodingQuary.gene.fasta > $FinalDir/final_genes_combined.gene.fasta
+  cat $FinalDir/final_genes_Braker.upstream3000.fasta $FinalDir/final_genes_CodingQuary.upstream3000.fasta > $FinalDir/final_genes_combined.upstream3000.fasta
 
-GffBraker=$FinalDir/final_genes_CodingQuary.gff3
-GffQuary=$FinalDir/final_genes_Braker.gff3
-GffAppended=$FinalDir/final_genes_appended.gff3
-cat $GffBraker $GffQuary > $GffAppended
+  GffBraker=$FinalDir/final_genes_CodingQuary.gff3
+  GffQuary=$FinalDir/final_genes_Braker.gff3
+  GffAppended=$FinalDir/final_genes_appended.gff3
+  cat $GffBraker $GffQuary > $GffAppended
 done
 ```
 
+<!--
 The final number of genes per isolate was observed using:
 ```bash
   for DirPath in $(ls -d gene_pred/final/*/*/final_2018); do

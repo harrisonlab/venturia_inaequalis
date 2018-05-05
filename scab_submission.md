@@ -107,6 +107,9 @@ The genbank submission template tool was used at: http://www.ncbi.nlm.nih.gov/We
 
 These commands were used for the resubmiision of the final submission of the 172_pacbio genome after initial NCBI rejection (see below):
 
+The options -l paired-ends -a r10k inform how to handle runs of Ns in the
+sequence, these options show that paired-ends have been used to estimate gaps
+and that runs of N’s longer than 10 bp should be labelled as gaps.
 
 ```bash
 for Assembly in $(ls repeat_masked/v.*/*/filtered_contigs_repmask/*_contigs_unmasked.fa | grep -w "172_pacbio"); do
@@ -127,7 +130,7 @@ ProgDir="/home/passet/git_repos/tools/genbank_submission"
 InterProTab=$(ls gene_pred/interproscan/$Organism/$Strain/"$Strain"_interproscan.tsv)
 SwissProtBlast=$(ls gene_pred/swissprot/$Organism/$Strain/swissprot_vJul2016_tophit_parsed.tbl)
 SwissProtFasta=$(ls /home/groups/harrisonlab/uniprot/swissprot/uniprot_sprot.fasta)
-GffFile=$(ls gene_pred/final/$Organism/"$Strain"*/final/final_genes_appended_renamed.gff3)
+GffFile=$(ls gene_pred/final/$Organism/"$Strain"*/final_2018/final_genes_appended_renamed.gff3)
 SbtFile=genome_submission/v.inaequalis/172_pacbio/template.sbt
 
 #SRA_metadata=$(ls genome_submission/PRJNA354841_SRA_metadata_acc.txt)
@@ -140,7 +143,7 @@ SubmissionID="SUB2310658"
 LocusTag="Vi05172"
 LabID="harrisonlab"
 # Final submisison file name:
-FinalName="$Organism"_"$Strain"_Passey_Jan_2018
+FinalName="$Organism"_"$Strain"_Passey_May_2018
 
 python3 $AnnieDir/annie.py -ipr $InterProTab -g $GffFile -b $SwissProtBlast -db $SwissProtFasta -o $OutDir/annie_output.csv --fix_bad_products
 $ProgDir/edit_tbl_file/annie_corrector.py --inp_csv $OutDir/annie_output.csv --out_csv $OutDir/annie_corrected_output.csv
@@ -162,7 +165,7 @@ $ProgDir/edit_tbl_file/ncbi_tbl_corrector.py --inp_tbl $OutDir/gag/round1/genome
 
 printf "StructuredCommentPrefix\t##Genome-Annotation-Data-START##
 Annotation Provider\tHarrison Lab NIAB-EMR
-Annotation Date\tJan-2018
+Annotation Date\tMay-2018
 Annotation Version\tRelease 1.01
 Annotation Method\tAb initio gene prediction: Braker 1.9 and CodingQuary 2.0; Functional annotation: Swissprot (July 2016 release) and Interproscan 5.18-57.0" \
 > $OutDir/gag/edited/annotation_methods.strcmt.txt
@@ -174,9 +177,11 @@ sed -i 's/, mitochondrial//g' $OutDir/gag/edited/genome.tbl
 cp $Assembly $OutDir/gag/edited/genome.fsa
 cp $SbtFile $OutDir/gag/edited/genome.sbt
 mkdir $OutDir/tbl2asn/final
-tbl2asn -p $OutDir/gag/edited/. -t $OutDir/gag/edited/genome.sbt -r $OutDir/tbl2asn/final -M n -X E -Z $OutDir/tbl2asn/final/discrep.txt -j "[organism=$OrganismOfficial] [strain=$StrainOfficial]" -l paired-ends -a r10k -w $OutDir/gag/edited/annotation_methods.strcmt.txt
-cat $OutDir/tbl2asn/final/genome.sqn | sed 's/_pilon//g' | sed 's/title "Saccharopine dehydrogenase.*/title "Saccharopine dehydrogenase/g' | sed 's/"Saccharopine dehydrogenase.*"/"Saccharopine dehydrogenase"/g' > $OutDir/tbl2asn/final/$FinalName.sqn
-	done
+
+
+tbl2asn -p $OutDir/gag/edited/. -t $OutDir/gag/edited/genome.sbt -r $OutDir/tbl2asn/final -M n -X E -Z $OutDir/tbl2asn/final/discrep.txt -j "[organism=$Organism] [strain=$Strain]" -l paired-ends -a r10k -w $OutDir/gag/edited/annotation_methods.strcmt.txt
+cat $OutDir/tbl2asn/final/genome.sqn | sed 's/_pilon//g' | sed 's/title " \[NAD\S*\w/title "Saccharopine dehydrogenase/g' | sed 's/" \[NAD\S*\w"/"Saccharopine dehydrogenase"/g' > $OutDir/tbl2asn/final/$FinalName.sqn
+done
 ```
 <!-- 
 ```bash

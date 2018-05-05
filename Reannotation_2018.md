@@ -238,7 +238,7 @@ commands:
 
 ```bash
   ProgDir=/home/passet/git_repos/tools/seq_tools/feature_annotation/interproscan
-  for Proteins in $(ls gene_pred/final/v.inaequalis/172_pacbio/final/final_genes_appended_renamed.pep.fasta | grep -w "172_pacbio"); do
+  for Proteins in $(ls gene_pred/final/v.inaequalis/172_pacbio/final_2018/final_genes_appended_renamed.pep.fasta | grep -w "172_pacbio"); do
     Strain=$(echo $Proteins | rev | cut -d '/' -f3 | rev)
     Organism=$(echo $Proteins | rev | cut -d '/' -f4 | rev)
     echo "$Organism - $Strain"

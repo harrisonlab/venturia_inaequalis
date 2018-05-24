@@ -99,7 +99,9 @@ done
 
 Due to re-assembly of genome for submission to NCBI need to re-run the annotation of VCF files.
 
-## Collect input files
+## Build new genome database
+
+### Collect input files
 
 ```bash
 Reference=$(ls repeat_masked/v.inaequalis/172_pacbio/filtered_contigs_repmask/172_pacbio_contigs_unmasked.fa)
@@ -111,12 +113,12 @@ cp $Gff $SnpEff/data/172_pacbiov1.0/genes.gff
 mkdir SNP_calling/2018
 ```
 
-## Build database using GFF3 annotation
+### Build database using GFF3 annotation
 ```bash
 java -jar $SnpEff/snpEff.jar build -gff3 -v 172_pacbiov1.0
 ```
 
-## Annotate VCF files
+### Annotate VCF files
 
 ```bash
 for a in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_*_filtered.recode.vcf); do
@@ -129,7 +131,6 @@ for a in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_*_filtered.reco
     mv *_filtered* SNP_calling/2018/.
 done
 ```
-
 
 
 
@@ -187,3 +188,36 @@ scripts=/home/sobczm/bin/popgen/summary_stats
 input=/home/sobczm/popgen/snp/sv_calling
 python $scripts/vcf_find_difference_pop.py --vcf $input/vinequalis/vinequalis_struc_variants.vcf --out SNP_calling/Ash_farm_struc_variants_fixed.vcf --ply 1 --pop1 202,,182,,173,,190,,172,,197,,196,,049 --pop2 024,,030,,007,,025,,044,,199 --thr 0.95
 -->
+
+# 2018 re-annotation SNPs in genes and non-synonymous
+
+```bash
+input=SNP_calling/2018
+scripts=/home/passet/git_repos/scripts/popgen
+
+cp /home/sobczm/bin/snpEff/data/172_pacbiov1.0 $input
+cp /home/groups/harrisonlab/project_files/venturia/SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed.vcf $input
+
+cd $input
+#Annotate the file with fixed SNPs to filter out only non-synonymous variants
+$scripts/summary_stats/annotate_snps_genome.sh Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed.vcf 172_pacbiov1.0
+
+mkdir vcf_files
+mv *.vcf vcf_files
+
+cd ../..
+
+#Prefilter the GFF files for different classes of genes to only keep lines showing gene annotation, and not individual exons etc.
+awk '$3=="gene"' gene_pred/final/v.inaequalis/172_pacbio/final_2018/final_genes_appended_renamed.gff3 >$input/final_genes_appended_renamed_gene.gff
+
+#Simple intersect of different classes of genes with fixed SNPs and SVs.
+#
+for vcf_file in $input/vcf_files/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_gene.vcf $input/vcf_files/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_coding.vcf $input/vcf_files/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_nonsyn.vcf
+do
+for gff_file in $input/final_genes_appended_renamed_gene.gff 
+do
+vcf=$(basename $vcf_file)
+intersectBed -wb -a $vcf_file -b $gff_file > ${gff_file}_${vcf%.vcf}_overlap
+done
+done 
+```

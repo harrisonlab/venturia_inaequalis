@@ -908,6 +908,16 @@ grep -w 'contig_1' SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtere
 ```
 
 
+## Need to re-run those files involoving SNPS in genes and non-synonymous
+
+```bash
+sed '1,275d' SNP_calling/2018/vcf_files/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_gene.vcf > SNP_calling/2018/vcf_files/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_gene_onlysnps.vcf
+```
+
+```bash
+sed '1,275d' SNP_calling/2018/vcf_files/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_nonsyn.vcf > SNP_calling/2018/vcf_files/Ash_farm_172_pacbio_contigs_unmasked_3_bw_filtered_fixed_nonsyn_onlysnps.vcf
+```
+
 ## Code into binary where a SNP is present compared to another file, i.e. when a fixed SNP occurs at a position code 1 at all other positions code 0, for use in Run test
 
 For all fixed SNPs in all SNPs in Bramley and Worcester isolates

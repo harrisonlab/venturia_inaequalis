@@ -53,7 +53,7 @@ P414v1.0.genome: 414
 172_pacbiov1.0.genome: 172_pacbio
 ```
 
-# Collect input files
+## Collect input files
 
 ```bash
 Reference=$(ls repeat_masked/v.inaequalis/172_pacbio/filtered_contigs_repmask/172_pacbio_contigs_unmasked.fa)
@@ -64,12 +64,12 @@ cp $Reference $SnpEff/data/172_pacbiov1.0/sequences.fa
 cp $Gff $SnpEff/data/172_pacbiov1.0/genes.gff
 ```
 
-# Build database using GFF3 annotation
+## Build database using GFF3 annotation
 ```bash
 java -jar $SnpEff/snpEff.jar build -gff3 -v 172_pacbiov1.0
 ```
 
-## Annotate VCF files
+### Annotate VCF files
 
 ```bash
 for a in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_*_filtered.recode.vcf); do
@@ -94,6 +94,44 @@ for a in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_*_filtered.reco
     mv *_filtered* SNP_calling/.
 done
 ```
+
+# 2018 Assembly re-run
+
+Due to re-assembly of genome for submission to NCBI need to re-run the annotation of VCF files.
+
+## Collect input files
+
+```bash
+Reference=$(ls repeat_masked/v.inaequalis/172_pacbio/filtered_contigs_repmask/172_pacbio_contigs_unmasked.fa)
+Gff=$(ls gene_pred/final/v.inaequalis/172_pacbio/final_2018/final_genes_appended_renamed.gff3)
+SnpEff=/home/sobczm/bin/snpEff
+mkdir $SnpEff/data/172_pacbiov1.0
+cp $Reference $SnpEff/data/172_pacbiov1.0/sequences.fa
+cp $Gff $SnpEff/data/172_pacbiov1.0/genes.gff
+mkdir SNP_calling/2018
+```
+
+## Build database using GFF3 annotation
+```bash
+java -jar $SnpEff/snpEff.jar build -gff3 -v 172_pacbiov1.0
+```
+
+## Annotate VCF files
+
+```bash
+for a in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_*_filtered.recode.vcf); do
+    echo $a
+    filename=$(basename "$a")
+    SnpEff=/home/sobczm/bin/snpEff
+    java -Xmx4g -jar $SnpEff/snpEff.jar -v -ud 0 172_pacbiov1.0 $a > ${filename%.vcf}_annotated.vcf
+    mv snpEff_genes.txt SNP_calling/snpEff_genes_${filename%.vcf}.txt
+    mv snpEff_summary.html SNP_calling/snpEff_summary_${filename%.vcf}.html
+    mv *_filtered* SNP_calling/2018/.
+done
+```
+
+
+
 
 <!--
 ```bash

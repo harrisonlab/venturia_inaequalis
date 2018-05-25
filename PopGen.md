@@ -546,6 +546,14 @@ Rscript --vanilla $scripts/pca.R SNP_calling/Ash_farm_172_pacbio_contigs_unmaske
 
 ```
 
+Create R plot but with sample cultivar identifier and same scale on both axis
+
+```bash
+scripts=/home/passet/git_repos/scripts/popgen/snp
+
+Rscript --vanilla $scripts/pca_axis_scale.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_label.vcf
+
+```
 
 ### Calculate an NJ tree based on all the SNPs. Outputs a basic diplay of the tree, plus a Newick file to be used for displaying the tree in FigTree and beautifying it.
 

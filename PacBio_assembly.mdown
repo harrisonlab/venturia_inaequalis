@@ -481,6 +481,41 @@ The number of bases masked by TransposonPSI:    10254
 The total number of masked bases are:   Differing number of GFF fields encountered at line: 34454. 
 
 
+## Proportion of Transposable elements
+
+Genome announcement review wanted to know proportion of repeatmasked due to TEs
+
+```bash
+for RepDir in $(ls -d repeat_masked/v.*/172_pacbio/*); do
+Strain=$(echo $RepDir | rev | cut -f2 -d '/' | rev)
+Organism=$(echo $RepDir | rev | cut -f3 -d '/' | rev)  
+RepMaskGff=$(ls $RepDir/172_pacbio_contigs_transposonmasked.gff)
+TransPSIGff=$(ls $RepDir/*_contigs_unmasked.fa.TPSI.allHits)
+printf "$Organism\t$Strain\n"
+printf "The number of bases masked by RepeatMasker:\t"
+sortBed -i $RepMaskGff | bedtools merge | awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}'
+printf "The number of bases masked by TransposonPSI:\t"
+sortBed -i $TransPSIGff | bedtools merge | awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}'
+printf "The total number of masked bases are:\t"
+cat $RepMaskGff $TransPSIGff | sortBed | bedtools merge | awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}'
+echo
+done
+  ```
+
+
+v.inaequalis    172_pacbio
+The number of bases masked by RepeatMasker:     33537704
+The number of bases masked by TransposonPSI:    10254
+The total number of masked bases are:   Differing number of GFF fields encountered at line: 21779.  Exiting...
+0
+
+v.inaequalis    172_pacbio
+The number of bases masked by RepeatMasker:     33733448
+The number of bases masked by TransposonPSI:    10254
+The total number of masked bases are:   Differing number of GFF fields encountered at line: 23362.  Exiting...
+0
+
+
 # Gene Prediction
 
 

@@ -211,8 +211,61 @@ scripts=home/passet/git_repos/scripts/popgen/snp
 	do
 		mv "$filename" "saturn_$filename"
 	done
-
 ```
+
+
+### Calculate read coverage over each contig
+
+This wasnt required for SNP calling, but important for reporting alignment statistics
+```bash
+for Bam in $(ls alignment/bowtie/v.inaequalis/*/vs_172_PacBio/*aligned_sorted.bam); do
+	Strain=$(echo $Bam | rev | cut -f3 -d '/' | rev)
+	Organism=$(echo $Bam | rev | cut -f4 -d '/' | rev)
+	Subject=$(echo $Bam | rev | cut -f2 -d '/' | rev)
+	echo "$Organism - $Strain"
+	# OutDir=$(dirname $Bam)
+	OutDir=/data/scratch/armita/venturia/$(dirname $Bam)
+	mkdir -p $OutDir
+	samtools depth -aa $Bam > $OutDir/${Organism}_${Strain}_${Subject}_depth.tsv
+	ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/genome_alignment/coverage_analysis
+	$ProgDir/cov_by_window.py --cov $OutDir/${Organism}_${Strain}_${Subject}_depth.tsv > $OutDir/${Organism}_${Strain}_${Subject}_depth_10kb.tsv
+	sed -i "s/$/\t$Strain/g" $OutDir/${Organism}_${Strain}_${Subject}_depth_10kb.tsv
+done
+OutDir=/data/scratch/armita/venturia/analysis/genome_alignment/bowtie/grouped
+mkdir -p $OutDir
+cat /data/scratch/armita/venturia/analysis/genome_alignment/bowtie/*/*/*_${Subject}_unmasked/*_*_${Subject}_depth_10kb.tsv > analysis/genome_alignment/bowtie/grouped/vs_12008_grouped_depth.tsv
+
+
+for Cov in $(ls /data/scratch/armita/venturia/alignment/bowtie/v.inaequalis/*/vs_172_PacBio/v.inaequalis_*_vs_172_PacBio_depth.tsv); do
+	echo $(basename $Cov)
+	echo "Total Depth"
+	cat $Cov | cut -f3 | sort | uniq -c | sort -nr | head -n10
+	echo "Depth per 10 kb"
+	cat $Cov | cut -f3 | sort | uniq -c | sort -nr | head -n5
+	echo ""
+done > /data/scratch/armita/venturia/analysis/genome_alignment/bowtie/grouped/summary_depth.txt
+
+mkdir /data/scratch/armita/venturia/alignment/bowtie/v.inaequalis/coverage
+cp -s /data/scratch/armita/venturia/alignment/bowtie/v.inaequalis/*/vs_172_PacBio/v.inaequalis_*_vs_172_PacBio_depth.tsv /data/scratch/armita/venturia/alignment/bowtie/v.inaequalis/coverage
+
+R
+# df0 <- data.frame()
+files <- list.files(path="/data/scratch/armita/venturia/alignment/bowtie/v.inaequalis/coverage", pattern="*_vs_172_PacBio_depth.tsv", full.names=TRUE, recursive=FALSE)
+lapply(files, function(x) {
+		out <- gsub("_PacBio_depth.tsv", "_PacBio_median.txt", x)
+    t <- read.table(x, header=FALSE, sep="\t") # load file
+		m1 <- median(t$V3)
+		t2 <- subset(t, V3!=0)
+		m2 <- median(t2$V3)
+		# df1 <- df0
+		df2 <- data.frame(x, m1, m2)
+		write.table(df2, out, sep="\t", quote=FALSE, row.names=FALSE, col.names=TRUE)
+		# df0 <- rbind(df1, df2)
+})
+# write.table(df0, "/data/scratch/armita/venturia/alignment/bowtie/v.inaequalis/coverage/summarised_cov.tsv", sep="\t", quote=FALSE, row.names=FALSE, col.names=TRUE)
+```
+
+
 ### Remove multimapping reads, discordant reads. PCR and optical duplicates, and add read group and sample name to each mapped read (preferably, the shortest ID possible)
 
 Checked with one isolate first
@@ -245,7 +298,7 @@ Ran cleanup of rest of alignments
 ```
 Copy cleanup outputs into alignment folders
 ```bash
-	for Isolate in 007 024 025 030 036 044 049 057 083 096 097 098 101 106 118 119 172 173 182 190 196 197 199 202 saturn 
+	for Isolate in 007 024 025 030 036 044 049 057 083 096 097 098 101 106 118 119 172 173 182 190 196 197 199 202 saturn
 	do
 		Bam="$Isolate"_172_pacbio_contigs_unmasked.fa_aligned_nomulti_proper_sorted_nodup_rg.bam
 		Bai="$Isolate"_172_pacbio_contigs_unmasked.fa_aligned_nomulti_proper_sorted_nodup_rg.bam.bai
@@ -256,24 +309,27 @@ Copy cleanup outputs into alignment folders
 		mv $Txt $Directory
 	done
 ```
+
 ## SNP calling
 Run a SNP calling script developed by Maria
 
 To change in each analysis:
 
+```bash
 input=/home/groups/harrisonlab/project_files/venturia/alignment/bowtie
 reference=/home/groups/harrisonlab/project_files/venturia/repeat_masked/v.inaequalis/172_pacbio/filtered_contigs_repmask/172_pacbio_contigs_unmasked.fa
 
 
 filename=$(basename "$reference")
 output="${filename%.*}.dict"
+```
 
 ### Prepare genome reference indexes required by GATK
 ```bash
 java -jar /home/sobczm/bin/picard-tools-2.5.0/picard.jar CreateSequenceDictionary R=$reference O=$input/$output
 samtools faidx $reference
 ```
-.dict file saved in wrong place 
+.dict file saved in wrong place
 ```bash
 cp alignment/bowtie/172_pacbio_contigs_unmasked.dict repeat_masked/v.inaequalis/172_pacbio/filtered_contigs_repmask/
 ```
@@ -281,7 +337,7 @@ cp alignment/bowtie/172_pacbio_contigs_unmasked.dict repeat_masked/v.inaequalis/
 Copy index file to same folder as BAM alignments
 
 ```bash
-for Isolate in 007 024 025 030 036 044 049 057 083 096 097 098 101 106 118 119 172 173 182 190 196 197 199 202 saturn 
+for Isolate in 007 024 025 030 036 044 049 057 083 096 097 098 101 106 118 119 172 173 182 190 196 197 199 202 saturn
 	do
     Index=repeat_masked/v.inaequalis/172_pacbio/filtered_contigs_repmask/172_pacbio_contigs_unmasked.fa.fai
     Directory=alignment/bowtie/*/$Isolate/vs_172_PacBio/
@@ -309,7 +365,7 @@ qsub $scripts/sub_SNP_calling_multithreaded.sh
 
 
 ### Removal of Isolates for analysis
-Want to be able to run analysis without: 
+Want to be able to run analysis without:
 Isolate 036 due to poor quality of sequencing (due to initial low library concentration on to MiSeq)
 Saturn isolate as not from the same orchard (and therefore not currently of interest)
 
@@ -342,7 +398,7 @@ $vcflib/vcfremovesamples SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2.vcf 
 
 ### Only retain biallelic high-quality SNPS with no missing data for genetic analyses.
 ```bash
-	for vcf in $(ls SNP_calling/*_contigs_unmasked.vcf) 
+	for vcf in $(ls SNP_calling/*_contigs_unmasked.vcf)
 	do
 		echo $vcf
 		script=/home/passet/git_repos/scripts/popgen/snp
@@ -351,7 +407,7 @@ $vcflib/vcfremovesamples SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2.vcf 
 ```
 Repeated on revised Ash Farm only
 ```bash
-	for vcf in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.vcf) 
+	for vcf in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked.vcf)
 	do
 		echo $vcf
 		script=/home/passet/git_repos/scripts/popgen/snp
@@ -360,7 +416,7 @@ Repeated on revised Ash Farm only
 ```
 
 ```bash
-	for vcf in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2.vcf) 
+	for vcf in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2.vcf)
 	do
 		echo $vcf
 		script=/home/passet/git_repos/scripts/popgen/snp
@@ -370,7 +426,7 @@ Repeated on revised Ash Farm only
 
 Repeated for 21 isolate group
 ```bash
-	for vcf in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3.vcf) 
+	for vcf in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3.vcf)
 	do
 		echo $vcf
 		script=/home/passet/git_repos/scripts/popgen/snp
@@ -510,17 +566,17 @@ For the 21 isolate group
 ```
 
 
-Using R version 3.2.2 installed locally: 
+Using R version 3.2.2 installed locally:
 ```bash
 export PATH=/home/armita/prog/R/R-3.2.2/bin:${PATH}
-``` 
-And libraries stored in 
+```
+And libraries stored in
 ```bash
 export R_LIBS=/home/sobczm/R/x86_64-pc-linux-gnu-library/3.2:$R_LIBS
 ```
 
 Visualise the output as heatmap and clustering dendrogram
-```bash 
+```bash
 scripts=/home/passet/git_repos/scripts/popgen/snp
 Rscript --vanilla $scripts/distance_matrix.R SNP_calling/172_pacbio_contigs_unmasked_filtered_distance.log
 
@@ -758,7 +814,7 @@ qsub $scripts/sub_plot_ld.sh ld.Ash_farm_BvW
 ```
 
 <!--
-Repeated with isolates from Bramley and Worcester as above but removed 049 and 199 as they group to the opposite population and 057 due to poor sequencing of isolate (Therefore only 5 Bramley isolates remain and 7 Worcester) 
+Repeated with isolates from Bramley and Worcester as above but removed 049 and 199 as they group to the opposite population and 057 due to poor sequencing of isolate (Therefore only 5 Bramley isolates remain and 7 Worcester)
 
 ```bash
 $vcftools/vcftools --vcf Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf \
@@ -810,11 +866,11 @@ mkdir LD_analysis
 mv ld.* LD_analysis/
 ```
 
-Using R version 3.2.2 installed locally: 
+Using R version 3.2.2 installed locally:
 ```bash
 export PATH=/home/armita/prog/R/R-3.2.2/bin:${PATH}
-``` 
-And libraries stored in 
+```
+And libraries stored in
 ```bash
 export R_LIBS=/home/sobczm/R/x86_64-pc-linux-gnu-library/3.2:$R_LIBS
 ```

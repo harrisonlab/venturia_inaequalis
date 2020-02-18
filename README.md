@@ -114,7 +114,7 @@ sequences and remove poor quality data. This was done with fastq-mcf
 Trimming was performed on all isolates:
 
 ```bash
-	for StrainPath in $(ls -d raw_dna/paired/*/*); 
+	for StrainPath in $(ls -d raw_dna/paired/*/*);
 		do
 		ProgDir=/home/passet/git_repos/tools/seq_tools/rna_qc
 		IlluminaAdapters=/home/passet/git_repos/tools/seq_tools/ncbi_adapters.fa
@@ -177,7 +177,7 @@ The estimated genome size is:  69351314
 The mode kmer abundance is:  24
 The estimated genome size is:  64520872
 036_true_kmer_summary.txt
-The mode kmer abundance is:  5 
+The mode kmer abundance is:  5
 The estimated genome size is:  35589866
 044_true_kmer_summary.txt
 The mode kmer abundance is:  5 (30)
@@ -324,11 +324,11 @@ Contigs were renamed in accordance with ncbi recomendations.
 # Summary of assemblies
 
 ```bash
-	for File in $(ls assembly/spades/*/*/filtered_contigs/report.tsv); do 
-		Organism=$(echo $File | rev |cut -f4 -d '/' | rev) 
+	for File in $(ls assembly/spades/*/*/filtered_contigs/report.tsv); do
+		Organism=$(echo $File | rev |cut -f4 -d '/' | rev)
 		Strain=$(echo $File | rev |cut -f3 -d '/' | rev)
 		echo $Organism > tmp_"$Strain".txt
-		echo $Strain >> tmp_"$Strain".txt 
+		echo $Strain >> tmp_"$Strain".txt
 		cat $File | tail -n+2 | cut -f2 >> tmp_"$Strain".txt
 	done
 	paste tmp*.txt > assembly/spades/assembly_summary.tsv
@@ -370,8 +370,10 @@ using the following commands:
 		]echo
 	]done
 ```
+
 Results of bases masked by repeatmasker
-'''
+
+```
 v.inaequalis    007
 The number of bases masked by RepeatMasker:     34407509
 The number of bases masked by TransposonPSI:    0
@@ -500,7 +502,7 @@ The total number of masked bases are:   31550846
 
 # RNA-seq data download
 
-Dowloaded Thakur et al RNA-seq data from NCBI 
+Dowloaded Thakur et al RNA-seq data from NCBI
 
 prefetch -o raw_rna/unpaired/v.inaequalis SRR2164202
 fastq-dump -O raw_rna/unpaired/v.inaequalis SRR2164202
@@ -781,7 +783,7 @@ Note - cufflinks doesn't always predict direction of a transcript and
 therefore features can not be restricted by strand when they are intersected.
 
 ```bash
-	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa); do 
+	for Assembly in $(ls repeat_masked/*/*/*/*_contigs_unmasked.fa); do
 			Jobs=$(qstat | grep 'sub_cu' | grep 'qw' | wc -l)
 			while [ $Jobs -gt 1 ]; do
 			sleep 10
@@ -1081,7 +1083,7 @@ gene models using a number of approaches:
 
  * A) From Augustus gene models - Identifying secreted proteins
  * B) From Augustus gene models - Effector identification using EffectorP
- 
+
 ### A) From Augustus gene models - Identifying secreted proteins
 
 Required programs:

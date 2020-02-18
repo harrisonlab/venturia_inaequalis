@@ -491,6 +491,24 @@ mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.log S
 mv SNP_callingAsh_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered_thinned_1000.recode.vcf
 ```
 
+```
+This kept ~26000 of ~914000 variants
+```
+
+<!--
+```bash
+qlogin
+cd /projects/oldhome/groups/harrisonlab/project_files/venturia
+vcftools=/home/sobczm/bin/vcftools/bin
+$vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3.vcf --max-missing 1 --remove-indels --recode --out SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_no-missing
+```
+
+```
+After filtering, kept 526661 out of a possible 914651 Sites
+Run Time = 64.00 seconds
+```
+-->
+
 Ran thinning to 1 SNP per 1000 bp on 21 isolate group
 
 ```bash
@@ -586,7 +604,16 @@ Rscript --vanilla $scripts/distance_matrix.R SNP_calling/Ash_farm_172_pacbio_con
 
 Rscript --vanilla $scripts/distance_matrix.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_distance.log
 ```
+<!--
+Final plot for publication:
+```bash
+ProgDir=/projects/oldhome/armita/git_repos/emr_repos/scripts/venturia_inaequalis
+Rscript --vanilla $ProgDir/plot_SNP_distance_matrix.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_distance.log
+``` -->
 
+The final distance plot used for publication was made after filtering the vcf
+file to remove any missing data, including where it was present for a single
+isolate. These commands are documented below.
 
 ### Carry out PCA and plot the results
 ```bash
@@ -623,20 +650,136 @@ No tree produced above as no missing data allowed
 
 
 Need to filter SNPs to retain those with no missing data in any individual
-```bash
+<!-- ```bash
 scripts=/home/sobczm/bin/popgen/snp
 qsub $scripts/sub_vcf_parser.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_2_filtered.vcf 40 30 10 30 1 Y
 ```
 
-And for final 21 isolates:
-```bash
-scripts=/home/passet/git_repos/scripts/popgen/snp
+And for final 21 isolates: -->
+<!-- ```bash
+scripts=/home/armita/git_repos/emr_repos/scripts/popgen/snp
 qsub $scripts/sub_vcf_parser.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf 40 30 10 30 1 Y
+``` -->
+
+This was performed for the final set of 21 isolates.
+
+```bash
+	vcftools=/home/sobczm/bin/vcftools/bin
+	$vcftools/vcftools --vcf SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf --max-missing 1 --remove-indels --recode --out SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_no-missing
 ```
+
+The final similarity matrix was made from this vcf file:
+
+```bash
+for vcf in $(ls SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3*_no-missing.recode.vcf); do
+scripts=/home/passet/git_repos/scripts/popgen/snp
+$scripts/similarity_percentage.py $vcf
+done
+```
+
+Final plot for publication:
+
+```bash
+ProgDir=/projects/oldhome/armita/git_repos/emr_repos/scripts/venturia_inaequalis
+# Rscript --vanilla $ProgDir/plot_SNP_distance_matrix.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_no-missing.recode_distance.log
+Rscript --vanilla $ProgDir/plot_SNP_distance_matrix.R SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_no-missing.recode_distance.log
+```
+
+
 
 ```bash
 scripts=/home/passet/git_repos/scripts/popgen/snp
-$scripts/nj_tree.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf 1
+# $scripts/nj_tree.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered.vcf 1
+# $scripts/nj_tree.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_no-missing.recode.vcf 1
+$scripts/nj_tree.sh SNP_calling/Ash_farm_172_pacbio_contigs_unmasked_3_no-missing.recode.vcf 1
+```
+
+Run the following from Rstudio on my local computer:
+
+```r
+setwd("/Users/armita/Downloads/scab")
+#===============================================================================
+#       Load libraries
+#===============================================================================
+
+library(ape)
+library(ggplot2)
+
+library(ggtree)
+library(phangorn)
+library(treeio)
+
+t <- read.tree("/Users/armita/Downloads/scab/Ash_farm_172_pacbio_contigs_unmasked_3_filtered_no-missing.recode_nj.nwk")
+layout(matrix(1:4, 2, 2))
+ape::plot.phylo(t, type = "unrooted")
+ape::plot.phylo(t, type = "unrooted", use.edge.length = FALSE)
+ape::plot.phylo(t, type = "fan")
+ape::plot.phylo(t, type = "fan", use.edge.length = FALSE)
+layout(matrix(1))
+
+p1 <- ggtree(t, layout="unrooted") + geom_tiplab()
+p2 <- ggtree(t, layout="unrooted", branch.length="none") + geom_tiplab()
+p3 <- ggtree(t, layout="circular") + geom_tiplab2()
+p4 <- ggtree(t, layout="circular", branch.length="none") + geom_tiplab2()
+multiplot(p1, p2, p3, p4, ncol = 2)
+
+ggtree(t, layout="circular") + geom_tiplab2(aes(angle=angle), color='blue')
+
+# show node labels
+p3 + geom_text(aes(label=node))
+
+# Format nodes by values
+nodes <- data.frame(p3$data)
+nodes$label <- as.numeric(nodes$label)
+as.numeric(nodes$label)
+nodes$support[nodes$isTip] <- '≥ 80%'
+nodes$support[(!nodes$isTip) & (nodes$label > 80)] <- '≥ 80%'
+nodes$support[(!nodes$isTip) & (nodes$label < 80)] <- '< 80%'
+nodes$support[(!nodes$isTip) & (nodes$label == '')] <- '≥ 80%'
+p5 <- p3 + aes(linetype=nodes$support)
+nodes$label[nodes$label > 80] <- ''
+p5 <- p5 + geom_nodelab(data=nodes, size=3, hjust=-0.05)
+hilight(node=21, fill="steelblue", alpha=.6)
+
+p3 + geom_hilight(node=30, fill="steelblue", alpha=.6)
+
+nodes$support <- factor(nodes$support, levels = c("≥ 80%", '< 80%'))
+
+support <- nodes$support
+
+cls <- list(cox=c("106", "083", "101", "098", "097", "119", "096"),
+            bramley=c("030", "024", "007", "025", "044", "199"),
+            worcester=c("172", "182", "202", "173", "049", "197", "190", "196")
+            )
+
+t <- groupOTU(t, cls)
+
+
+
+
+library(RColorBrewer)
+cols <- brewer.pal(3, "Set2")
+p6 <- ggtree(t, layout="circular", aes(color=group)) + geom_tiplab2(offset=+0.01) + scale_color_manual(values=brewer.pal(3, "Dark2")) + theme(legend.position="right") + aes(linetype=support)
+
+# Format nodes by values
+nodes2 <- data.frame(p6$data)
+nodes2$label <- as.numeric(nodes2$label)
+as.numeric(nodes2$label)
+nodes2$support[nodes2$isTip] <- '≥ 80%'
+nodes2$support[(!nodes2$isTip) & (nodes2$label > 80)] <- '≥ 80%'
+nodes2$support[(!nodes2$isTip) & (nodes2$label < 80)] <- '< 80%'
+nodes2$support[(!nodes2$isTip) & (nodes2$label == '')] <- '≥ 80%'
+nodes2$label[nodes2$label > 80] <- ''
+
+nodes2$support <- factor(nodes2$support, levels = c("≥ 80%", '< 80%'))
+
+support <- nodes2$support
+
+p6 <- p6 + geom_nodelab(data=nodes2, size=2.5, nudge_x=+0.005)
+
+ggsave("final_tree_support.pdf", p6)
+ggsave("final_tree_support.tiff", p6)
+
 ```
 
 <!--
